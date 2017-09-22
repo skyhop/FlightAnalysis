@@ -43,6 +43,7 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
             }
         }
 
+        // ToDo: Make the time periods used in this function configurable from the options class. (Context.Options)
         private void TimingChecks(DateTime currentTimeStamp)
         {
             if (Context.LatestTimeStamp == DateTime.MinValue) Context.LatestTimeStamp = currentTimeStamp;

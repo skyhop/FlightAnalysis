@@ -9,7 +9,7 @@ namespace Boerman.Aeronautics.FlightAnalyis.Tests
         [TestMethod]
         public void TestFlightFactory()
         {
-            var ff = FlightContextFactory.Instance;
+            var ff = new FlightContextFactory();
             
             // ToDo: Verify that all the data is being processed correctly.
 

@@ -13,26 +13,18 @@ namespace Boerman.Aeronautics.FlightAnalysis
     /// </summary>
     public class FlightContextFactory
     {
-        /// <summary>
-        /// Retrieves the instance of the FlightContextFactory
-        /// </summary>
-        public static FlightContextFactory Instance => Lazy.Value;
-
-        private static readonly Lazy<FlightContextFactory> Lazy =
-            new Lazy<FlightContextFactory>(() => new FlightContextFactory());
-
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
         
-        private readonly Options _options;
+        internal readonly Options Options;
         
         /// <summary>
         /// The constructor for the FlightContextFactory.
         /// </summary>
         /// <param name="options"></param>
-        private FlightContextFactory(Options options = null)
+        public FlightContextFactory(Options options = null)
         {
-            _options = options;
+            Options = options;
 
             // Start a timer to remove outtimed context instances.
             new Timer
@@ -46,7 +38,7 @@ namespace Boerman.Aeronautics.FlightAnalysis
         {
             var contextsToRemove =
                 _flightContextDictionary
-                    .Where( q => q.Value.LastActive < DateTime.UtcNow.Add(-_options.ContextExpiration))
+                    .Where( q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
                     .Select(q => q.Key);
 
             foreach (var contextId in contextsToRemove)
@@ -107,24 +99,21 @@ namespace Boerman.Aeronautics.FlightAnalysis
         }
 
         /// <summary>
-        /// The OnTakeoff event will fire once a takeoff is detected. For further information check the sender object
-        /// which is of the FlightContext type. Please note that the events from individual FlightContext instances 
-        /// will be propagated through this event handler.
+        /// The OnTakeoff event will fire once a takeoff is detected. Please note that the events from individual 
+        /// FlightContext instances will be propagated through this event handler.
         /// </summary>
         public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
         /// <summary>
-        /// The OnLanding event will fire once a landing is detected. For further information check the sender object
-        /// which is of the FlightContext type. Please note that the events from individual FlightContext instances
-        /// will be propagated through this event handler.
+        /// The OnLanding event will fire once a landing is detected. Please note that the events from individual 
+        /// FlightContext instances will be propagated through this event handler.
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
 
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
-        /// been detected. (For example destination airfield could not be found) For further information check the
-        /// sender object which is of the FlightContext type. Please note that events from individual FlightContext
-        /// instances will be propagated through this event handler.
+        /// been detected (For example destination airfield could not be found). Please note that events from 
+        /// individual FlightContext instances will be propagated through this event handler.
         /// </summary>
         public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
 

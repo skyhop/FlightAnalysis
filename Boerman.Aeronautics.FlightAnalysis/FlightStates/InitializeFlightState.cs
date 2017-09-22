@@ -24,7 +24,6 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                 Aircraft = Context.AircraftId,
                 PositionUpdates = new List<PositionUpdate>()
             };
-
         }
     }
 }
