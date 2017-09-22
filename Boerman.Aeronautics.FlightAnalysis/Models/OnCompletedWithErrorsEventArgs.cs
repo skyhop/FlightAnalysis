@@ -1,8 +1,8 @@
 ﻿namespace Boerman.Aeronautics.FlightAnalysis.Models
 {
-    public class OnLandingEventArgs
+    public class OnCompletedWithErrorsEventArgs
     {
-        public OnLandingEventArgs(Flight flight)
+        public OnCompletedWithErrorsEventArgs(Flight flight)
         {
             Flight = flight;
         }

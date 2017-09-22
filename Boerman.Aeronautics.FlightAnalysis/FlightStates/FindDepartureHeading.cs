@@ -16,7 +16,7 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
         
         public override async Task Run()
         {
-            var departure = Context.PositionUpdates
+            var departure = Context.Flight.PositionUpdates
                 .Where(q => q.Heading != 0)
                 .OrderBy(q => q.TimeStamp)
                 .Take(5)

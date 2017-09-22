@@ -15,7 +15,7 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
 
         public override async Task Run()
         {
-            var positionUpdate = Context.PositionUpdates.LastOrDefault();
+            var positionUpdate = Context.Flight.PositionUpdates.LastOrDefault();
 
             // Flight has ended when the speed = 0 and the heading = 0
             if (positionUpdate.Speed == 0)
@@ -36,7 +36,7 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                     // We have to start the flight
 
                     // Walk back to when the speed was 0
-                    var start = Context.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && q.Speed == 0)
+                    var start = Context.Flight.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && q.Speed == 0)
                         .OrderByDescending(q => q.TimeStamp)
                         .FirstOrDefault();
                     
@@ -46,10 +46,10 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                     Context.Flight.StartTime = start.TimeStamp;
 
                     // Remove the points we do not need. (From before the flight, for example during taxi)
-                    Context.PositionUpdates
+                    Context.Flight.PositionUpdates
                         .Where(q => q.TimeStamp < Context.Flight.StartTime.Value)
                         .ToList()
-                        .ForEach(q => Context.PositionUpdates.Remove(q));
+                        .ForEach(q => Context.Flight.PositionUpdates.Remove(q));
                 }
 
                 if (Context.Flight.StartTime != null 

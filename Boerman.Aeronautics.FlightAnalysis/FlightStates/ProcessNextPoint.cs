@@ -35,7 +35,7 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                     return;
                 }
 
-                Context.PositionUpdates.Add(positionUpdate);
+                Context.Flight.PositionUpdates.Add(positionUpdate);
 
                 TimingChecks(positionUpdate.TimeStamp);
                 
@@ -50,10 +50,10 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
             if (Context.Flight.StartTime == null)
             {
                 // Just keep the buffer small by removing points older then 2 minutes
-                Context.PositionUpdates
+                Context.Flight.PositionUpdates
                         .Where(q => q.TimeStamp < currentTimeStamp.AddMinutes(-2))
                         .ToList()
-                        .ForEach(q => Context.PositionUpdates.Remove(q));
+                        .ForEach(q => Context.Flight.PositionUpdates.Remove(q));
             }
             else if (Context.LatestTimeStamp < currentTimeStamp.AddHours(-8))
             {

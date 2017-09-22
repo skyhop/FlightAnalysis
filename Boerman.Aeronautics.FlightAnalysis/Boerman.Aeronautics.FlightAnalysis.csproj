@@ -64,6 +64,7 @@
     <Compile Include="Models\OnContextDisposedEventArgs.cs" />
     <Compile Include="Models\OnLandingEventArgs.cs" />
     <Compile Include="Models\OnTakeoffEventArgs.cs" />
+    <Compile Include="Models\OnCompletedWithErrorsEventArgs.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

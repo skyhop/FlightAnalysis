@@ -111,14 +111,14 @@ namespace Boerman.Aeronautics.FlightAnalysis
         /// which is of the FlightContext type. Please note that the events from individual FlightContext instances 
         /// will be propagated through this event handler.
         /// </summary>
-        public event EventHandler OnTakeoff;
+        public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
         /// <summary>
         /// The OnLanding event will fire once a landing is detected. For further information check the sender object
         /// which is of the FlightContext type. Please note that the events from individual FlightContext instances
         /// will be propagated through this event handler.
         /// </summary>
-        public event EventHandler OnLanding;
+        public event EventHandler<OnLandingEventArgs> OnLanding;
 
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
@@ -126,7 +126,7 @@ namespace Boerman.Aeronautics.FlightAnalysis
         /// sender object which is of the FlightContext type. Please note that events from individual FlightContext
         /// instances will be propagated through this event handler.
         /// </summary>
-        public event EventHandler OnCompletedWithErrors;
+        public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
 
         /// <summary>
         /// The OnContextDispose event will fire when a specific FlightContext instance is being disposed. Disposal of

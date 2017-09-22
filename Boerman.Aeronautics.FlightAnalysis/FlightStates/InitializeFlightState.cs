@@ -21,10 +21,10 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
 
             Context.Flight = new Flight
             {
-                Aircraft = Context.AircraftId
+                Aircraft = Context.AircraftId,
+                PositionUpdates = new List<PositionUpdate>()
             };
 
-            Context.PositionUpdates = new List<PositionUpdate>();
         }
     }
 }

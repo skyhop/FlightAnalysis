@@ -20,7 +20,7 @@ namespace Boerman.Aeronautics.FlightAnalysis
     {
         internal readonly string AircraftId;
         public Flight Flight;
-        internal System.Collections.Generic.ICollection<PositionUpdate> PositionUpdates;
+        //internal System.Collections.Generic.ICollection<PositionUpdate> PositionUpdates;
 
         internal IntervalHeap<long> Heap = new IntervalHeap<long>();
         internal ConcurrentDictionary<long, PositionUpdate> Data = new ConcurrentDictionary<long, PositionUpdate>();
@@ -105,7 +105,7 @@ namespace Boerman.Aeronautics.FlightAnalysis
         {
             try
             {
-                OnTakeoff?.Invoke(this, EventArgs.Empty);
+                OnTakeoff?.Invoke(this, new OnTakeoffEventArgs(Flight));
             } catch { }
         }
         
@@ -113,7 +113,7 @@ namespace Boerman.Aeronautics.FlightAnalysis
         {
             try
             {
-                OnLanding?.Invoke(this, EventArgs.Empty);
+                OnLanding?.Invoke(this, new OnLandingEventArgs(Flight));
             } catch { }
         }
 
@@ -121,24 +121,24 @@ namespace Boerman.Aeronautics.FlightAnalysis
         {
             try
             {
-                OnCompletedWithErrors?.Invoke(this, EventArgs.Empty);
+                OnCompletedWithErrors?.Invoke(this, new OnCompletedWithErrorsEventArgs(Flight));
             } catch { }
         }
 
         /// <summary>
         /// The OnTakeoff event will fire once the data indicates a takeoff.
         /// </summary>
-        public event EventHandler OnTakeoff;
+        public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
         /// <summary>
         /// The OnLanding event will fire once the data indicates a landing
         /// </summary>
-        public event EventHandler OnLanding;
+        public event EventHandler<OnLandingEventArgs> OnLanding;
 
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
         /// been detected. (For example destination airfield could not be found)
         /// </summary>
-        public event EventHandler OnCompletedWithErrors;
+        public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
     }
 }
