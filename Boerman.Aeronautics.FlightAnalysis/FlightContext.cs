@@ -24,7 +24,9 @@ namespace Boerman.Aeronautics.FlightAnalysis
 
         internal IntervalHeap<long> Heap = new IntervalHeap<long>();
         internal ConcurrentDictionary<long, PositionUpdate> Data = new ConcurrentDictionary<long, PositionUpdate>();
-        
+
+        internal DateTime LatestTimeStamp;
+
         public CancellationTokenSource CancellationTokenSource;
         
         /// <summary>
@@ -99,36 +101,44 @@ namespace Boerman.Aeronautics.FlightAnalysis
          * of an exception through the event handler.
          */
 
-        /// <summary>
-        /// Invokes the takeoff event
-        /// </summary>
         internal void InvokeOnTakeoffEvent()
         {
             try
             {
-                OnTakeoff?.Invoke(this, new OnTakeoffEventArgs());
+                OnTakeoff?.Invoke(this, EventArgs.Empty);
             } catch { }
         }
-
-        /// <summary>
-        /// Invokes the landing event
-        /// </summary>
+        
         internal void InvokeOnLandingEvent()
         {
             try
             {
-                OnLanding?.Invoke(this, new OnLandingEventArgs());
+                OnLanding?.Invoke(this, EventArgs.Empty);
+            } catch { }
+        }
+
+        internal void InvokeOnCompletedWithErrorsEvent()
+        {
+            try
+            {
+                OnCompletedWithErrors?.Invoke(this, EventArgs.Empty);
             } catch { }
         }
 
         /// <summary>
         /// The OnTakeoff event will fire once the data indicates a takeoff.
         /// </summary>
-        public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
+        public event EventHandler OnTakeoff;
 
         /// <summary>
         /// The OnLanding event will fire once the data indicates a landing
         /// </summary>
-        public event EventHandler<OnLandingEventArgs> OnLanding;
+        public event EventHandler OnLanding;
+
+        /// <summary>
+        /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
+        /// been detected. (For example destination airfield could not be found)
+        /// </summary>
+        public event EventHandler OnCompletedWithErrors;
     }
 }

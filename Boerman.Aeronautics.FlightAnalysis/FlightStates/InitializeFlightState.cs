@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Boerman.Aeronautics.FlightAnalysis.Models;
 
@@ -16,6 +17,8 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
 
         public override async Task Run()
         {
+            Context.LatestTimeStamp = DateTime.MinValue;
+
             Context.Flight = new Flight
             {
                 Aircraft = Context.AircraftId

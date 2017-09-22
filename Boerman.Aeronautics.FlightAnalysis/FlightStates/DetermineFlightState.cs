@@ -46,9 +46,10 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                     Context.Flight.StartTime = start.TimeStamp;
 
                     // Remove the points we do not need. (From before the flight, for example during taxi)
-                    var removablePoints = Context.PositionUpdates.Where(q => q.TimeStamp < Context.Flight.StartTime.Value).ToList();
-
-                    foreach (var removablePoint in removablePoints) Context.PositionUpdates.Remove(removablePoint);
+                    Context.PositionUpdates
+                        .Where(q => q.TimeStamp < Context.Flight.StartTime.Value)
+                        .ToList()
+                        .ForEach(q => Context.PositionUpdates.Remove(q));
                 }
 
                 if (Context.Flight.StartTime != null 

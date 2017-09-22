@@ -99,8 +99,9 @@ namespace Boerman.Aeronautics.FlightAnalysis
             var context = new FlightContext(aircraft);
 
             // Subscribe to the events so we can propagate 'em via the factory
-            context.OnTakeoff += (sender, args) => OnTakeoff?.Invoke(context, EventArgs.Empty);
-            context.OnLanding += (sender, args) => OnLanding?.Invoke(sender, EventArgs.Empty);
+            context.OnTakeoff += (sender, args) => OnTakeoff?.Invoke(context, args);
+            context.OnLanding += (sender, args) => OnLanding?.Invoke(sender, args);
+            context.OnCompletedWithErrors += (sender, args) => OnCompletedWithErrors?.Invoke(sender, args);
 
             _flightContextDictionary.TryAdd(aircraft, context);
         }
@@ -118,6 +119,14 @@ namespace Boerman.Aeronautics.FlightAnalysis
         /// will be propagated through this event handler.
         /// </summary>
         public event EventHandler OnLanding;
+
+        /// <summary>
+        /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
+        /// been detected. (For example destination airfield could not be found) For further information check the
+        /// sender object which is of the FlightContext type. Please note that events from individual FlightContext
+        /// instances will be propagated through this event handler.
+        /// </summary>
+        public event EventHandler OnCompletedWithErrors;
 
         /// <summary>
         /// The OnContextDispose event will fire when a specific FlightContext instance is being disposed. Disposal of

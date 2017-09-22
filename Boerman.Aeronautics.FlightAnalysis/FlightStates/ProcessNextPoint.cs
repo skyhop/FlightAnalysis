@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Boerman.Aeronautics.FlightAnalysis.Models;
 
 namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
@@ -26,16 +28,41 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                 var id = Context.Heap.DeleteMin();
 
                 Context.Data.TryRemove(id, out PositionUpdate positionUpdate);
-
+                
                 if (positionUpdate == null)
                 {
                     Context.QueueState(typeof(ProcessNextPoint));
                     return;
                 }
-                
+
                 Context.PositionUpdates.Add(positionUpdate);
+
+                TimingChecks(positionUpdate.TimeStamp);
+                
                 Context.QueueState(typeof(DetermineFlightState));
             }
+        }
+
+        private void TimingChecks(DateTime currentTimeStamp)
+        {
+            if (Context.LatestTimeStamp == DateTime.MinValue) Context.LatestTimeStamp = currentTimeStamp;
+
+            if (Context.Flight.StartTime == null)
+            {
+                // Just keep the buffer small by removing points older then 2 minutes
+                Context.PositionUpdates
+                        .Where(q => q.TimeStamp < currentTimeStamp.AddMinutes(-2))
+                        .ToList()
+                        .ForEach(q => Context.PositionUpdates.Remove(q));
+            }
+            else if (Context.LatestTimeStamp < currentTimeStamp.AddHours(-8))
+            {
+                Context.InvokeOnCompletedWithErrorsEvent();
+                Context.QueueState(typeof(InitializeFlightState));
+                Context.QueueState(typeof(ProcessNextPoint));
+            }
+
+            Context.LatestTimeStamp = currentTimeStamp;
         }
     }
 }
