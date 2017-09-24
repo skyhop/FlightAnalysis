@@ -31,7 +31,8 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
             {
                 // This part is about the departure
                 if (Context.Flight.StartTime == null 
-                    && positionUpdate.Speed > 30)
+                    && positionUpdate.Speed > 30
+                    && Context.Flight.DepartureInfoFound != null)
                 {
                     // We have to start the flight
 
@@ -39,17 +40,24 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                     var start = Context.Flight.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && q.Speed == 0)
                         .OrderByDescending(q => q.TimeStamp)
                         .FirstOrDefault();
-                    
+
                     if (start == null)
-                        throw new Exception("A specific point could not be found");
+                    {
+                        // This means that an aircraft is flying but the takeoff itself hasn't been recorded due to insufficient flarm coverage
+                        Context.Flight.DepartureInfoFound = false;
+                        Context.InvokeOnRadarContactEvent();
+                    }
+                    else
+                    {
+                        Context.Flight.DepartureInfoFound = true;
+                        Context.Flight.StartTime = start.TimeStamp;
 
-                    Context.Flight.StartTime = start.TimeStamp;
-
-                    // Remove the points we do not need. (From before the flight, for example during taxi)
-                    Context.Flight.PositionUpdates
-                        .Where(q => q.TimeStamp < Context.Flight.StartTime.Value)
-                        .ToList()
-                        .ForEach(q => Context.Flight.PositionUpdates.Remove(q));
+                        // Remove the points we do not need. (From before the flight, for example during taxi)
+                        Context.Flight.PositionUpdates
+                            .Where(q => q.TimeStamp < Context.Flight.StartTime.Value)
+                            .ToList()
+                            .ForEach(q => Context.Flight.PositionUpdates.Remove(q));
+                    }
                 }
 
                 if (Context.Flight.StartTime != null 

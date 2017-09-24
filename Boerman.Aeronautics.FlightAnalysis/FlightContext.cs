@@ -117,6 +117,14 @@ namespace Boerman.Aeronautics.FlightAnalysis
             } catch { }
         }
 
+        internal void InvokeOnRadarContactEvent()
+        {
+            try
+            {
+                OnRadarContact?.Invoke(this, new OnRadarContactEventArgs(Flight));
+            } catch { }
+        }
+
         internal void InvokeOnCompletedWithErrorsEvent()
         {
             try
@@ -134,6 +142,11 @@ namespace Boerman.Aeronautics.FlightAnalysis
         /// The OnLanding event will fire once the data indicates a landing
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
+
+        /// <summary>
+        /// The OnRadarContact event will fire when a takeoff has not been recorded but an aircraft is mid flight
+        /// </summary>
+        public event EventHandler<OnRadarContactEventArgs> OnRadarContact;
 
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 

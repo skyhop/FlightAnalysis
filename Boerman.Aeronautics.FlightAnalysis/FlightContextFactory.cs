@@ -91,8 +91,9 @@ namespace Boerman.Aeronautics.FlightAnalysis
             var context = new FlightContext(aircraft);
 
             // Subscribe to the events so we can propagate 'em via the factory
-            context.OnTakeoff += (sender, args) => OnTakeoff?.Invoke(context, args);
+            context.OnTakeoff += (sender, args) => OnTakeoff?.Invoke(sender, args);
             context.OnLanding += (sender, args) => OnLanding?.Invoke(sender, args);
+            context.OnRadarContact += (sender, args) => OnRadarContact?.Invoke(sender, args);
             context.OnCompletedWithErrors += (sender, args) => OnCompletedWithErrors?.Invoke(sender, args);
 
             _flightContextDictionary.TryAdd(aircraft, context);
@@ -109,6 +110,13 @@ namespace Boerman.Aeronautics.FlightAnalysis
         /// FlightContext instances will be propagated through this event handler.
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
+
+        /// <summary>
+        /// The OnRadarContact event will fire when a takeoff has not been recorded but an aircraft is mid flight.
+        /// Please note that the events from individual FlightContext instances will be propagated through this event
+        /// handler.
+        /// </summary>
+        public event EventHandler<OnRadarContactEventArgs> OnRadarContact;
 
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 

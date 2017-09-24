@@ -21,7 +21,8 @@ namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
                 .OrderByDescending(q => q.TimeStamp)
                 .Take(5)
                 .ToList();
-            
+
+            Context.Flight.ArrivalInfoFound = true;
             Context.Flight.ArrivalHeading = Convert.ToInt16(arrival.Average(q => q.Heading));
             Context.Flight.ArrivalLocation = arrival.First().GeoCoordinate;
             
