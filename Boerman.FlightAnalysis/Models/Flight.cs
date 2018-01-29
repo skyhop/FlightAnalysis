@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Device.Location;
 
-namespace Boerman.Aeronautics.FlightAnalysis.Models
+namespace Boerman.FlightAnalysis.Models
 {
     public class Flight
     {

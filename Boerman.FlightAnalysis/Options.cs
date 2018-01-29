@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Boerman.Aeronautics.FlightAnalysis
+namespace Boerman.FlightAnalysis
 {
     public class Options
     {

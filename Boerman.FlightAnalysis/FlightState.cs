@@ -1,6 +1,6 @@
 ﻿using Boerman.Core.State;
 
-namespace Boerman.Aeronautics.FlightAnalysis
+namespace Boerman.FlightAnalysis
 {
     /// <summary>
     /// The FlightState object is the base class used for the processing steps used in the FlightContext

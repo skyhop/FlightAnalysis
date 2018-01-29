@@ -1,4 +1,4 @@
-﻿namespace Boerman.Aeronautics.FlightAnalysis.Models
+﻿namespace Boerman.FlightAnalysis.Models
 {
     public class OnCompletedWithErrorsEventArgs
     {

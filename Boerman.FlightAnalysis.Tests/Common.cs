@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Boerman.Aeronautics.FlightAnalysis;
-using Boerman.Aeronautics.FlightAnalysis.Models;
+using Boerman.FlightAnalysis;
+using Boerman.FlightAnalysis.Models;
 using Boerman.Core.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Boerman.Aeronautics.FlightAnalyis.Tests
+namespace Boerman.FlightAnalyis.Tests
 {
     internal static class Common
     {

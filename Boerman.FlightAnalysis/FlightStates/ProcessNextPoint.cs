@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Boerman.Aeronautics.FlightAnalysis.Models;
+using Boerman.FlightAnalysis.Models;
 
-namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
+namespace Boerman.FlightAnalysis.FlightStates
 {
     /// <summary>
     /// The ProcessNextPoint state is being invoked to start processing of the next available data point.

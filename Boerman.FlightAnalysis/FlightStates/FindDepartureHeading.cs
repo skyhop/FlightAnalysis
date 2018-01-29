@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
+namespace Boerman.FlightAnalysis.FlightStates
 {
     /// <summary>
     /// The FindDepartureHeading state is being invoked once takeoff had been detected. Sole purpose of this class is 

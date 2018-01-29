@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
+namespace Boerman.FlightAnalysis.FlightStates
 {
     /// <summary>
     /// The DetermineFlightState class contains the main logic to check whether a specific aircraft is flying or not

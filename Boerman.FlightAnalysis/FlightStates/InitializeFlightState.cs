@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Boerman.Aeronautics.FlightAnalysis.Models;
+using Boerman.FlightAnalysis.Models;
 
-namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
+namespace Boerman.FlightAnalysis.FlightStates
 {
     /// <summary>
     /// The InitializeFlightState class is being used to clear the FlightContext to allow for further processing after 

@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Boerman.Aeronautics.FlightAnalysis.FlightStates;
-using Boerman.Aeronautics.FlightAnalysis.Models;
+using Boerman.FlightAnalysis.FlightStates;
+using Boerman.FlightAnalysis.Models;
 using Boerman.Core.Extensions;
 using Boerman.Core.State;
 using C5;
 
-namespace Boerman.Aeronautics.FlightAnalysis
+namespace Boerman.FlightAnalysis
 {
     /// <summary>
     /// The FlightContext is an aircraft specific instance which analyses the flight's position updates.

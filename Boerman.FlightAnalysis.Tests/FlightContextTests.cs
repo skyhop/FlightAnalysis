@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Boerman.Aeronautics.FlightAnalysis;
+using Boerman.FlightAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Boerman.Aeronautics.FlightAnalyis.Tests
+namespace Boerman.FlightAnalyis.Tests
 {
     [TestClass]
     public class FlightContextTests

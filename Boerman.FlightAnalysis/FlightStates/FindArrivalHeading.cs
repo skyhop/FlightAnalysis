@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Boerman.Aeronautics.FlightAnalysis.FlightStates
+namespace Boerman.FlightAnalysis.FlightStates
 {
     /// <summary>
     /// The FindArrivalHeading state is invoked once a landing is detected. Sole purpose of this class is to determine

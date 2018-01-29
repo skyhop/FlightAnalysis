@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Device.Location;
 
-namespace Boerman.Aeronautics.FlightAnalysis.Models
+namespace Boerman.FlightAnalysis.Models
 {
     public class PositionUpdate
     {

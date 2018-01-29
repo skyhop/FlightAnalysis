@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using Boerman.Aeronautics.FlightAnalysis.Models;
+using Boerman.FlightAnalysis.Models;
 
-namespace Boerman.Aeronautics.FlightAnalysis
+namespace Boerman.FlightAnalysis
 {
     /// <summary>
     /// The FlightContextFactory is a singleton instance capable of handling data inputs from multiple aircraft and 

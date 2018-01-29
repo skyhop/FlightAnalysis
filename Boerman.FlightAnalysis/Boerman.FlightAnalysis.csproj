@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackOnBuild>true</PackOnBuild>
+    <Authors>Corstian Boerman</Authors>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/25320889</PackageIconUrl>
+    <Owners>Corstian Boerman</Owners>
+    <PackageReleaseNotes>This is the initial release of this library.</PackageReleaseNotes>
+    <Summary>Library to extract basic flight information from flight paths.</Summary>
+    <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
+    <Title>Boerman.FlightAnalysis</Title>
+    <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>Latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>Latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="C5" Version="2.5.3" />
+    <PackageReference Include="Boerman.Core" Version="2.0.1" />
+    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.0" />
+  </ItemGroup>
+</Project>
