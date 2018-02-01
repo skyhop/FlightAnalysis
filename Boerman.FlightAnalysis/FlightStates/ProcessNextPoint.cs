@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Boerman.FlightAnalysis.Models;
 
 namespace Boerman.FlightAnalysis.FlightStates
 {
@@ -23,11 +22,9 @@ namespace Boerman.FlightAnalysis.FlightStates
             }
             else
             {
-                if (Context.Heap.IsEmpty) return;
+                if (!Context.PriorityQueue.Any()) return;
 
-                var id = Context.Heap.DeleteMin();
-
-                Context.Data.TryRemove(id, out PositionUpdate positionUpdate);
+                var positionUpdate = Context.PriorityQueue.Dequeue();
                 
                 if (positionUpdate == null)
                 {

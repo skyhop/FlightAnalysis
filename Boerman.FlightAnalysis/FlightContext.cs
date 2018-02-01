@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,7 +6,7 @@ using Boerman.FlightAnalysis.FlightStates;
 using Boerman.FlightAnalysis.Models;
 using Boerman.Core.Extensions;
 using Boerman.Core.State;
-using C5;
+using Priority_Queue;
 
 namespace Boerman.FlightAnalysis
 {
@@ -22,8 +21,7 @@ namespace Boerman.FlightAnalysis
         public Flight Flight;
         //internal System.Collections.Generic.ICollection<PositionUpdate> PositionUpdates;
 
-        internal IntervalHeap<long> Heap = new IntervalHeap<long>();
-        internal ConcurrentDictionary<long, PositionUpdate> Data = new ConcurrentDictionary<long, PositionUpdate>();
+        internal SimplePriorityQueue<PositionUpdate> PriorityQueue = new SimplePriorityQueue<PositionUpdate>();
 
         internal DateTime LatestTimeStamp;
 
@@ -57,8 +55,10 @@ namespace Boerman.FlightAnalysis
         /// <param name="startOrContinueProcessing">Whether or not to start/continue processing</param>
         private void Enqueue(PositionUpdate positionUpdate, bool startOrContinueProcessing)
         {
-            Heap.Add(positionUpdate.TimeStamp.Ticks);
-            Data.TryAdd(positionUpdate.TimeStamp.Ticks, positionUpdate);
+            PriorityQueue.Enqueue(positionUpdate, (float)positionUpdate.TimeStamp.Ticks);
+
+            //Heap.Add(positionUpdate.TimeStamp.Ticks);
+            //Data.TryAdd(positionUpdate.TimeStamp.Ticks, positionUpdate);
 
             if (startOrContinueProcessing) StartOrContinueProcessing();
         }
