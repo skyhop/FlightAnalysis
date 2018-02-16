@@ -19,7 +19,6 @@ namespace Boerman.FlightAnalysis
     {
         internal readonly string AircraftId;
         public Flight Flight;
-        //internal System.Collections.Generic.ICollection<PositionUpdate> PositionUpdates;
 
         internal SimplePriorityQueue<PositionUpdate> PriorityQueue = new SimplePriorityQueue<PositionUpdate>();
 
@@ -53,12 +52,12 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         /// <param name="positionUpdate">The positionupdate to queue</param>
         /// <param name="startOrContinueProcessing">Whether or not to start/continue processing</param>
-        private void Enqueue(PositionUpdate positionUpdate, bool startOrContinueProcessing)
+        void Enqueue(PositionUpdate positionUpdate, bool startOrContinueProcessing)
         {
-            PriorityQueue.Enqueue(positionUpdate, (float)positionUpdate.TimeStamp.Ticks);
+            if (positionUpdate == null) return;
 
-            //Heap.Add(positionUpdate.TimeStamp.Ticks);
-            //Data.TryAdd(positionUpdate.TimeStamp.Ticks, positionUpdate);
+            // ToDo: When a positionUpdate is queued which doesn't contain all information which is require
+            PriorityQueue.Enqueue(positionUpdate, positionUpdate.TimeStamp.Ticks);
 
             if (startOrContinueProcessing) StartOrContinueProcessing();
         }

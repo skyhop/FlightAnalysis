@@ -6,13 +6,13 @@
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/25320889</PackageIconUrl>
     <Owners>Corstian Boerman</Owners>
-    <PackageReleaseNotes>This version refactored a little problematic dependency out</PackageReleaseNotes>
+    <PackageReleaseNotes>This version solves a few bugs related to the callbacks to events.</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
     <Title>Boerman.FlightAnalysis</Title>
     <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
     <PackageId>Boerman.FlightAnalysis</PackageId>
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.0.2</PackageVersion>
     <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
   </PropertyGroup>
 
@@ -24,7 +24,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Boerman.Core" Version="2.0.1" />
-    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.1.1" />
+    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.0" />
   </ItemGroup>
 </Project>

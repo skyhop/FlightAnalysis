@@ -55,7 +55,6 @@ namespace Boerman.FlightAnalysis.FlightStates
             }
             else if (Context.LatestTimeStamp < currentTimeStamp.AddHours(-8))
             {
-                Context.Flight.ArrivalInfoFound = false;
                 Context.InvokeOnCompletedWithErrorsEvent();
                 Context.QueueState(typeof(InitializeFlightState));
                 Context.QueueState(typeof(ProcessNextPoint));

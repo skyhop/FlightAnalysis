@@ -24,7 +24,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="options"></param>
         public FlightContextFactory(Options options = null)
         {
-            Options = options;
+            Options = options ?? new Options();
 
             // Start a timer to remove outtimed context instances.
             new Timer
@@ -55,6 +55,8 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
+            if (positionUpdate == null) return;
+
             EnsureContextAvailable(positionUpdate.Aircraft);
             
             if (_flightContextDictionary.TryGetValue(positionUpdate.Aircraft, out var flightContext))
@@ -68,7 +70,11 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdates">The position updates to queue</param>
         public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
         {
-            var updatesByAircraft = positionUpdates.GroupBy(q => q.Aircraft);
+            if (positionUpdates == null) return;
+
+            var updatesByAircraft = positionUpdates
+                .Where(q => q != null)
+                .GroupBy(q => q.Aircraft);
 
             // Group the data by aircraft
             foreach (var updates in updatesByAircraft)

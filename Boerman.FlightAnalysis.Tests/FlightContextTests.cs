@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Boerman.FlightAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,21 +13,63 @@ namespace Boerman.FlightAnalyis.Tests
         {
             FlightContext fc = new FlightContext("6770");
 
+            int callbacks = 0;
+
             fc.OnTakeoff += (sender, args) =>
             {
                 Assert.AreEqual(636272591685778931, ((FlightContext) sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(244, ((FlightContext) sender).Flight.DepartureHeading);
+                callbacks++;
             };
 
             fc.OnLanding += (sender, args) =>
             {
                 Assert.AreEqual(636272628474023926, ((FlightContext) sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(250, ((FlightContext) sender).Flight.ArrivalHeading);
+                callbacks++;
             };
+
+            // These events should NOT be fired
+            fc.OnRadarContact += (sender, e) => Assert.Fail();
+            fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
 
             fc.WaitForIdleProcess.WaitOne();
+
+            Assert.AreEqual(2, callbacks);
+        }
+
+        [TestMethod]
+        public void Flight_D1908_20170408_Partial() {
+            FlightContext fc = new FlightContext("6770");
+
+            int callbacks = 0;
+
+            fc.OnRadarContact += (sender, args) => 
+            {
+                Assert.AreEqual(null, ((FlightContext)sender).Flight.StartTime);
+                Assert.AreEqual(false, ((FlightContext)sender).Flight.DepartureInfoFound);
+                Assert.AreEqual(0, ((FlightContext)sender).Flight.DepartureHeading);
+                callbacks++;
+            };
+
+            fc.OnLanding += (sender, args) =>
+            {
+                Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                Assert.AreEqual(250, ((FlightContext)sender).Flight.ArrivalHeading);
+                callbacks++;
+            };
+
+            // These events should NOT be fired 
+            fc.OnTakeoff += (sender, args) => Assert.Fail();
+            fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
+
+            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
+
+            fc.WaitForIdleProcess.WaitOne();
+
+            Assert.AreEqual(2, callbacks);
         }
 
         [TestMethod]
@@ -122,6 +165,7 @@ namespace Boerman.FlightAnalyis.Tests
             FlightContext fc = new FlightContext("5657");
 
             int pass = 0;
+            int callbacks = 0;
 
             fc.OnTakeoff += (sender, args) =>
             {
@@ -144,6 +188,8 @@ namespace Boerman.FlightAnalyis.Tests
                         Assert.AreEqual(248, ((FlightContext) sender).Flight.DepartureHeading);
                         break;
                 }
+
+                callbacks++;
             };
 
             fc.OnLanding += (sender, args) =>
@@ -169,11 +215,15 @@ namespace Boerman.FlightAnalyis.Tests
                 }
 
                 pass++;
+                callbacks++;
             };
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
 
             fc.WaitForIdleProcess.WaitOne();
+
+            Assert.AreEqual(4, pass);
+            Assert.AreEqual(8, callbacks);
         }
     }
 }

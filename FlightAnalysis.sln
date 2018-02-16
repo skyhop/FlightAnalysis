@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boerman.FlightAnalysis", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boerman.FlightAnalysis.Tests", "Boerman.FlightAnalysis.Tests\Boerman.FlightAnalysis.Tests.csproj", "{369E9380-7640-4C98-AD05-919CE9A52B1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{369E9380-7640-4C98-AD05-919CE9A52B1D}.Release|x64.Build.0 = Release|Any CPU
 		{369E9380-7640-4C98-AD05-919CE9A52B1D}.Release|x86.ActiveCfg = Release|Any CPU
 		{369E9380-7640-4C98-AD05-919CE9A52B1D}.Release|x86.Build.0 = Release|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Debug|x64.Build.0 = Debug|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Debug|x86.Build.0 = Debug|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Release|x64.ActiveCfg = Release|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Release|x64.Build.0 = Release|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Release|x86.ActiveCfg = Release|Any CPU
+		{21A3211A-8D0A-44FE-AF08-5CE59E4EE093}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

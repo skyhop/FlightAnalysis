@@ -11,11 +11,17 @@ namespace Boerman.FlightAnalysis.Models
             GeoCoordinate = new GeoCoordinate(latitude, longitude, altitude, 0, 0, speed, heading);
         }
 
+        public PositionUpdate(string aircraft, double latitude, double longitude) {
+            Aircraft = aircraft;
+            TimeStamp = DateTime.UtcNow;
+            GeoCoordinate = new GeoCoordinate(latitude, longitude);
+        }
+
         public string Aircraft { get; }
 
         public DateTime TimeStamp { get; }
 
-        public GeoCoordinate GeoCoordinate { get; }
+        public GeoCoordinate GeoCoordinate { get; internal set; }
 
         public double Latitude => GeoCoordinate.Latitude;
         public double Longitude => GeoCoordinate.Longitude;
