@@ -48,6 +48,24 @@ namespace Boerman.FlightAnalysis
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="T:Boerman.FlightAnalysis.FlightContext"/> class.
+        /// </summary>
+        /// <param name="flightViewModel">When provided the flightViewModel parameter will set the flight information assuming previous 
+        /// processing has been done.</param>
+        public FlightContext(FlightViewModel flightViewModel) {
+            Flight = flightViewModel.Flight;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Boerman.FlightAnalysis.FlightContext"/> class.
+        /// </summary>
+        /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
+        /// processing has been done.</param>
+        public FlightContext(Flight flight) {
+            Flight = flight;
+        }
+
+        /// <summary>
         /// Queue a positionupdate for this specific context to process.
         /// </summary>
         /// <param name="positionUpdate">The positionupdate to queue</param>

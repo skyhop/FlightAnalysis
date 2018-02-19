@@ -6,13 +6,13 @@
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/25320889</PackageIconUrl>
     <Owners>Corstian Boerman</Owners>
-    <PackageReleaseNotes>This version solves a few bugs related to the callbacks to events.</PackageReleaseNotes>
+    <PackageReleaseNotes>This version contains additional constructors and types which enable you to persist the context state mid process and continue processing from this stored information later on.</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
     <Title>Boerman.FlightAnalysis</Title>
     <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
     <PackageId>Boerman.FlightAnalysis</PackageId>
-    <PackageVersion>1.0.10</PackageVersion>
+    <PackageVersion>1.0.11</PackageVersion>
     <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
