@@ -12,8 +12,9 @@
     <Title>Boerman.FlightAnalysis</Title>
     <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
     <PackageId>Boerman.FlightAnalysis</PackageId>
-    <PackageVersion>1.0.2</PackageVersion>
+    <PackageVersion>1.0.10</PackageVersion>
     <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,6 +26,5 @@
   <ItemGroup>
     <PackageReference Include="Boerman.Core" Version="2.0.1" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.1.1" />
-    <PackageReference Include="NuGet.Build.Packaging" Version="0.2.0" />
   </ItemGroup>
 </Project>
