@@ -6,10 +6,11 @@ namespace Boerman.FlightAnalysis.Models
     public class FlightViewModel
     {
         public FlightViewModel() {
-            
+            Id = Guid.NewGuid();
         }
 
         public FlightViewModel(Flight flight) {
+            Id = flight.Id;
             Aircraft = flight.Aircraft;
             LastSeen = flight.LastSeen;
             StartTime = flight.StartTime;
@@ -22,6 +23,8 @@ namespace Boerman.FlightAnalysis.Models
             ArrivalInfoFound = flight.ArrivalInfoFound;
             PositionUpdates = flight.PositionUpdates;
         }
+
+        public Guid Id { get; set; }
 
         public string Aircraft { get; set; }
 
