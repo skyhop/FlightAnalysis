@@ -10,7 +10,7 @@ namespace Boerman.FlightAnalysis.Models
         }
 
         public Flight (FlightViewModel viewModel) {
-            Id = viewModel.Id;
+            Id = viewModel.Id ?? Guid.NewGuid();
             Aircraft = viewModel.Aircraft;
             LastSeen = viewModel.LastSeen;
             StartTime = viewModel.StartTime;
