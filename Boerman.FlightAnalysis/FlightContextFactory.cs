@@ -34,6 +34,14 @@ namespace Boerman.FlightAnalysis
             }.Elapsed += TimerOnElapsed;
         }
 
+        public IEnumerable<string> TrackedAircraft
+        {
+            get
+            {
+                return _flightContextDictionary.Select(q => q.Key);
+            }
+        }
+
         private void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
             var contextsToRemove =
