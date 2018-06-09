@@ -7,20 +7,26 @@ namespace Boerman.FlightAnalysis.Models
     {
         public Flight() {
             Id = Guid.NewGuid();
+            PositionUpdates = new List<PositionUpdate>();
         }
 
-        public Flight (FlightViewModel viewModel) {
-            Id = viewModel.Id ?? Guid.NewGuid();
-            Aircraft = viewModel.Aircraft;
-            LastSeen = viewModel.LastSeen;
-            StartTime = viewModel.StartTime;
-            DepartureHeading = viewModel.DepartureHeading;
-            DepartureLocation = viewModel.DepartureLocation;
-            DepartureInfoFound = viewModel.DepartureInfoFound;
-            EndTime = viewModel.EndTime;
-            ArrivalHeading = viewModel.ArrivalHeading;
-            ArrivalInfoFound = viewModel.ArrivalInfoFound;
-            PositionUpdates = viewModel.PositionUpdates;
+        public Flight(FlightMetadata metadata)
+        {
+            Id = metadata.Id ?? Guid.NewGuid();
+            Aircraft = metadata.Aircraft;
+            LastSeen = metadata.LastSeen;
+            StartTime = metadata.StartTime;
+            DepartureHeading = metadata.DepartureHeading;
+            DepartureLocation = metadata.DepartureLocation;
+            DepartureInfoFound = metadata.DepartureInfoFound;
+            EndTime = metadata.EndTime;
+            ArrivalHeading = metadata.ArrivalHeading;
+            ArrivalInfoFound = metadata.ArrivalInfoFound;
+
+            if (metadata is FlightViewModel) 
+                PositionUpdates = ((FlightViewModel)metadata).PositionUpdates ?? new List<PositionUpdate>();
+            else 
+                PositionUpdates = new List<PositionUpdate>();
         }
 
         public Guid Id { get; internal set; }
@@ -42,5 +48,6 @@ namespace Boerman.FlightAnalysis.Models
         public ICollection<PositionUpdate> PositionUpdates { get; internal set; }
 
         public FlightViewModel ViewModel => new FlightViewModel(this);
+        public FlightMetadata Metadata => new FlightMetadata(this);
     }
 }

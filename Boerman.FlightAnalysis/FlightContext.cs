@@ -24,8 +24,8 @@ namespace Boerman.FlightAnalysis
 
         internal DateTime LatestTimeStamp;
 
-        public CancellationTokenSource CancellationTokenSource;
-        
+        public CancellationTokenSource CancellationTokenSource { get; private set; }
+
         /// <summary>
         /// FlightContext Constructor
         /// </summary>
@@ -117,7 +117,6 @@ namespace Boerman.FlightAnalysis
          * By wrapping the event invocation in try catch blocks we can prevent that the context abruptly ends because
          * of an exception through the event handler.
          */
-
         internal void InvokeOnTakeoffEvent()
         {
             try

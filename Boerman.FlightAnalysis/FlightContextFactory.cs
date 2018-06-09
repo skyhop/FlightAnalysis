@@ -17,13 +17,28 @@ namespace Boerman.FlightAnalysis
             new ConcurrentDictionary<string, FlightContext>();
         
         internal readonly Options Options;
-        
+
         /// <summary>
         /// The constructor for the FlightContextFactory.
         /// </summary>
         /// <param name="options"></param>
         public FlightContextFactory(Options options = null)
         {
+            Options = options ?? new Options();
+
+            // Start a timer to remove outtimed context instances.
+            new Timer
+            {
+                Enabled = true,
+                Interval = 10000
+            }.Elapsed += TimerOnElapsed;
+        }
+
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Options options = null) {
+            foreach (var flight in metadata) {
+                EnsureContextAvailable(flight);
+            }
+
             Options = options ?? new Options();
 
             // Start a timer to remove outtimed context instances.
@@ -52,7 +67,11 @@ namespace Boerman.FlightAnalysis
             foreach (var contextId in contextsToRemove)
             {
                 _flightContextDictionary.TryRemove(contextId, out FlightContext context);
-                OnContextDispose?.Invoke(context, EventArgs.Empty);
+
+                try
+                {
+                    OnContextDispose?.Invoke(context, EventArgs.Empty);
+                } catch { }
             }
         }
 
@@ -103,14 +122,31 @@ namespace Boerman.FlightAnalysis
             if (_flightContextDictionary.ContainsKey(aircraft)) return;
 
             var context = new FlightContext(aircraft);
+            SubscribeContextEventHandlers(context);
 
+            _flightContextDictionary.TryAdd(aircraft, context);
+        }
+
+        /// <summary>
+        /// Checks whether there's a context available based on the metadata provided.
+        /// </summary>
+        /// <param name="metadata"></param>
+        private void EnsureContextAvailable(FlightMetadata metadata)
+        {
+            if (_flightContextDictionary.ContainsKey(metadata.Aircraft)) return;
+
+            var context = new FlightContext(metadata.Flight);
+            SubscribeContextEventHandlers(context);
+
+            _flightContextDictionary.TryAdd(metadata.Aircraft, context);
+        }
+
+        private void SubscribeContextEventHandlers(FlightContext context) {
             // Subscribe to the events so we can propagate 'em via the factory
             context.OnTakeoff += (sender, args) => OnTakeoff?.Invoke(sender, args);
             context.OnLanding += (sender, args) => OnLanding?.Invoke(sender, args);
             context.OnRadarContact += (sender, args) => OnRadarContact?.Invoke(sender, args);
             context.OnCompletedWithErrors += (sender, args) => OnCompletedWithErrors?.Invoke(sender, args);
-
-            _flightContextDictionary.TryAdd(aircraft, context);
         }
 
         /// <summary>
