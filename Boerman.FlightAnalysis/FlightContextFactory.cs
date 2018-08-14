@@ -82,7 +82,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
-            if (positionUpdate == null) return;
+            if (String.IsNullOrWhiteSpace(positionUpdate?.Aircraft)) return;
 
             EnsureContextAvailable(positionUpdate.Aircraft);
             
@@ -100,7 +100,7 @@ namespace Boerman.FlightAnalysis
             if (positionUpdates == null) return;
 
             var updatesByAircraft = positionUpdates
-                .Where(q => q != null)
+                .Where(q => !String.IsNullOrWhiteSpace(q?.Aircraft))
                 .GroupBy(q => q.Aircraft);
 
             // Group the data by aircraft
@@ -133,7 +133,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="metadata"></param>
         private void EnsureContextAvailable(FlightMetadata metadata)
         {
-            if (_flightContextDictionary.ContainsKey(metadata.Aircraft)) return;
+            if (metadata?.Aircraft == null || _flightContextDictionary.ContainsKey(metadata.Aircraft)) return;
 
             var context = new FlightContext(metadata.Flight);
             SubscribeContextEventHandlers(context);

@@ -14,8 +14,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Boerman.AprsClient;
+using Boerman.Core.Extensions;
 using Boerman.FlightAnalysis;
 using Boerman.FlightAnalysis.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace PersistentFlightContext
 {
@@ -27,22 +29,30 @@ namespace PersistentFlightContext
 
         static void Main(string[] args)
         {
-            // On start retrieve the unfinished flights
+            // On start, execute migrations and retrieve the unfinished flights
             using (var db = new Database()) {
+                db.Database.Migrate();
+
                 var flights = db.Flights.Where(q => !q.Completed).ToList();
 
                 FlightContextFactory = new FlightContextFactory(flights);
             }
 
             FlightContextFactory.OnTakeoff += async (sender, e) => {
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Took off from {e.Flight.DepartureLocation.Latitude}, {e.Flight.DepartureLocation.Longitude}");
                 await StoreModelChange(e.Flight.Metadata);
             };
 
             FlightContextFactory.OnLanding += async (sender, e) => {
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Landed at {e.Flight.ArrivalLocation.Latitude}, {e.Flight.ArrivalLocation.Longitude}");
                 await StoreModelChange(e.Flight.Metadata);
             };
 
             FlightContextFactory.OnRadarContact += async (sender, e) => {
+                var lastPositionUpdate = e.Flight.PositionUpdates.OrderByDescending(q => q.TimeStamp).First();
+
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToStringArrow()}");
+
                 await StoreModelChange(e.Flight.Metadata);
             };
 
@@ -61,8 +71,9 @@ namespace PersistentFlightContext
 
             AprsClient.PacketReceived += (sender, e) => {
                 if (e.AprsMessage.DataType == Boerman.AprsClient.Enums.DataType.Status) return;
+                if (String.IsNullOrEmpty(e.AprsMessage.Callsign)) return;
 
-                FlightContextFactory.Enqueue(new Boerman.FlightAnalysis.Models.PositionUpdate(
+                FlightContextFactory.Enqueue(new PositionUpdate(
                     e.AprsMessage.Callsign,
                     e.AprsMessage.ReceivedDate,
                     e.AprsMessage.Latitude.AbsoluteValue,
@@ -75,7 +86,6 @@ namespace PersistentFlightContext
             AprsClient.Open();
 
             Console.WriteLine("Currently checking to see if we can receive some information!");
-
 
             Console.Read();
         }
@@ -91,7 +101,7 @@ namespace PersistentFlightContext
                 }
                 else
                 {
-                    db.Update(flight);
+                    db.Entry(entry).CurrentValues.SetValues(flight);
                 }
 
                 await db.SaveChangesAsync();

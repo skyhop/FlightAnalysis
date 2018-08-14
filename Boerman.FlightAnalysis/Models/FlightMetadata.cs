@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 namespace Boerman.FlightAnalysis.Models
 {
     /// <summary>
@@ -14,35 +16,36 @@ namespace Boerman.FlightAnalysis.Models
 
         public FlightMetadata(Flight flight)
         {
+            if (flight == null) return;
+
             Id = flight.Id;
             Aircraft = flight.Aircraft;
             LastSeen = flight.LastSeen;
             StartTime = flight.StartTime;
             DepartureHeading = flight.DepartureHeading;
-            DepartureLocation = flight.DepartureLocation;
+            DepartureLocation = flight.DepartureLocation?.ToString();
             DepartureInfoFound = flight.DepartureInfoFound;
             EndTime = flight.EndTime;
             ArrivalHeading = flight.ArrivalHeading;
-            ArrivalLocation = flight.ArrivalLocation;
+            ArrivalLocation = flight.ArrivalLocation?.ToString();
             ArrivalInfoFound = flight.ArrivalInfoFound;
         }
 
         public Guid? Id { get; set; }
-
         public string Aircraft { get; set; }
-
         public DateTime? LastSeen { get; set; }
-
         public DateTime? StartTime { get; set; }
         public short DepartureHeading { get; set; }
-        public GeoCoordinate DepartureLocation { get; set; }
+        public string DepartureLocation { get; set; }
         public bool? DepartureInfoFound { get; set; }
-
         public DateTime? EndTime { get; set; }
         public short ArrivalHeading { get; set; }
-        public GeoCoordinate ArrivalLocation { get; set; }
+        public string ArrivalLocation { get; set; }
         public bool? ArrivalInfoFound { get; set; }
 
+        // Some helper methods
+        public double[] DepartureCoordinate => DepartureLocation?.Split(',')?.Select(q => Double.Parse(q)).ToArray();
+        public double[] ArrivalCoordinate => ArrivalLocation?.Split(',')?.Select(q => Double.Parse(q)).ToArray();
         public bool Completed => (DepartureInfoFound != null || StartTime != null) && (ArrivalInfoFound != null || EndTime != null);
 
         // ToDo: Make internal

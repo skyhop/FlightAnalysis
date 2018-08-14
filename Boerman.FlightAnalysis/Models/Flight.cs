@@ -17,11 +17,12 @@ namespace Boerman.FlightAnalysis.Models
             LastSeen = metadata.LastSeen;
             StartTime = metadata.StartTime;
             DepartureHeading = metadata.DepartureHeading;
-            DepartureLocation = metadata.DepartureLocation;
+            DepartureLocation = metadata.DepartureCoordinate != null ? new GeoCoordinate(metadata.DepartureCoordinate[0], metadata.DepartureCoordinate[1]) : null;
             DepartureInfoFound = metadata.DepartureInfoFound;
             EndTime = metadata.EndTime;
             ArrivalHeading = metadata.ArrivalHeading;
             ArrivalInfoFound = metadata.ArrivalInfoFound;
+            ArrivalLocation = metadata.ArrivalCoordinate != null ? new GeoCoordinate(metadata.ArrivalCoordinate[0], metadata.ArrivalCoordinate[1]) : null;
 
             if (metadata is FlightViewModel) 
                 PositionUpdates = ((FlightViewModel)metadata).PositionUpdates ?? new List<PositionUpdate>();
