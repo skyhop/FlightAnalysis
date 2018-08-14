@@ -2,6 +2,11 @@ namespace Boerman.FlightAnalysis.Models
 {
     public class OnContextDisposedEventArgs
     {
-        public string Aircraft { get; set; }
+        public OnContextDisposedEventArgs(FlightContext context)
+        {
+            Context = context;
+        }
+
+        public FlightContext Context { get; set; }
     }
 }

@@ -70,7 +70,7 @@ namespace Boerman.FlightAnalysis
 
                 try
                 {
-                    OnContextDispose?.Invoke(context, EventArgs.Empty);
+                    OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
                 } catch { }
             }
         }
@@ -111,6 +111,21 @@ namespace Boerman.FlightAnalysis
                 if (_flightContextDictionary.TryGetValue(updates.Key, out var flightContext))
                     flightContext.Enqueue(updates);
             }
+        }
+
+        /// <summary>
+        /// The attach method can be used to add an already existing context instance to this factory.
+        /// This method will overwrite any FlightContext instance with the same aircraft identifier already
+        /// tracked by this FlightContextFactory.
+        /// </summary>
+        /// <param name="context"></param>
+        public void Attach(FlightContext context)
+        {
+            _flightContextDictionary.TryRemove(context.AircraftId, out _);
+
+            SubscribeContextEventHandlers(context);
+
+            _flightContextDictionary.TryAdd(context.AircraftId, context);
         }
         
         /// <summary>
@@ -179,6 +194,6 @@ namespace Boerman.FlightAnalysis
         /// The OnContextDispose event will fire when a specific FlightContext instance is being disposed. Disposal of
         /// instances will happen if there is no activity for a specific time period.
         /// </summary>
-        public event EventHandler OnContextDispose;
+        public event EventHandler<OnContextDisposedEventArgs> OnContextDispose;
     }
 }

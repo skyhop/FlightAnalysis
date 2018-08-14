@@ -36,6 +36,11 @@ namespace RealtimeFlightActivityMonitor
                 Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToStringArrow()}");
             };
 
+            FlightContextFactory.OnContextDispose += (sender, e) =>
+            {
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Context.Flight.Aircraft}");
+            };
+
 
             AprsClient = new Listener(new Config()
             {
