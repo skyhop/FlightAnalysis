@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -12,9 +12,11 @@
     <Title>Boerman.FlightAnalysis</Title>
     <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
     <PackageId>Boerman.FlightAnalysis</PackageId>
-    <PackageVersion>1.0.16</PackageVersion>
     <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/Boerman/FlightAnalysis</RepositoryUrl>
+    <Version>1.0.18</Version>
+    <Copyright>Corstian Boerman</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

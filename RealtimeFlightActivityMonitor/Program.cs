@@ -38,7 +38,7 @@ namespace RealtimeFlightActivityMonitor
 
             FlightContextFactory.OnContextDispose += (sender, e) =>
             {
-                Console.WriteLine($"{DateTime.UtcNow}: {e.Context.Flight.Aircraft}");
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Context.Flight.Aircraft} - Context disposed");
             };
 
 

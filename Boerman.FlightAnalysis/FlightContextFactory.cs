@@ -127,6 +127,14 @@ namespace Boerman.FlightAnalysis
 
             _flightContextDictionary.TryAdd(context.AircraftId, context);
         }
+
+        /// <summary>
+        /// This method creates a new FlightContext instance from the metadata and adds it to this factory.
+        /// This method will overwrite any FlightContext instance with the same aircraft identifier already
+        /// tracked by this FlightContextFactory.
+        /// </summary>
+        /// <param name="metadata"></param>
+        public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
         
         /// <summary>
         /// Checks whether there is a context available for the aircraft which will be processed.

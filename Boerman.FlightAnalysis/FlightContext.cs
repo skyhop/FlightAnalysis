@@ -50,10 +50,10 @@ namespace Boerman.FlightAnalysis
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Boerman.FlightAnalysis.FlightContext"/> class.
         /// </summary>
-        /// <param name="flightViewModel">When provided the flightViewModel parameter will set the flight information assuming previous 
+        /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(FlightViewModel flightViewModel) {
-            Flight = flightViewModel.Flight;
+        public FlightContext(FlightMetadata flightMetadata) {
+            Flight = flightMetadata.Flight;
         }
 
         /// <summary>
