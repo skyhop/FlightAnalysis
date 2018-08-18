@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Globalization;
 
+// I (Corstian) probably took this code from the ReferenceSource or anything. No way I wrote this myself.
+// Which I in turn might have taken from https://github.com/ghuntley/geocoordinate. I'm not sure. Forgot to
+// mention the source when copy pasting...
+
 namespace Boerman.FlightAnalysis
 {
     /// <summary>

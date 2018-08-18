@@ -3,8 +3,22 @@ using System.Threading.Tasks;
 using Boerman.FlightAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Boerman.FlightAnalyis.Tests
+namespace Boerman.FlightAnalysis.Tests
 {
+    /*
+     * WARNING:
+     *
+     * The logic which fires event handlers from the FlightContext and FlightContextFactory instances is
+     * wrapped with try/catch blocks in order to prevent user implemented bugs from making it look as if the
+     * FlightAnalysis tool itself has crashed.
+     *
+     * It'd be nice if we could implement something which would make it obvious to the implementing party
+     * that something in their code goes wrong while gracefully handling it.
+     *
+     * The side effect of this is that Assert functions will not immediately fail the test case when used
+     * inside an event handler.
+     */
+
     [TestClass]
     public class FlightContextTests
     {
@@ -34,6 +48,51 @@ namespace Boerman.FlightAnalyis.Tests
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
+
+            fc.WaitForIdleProcess.WaitOne();
+
+            Assert.AreEqual(2, callbacks);
+        }
+        
+        [TestMethod]
+        public void Flight_D1908_20170408_Subset()
+        {
+            /*
+             * While this test is pretty well similar to the previous test, some of the data used (speed /
+             * heading) is extracted from the lat/long  points. Therefore, results may not be 100% the same.
+             *
+             * For now the departure and arrival times seems to be the same, while there is a small
+             * discrepancy in the observed heading for takeoff and landing (+- 10 degrees).
+             *
+             * This might be due to either of those reasons:
+             * - FLARM units transmit their heading based on an internall compass (?)
+             * - I'm using a rhumb line for heading calculations. However I don't think this makes up for a
+             *   10 degree discrepancy...
+             */
+
+            FlightContext fc = new FlightContext("6770");
+
+            int callbacks = 0;
+
+            fc.OnTakeoff += (sender, args) =>
+            {
+                Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                Assert.AreEqual(254, ((FlightContext)sender).Flight.DepartureHeading);
+                callbacks++;
+            };
+
+            fc.OnLanding += (sender, args) =>
+            {
+                Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                Assert.AreEqual(249, ((FlightContext)sender).Flight.ArrivalHeading);
+                callbacks++;
+            };
+
+            // These events should NOT be fired
+            fc.OnRadarContact += (sender, e) => Assert.Fail();
+            fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
+
+            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
 
             fc.WaitForIdleProcess.WaitOne();
 

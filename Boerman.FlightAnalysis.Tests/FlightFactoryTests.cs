@@ -1,7 +1,6 @@
-﻿using Boerman.FlightAnalysis;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Boerman.FlightAnalyis.Tests
+namespace Boerman.FlightAnalysis.Tests
 {
     [TestClass]
     public class FlightFactoryTests

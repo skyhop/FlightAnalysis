@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Boerman.FlightAnalysis.Helpers;
+using Boerman.FlightAnalysis.Models;
 
 namespace Boerman.FlightAnalysis.FlightStates
 {
@@ -24,16 +27,18 @@ namespace Boerman.FlightAnalysis.FlightStates
             {
                 if (!Context.PriorityQueue.Any()) return;
 
-                var positionUpdate = Context.PriorityQueue.Dequeue();
-                
-                if (positionUpdate == null)
+                var positionUpdate = NormalizeData(Context.PriorityQueue.Dequeue());
+
+                if (positionUpdate != null) Context.Flight.PositionUpdates.Add(positionUpdate);
+
+                if (positionUpdate == null
+                    || Double.IsNaN(positionUpdate.Heading)
+                    || Double.IsNaN(positionUpdate.Speed))
                 {
                     Context.QueueState(typeof(ProcessNextPoint));
                     return;
                 }
-
-                Context.Flight.PositionUpdates.Add(positionUpdate);
-
+                
                 TimingChecks(positionUpdate.TimeStamp);
                 
                 Context.QueueState(typeof(DetermineFlightState));
@@ -47,7 +52,7 @@ namespace Boerman.FlightAnalysis.FlightStates
 
             if (Context.Flight.StartTime == null)
             {
-                // Just keep the buffer small by removing points older then 2 minutes
+                // Just keep the buffer small by removing points older then 2 minutes. The flight hasn't started anyway
                 Context.Flight.PositionUpdates
                         .Where(q => q.TimeStamp < currentTimeStamp.AddMinutes(-2))
                         .ToList()
@@ -61,6 +66,46 @@ namespace Boerman.FlightAnalysis.FlightStates
             }
 
             Context.LatestTimeStamp = currentTimeStamp;
+        }
+
+        // ToDo: Add information about the aircrafts climbrate and so on, if possible
+        private PositionUpdate NormalizeData(PositionUpdate position)
+        {
+            if (Context.Flight.PositionUpdates.Count < 2
+                || (!Double.IsNaN(position.Heading) && !Double.IsNaN(position.Speed))) return position;
+            
+            var previousPosition =
+                Context.Flight.PositionUpdates.LastOrDefault();
+
+            // ToDo: Check whether these two position updates are not too similar
+            if (position == null || previousPosition == null) return null;
+
+            double? heading = null;
+            double? speed = null;
+
+            if (Double.IsNaN(position.Heading)) heading = Geo.DegreeBearing(previousPosition.GeoCoordinate, position.GeoCoordinate);
+            
+            if (Double.IsNaN(position.Speed))
+            {
+                // 1. Get the distance (meters)
+                // 2. Calculate the time difference (seconds)
+                // 3. Convert to knots (1.94384449 is a constant)
+                var distance = previousPosition.GeoCoordinate.GetDistanceTo(position.GeoCoordinate);
+                var timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Seconds;
+
+                if (distance == 0 || timeDifference == 0) return null;
+
+                speed =  distance / timeDifference * 1.94384449;
+            }
+            
+            return new PositionUpdate(
+                position.Aircraft,
+                position.TimeStamp,
+                position.Latitude,
+                position.Longitude,
+                position.Altitude,
+                speed ?? position.Speed,
+                heading ?? position.Heading);
         }
     }
 }
