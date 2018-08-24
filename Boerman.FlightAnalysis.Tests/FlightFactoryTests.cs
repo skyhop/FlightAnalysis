@@ -17,7 +17,7 @@ namespace Boerman.FlightAnalysis.Tests
              * Next the start/end times, heading and locations should be correct and the events should be firing.
              * The context factory should be capable of processing a lot of mixed information from different aircraft.
              */
-
+            
             ff.OnTakeoff += (sender, args) =>
             {
                 

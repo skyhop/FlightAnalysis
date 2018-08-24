@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
+using RBush;
 
 namespace Boerman.FlightAnalysis
 {
@@ -15,7 +17,10 @@ namespace Boerman.FlightAnalysis
     {
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
-        
+
+        // ToDo: Write documentation about the additional functionality of the RBush on the FlightContextFactory. (Meeting points, tow start detection)
+        private readonly RBush<PositionUpdate> _bush = new RBush<PositionUpdate>();
+
         internal readonly Options Options;
 
         /// <summary>
@@ -49,13 +54,7 @@ namespace Boerman.FlightAnalysis
             }.Elapsed += TimerOnElapsed;
         }
 
-        public IEnumerable<string> TrackedAircraft
-        {
-            get
-            {
-                return _flightContextDictionary.Select(q => q.Key);
-            }
-        }
+        public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
 
         private void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
@@ -71,7 +70,11 @@ namespace Boerman.FlightAnalysis
                 try
                 {
                     OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
-                } catch { }
+                }
+                catch (Exception ex)
+                {
+                    Trace.Write(ex);
+                }
             }
         }
 
@@ -82,12 +85,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
-            if (String.IsNullOrWhiteSpace(positionUpdate?.Aircraft)) return;
-
-            EnsureContextAvailable(positionUpdate.Aircraft);
-            
-            if (_flightContextDictionary.TryGetValue(positionUpdate.Aircraft, out var flightContext))
-                flightContext.Enqueue(positionUpdate);
+            Enqueue(new [] { positionUpdate });
         }
 
         /// <summary>
@@ -107,9 +105,20 @@ namespace Boerman.FlightAnalysis
             foreach (var updates in updatesByAircraft)
             {
                 EnsureContextAvailable(updates.Key);
-                
+
                 if (_flightContextDictionary.TryGetValue(updates.Key, out var flightContext))
+                {
+                    var lastPosition = flightContext.Flight.PositionUpdates.LastOrDefault();
+                    
                     flightContext.Enqueue(updates);
+
+                    // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
+                    // data, is not the moment this data is also available on the FlightContext's Flight
+                    // property. We should find a way to make sure the data in the bush stays clean!
+
+                    if (lastPosition != null) _bush.Delete(lastPosition);
+                    _bush.Insert(updates.OrderByDescending(q => q.TimeStamp).FirstOrDefault());
+                }
             }
         }
 
@@ -126,6 +135,9 @@ namespace Boerman.FlightAnalysis
             SubscribeContextEventHandlers(context);
 
             _flightContextDictionary.TryAdd(context.AircraftId, context);
+
+            var lastPosition = context.Flight.PositionUpdates.LastOrDefault();
+            if (lastPosition != null) _bush.Insert(lastPosition);
         }
 
         /// <summary>

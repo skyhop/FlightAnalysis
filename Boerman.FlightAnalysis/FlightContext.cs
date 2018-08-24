@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Boerman.FlightAnalysis.FlightStates;
@@ -122,7 +123,11 @@ namespace Boerman.FlightAnalysis
             try
             {
                 OnTakeoff?.Invoke(this, new OnTakeoffEventArgs(Flight));
-            } catch { }
+            }
+            catch (Exception ex)
+            {
+                Trace.Write(ex);
+            }
         }
         
         internal void InvokeOnLandingEvent()
@@ -130,7 +135,11 @@ namespace Boerman.FlightAnalysis
             try
             {
                 OnLanding?.Invoke(this, new OnLandingEventArgs(Flight));
-            } catch { }
+            }
+            catch (Exception ex)
+            {
+                Trace.Write(ex);
+            }
         }
 
         internal void InvokeOnRadarContactEvent()
@@ -138,7 +147,11 @@ namespace Boerman.FlightAnalysis
             try
             {
                 OnRadarContact?.Invoke(this, new OnRadarContactEventArgs(Flight));
-            } catch { }
+            }
+            catch (Exception ex)
+            {
+                Trace.Write(ex);
+            }
         }
 
         internal void InvokeOnCompletedWithErrorsEvent()
@@ -146,7 +159,11 @@ namespace Boerman.FlightAnalysis
             try
             {
                 OnCompletedWithErrors?.Invoke(this, new OnCompletedWithErrorsEventArgs(Flight));
-            } catch { }
+            }
+            catch (Exception ex)
+            {
+                Trace.Write(ex);
+            }
         }
 
         /// <summary>
