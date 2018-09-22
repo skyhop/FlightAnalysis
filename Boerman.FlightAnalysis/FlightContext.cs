@@ -58,11 +58,8 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(FlightMetadata flightMetadata) {
-            if (String.IsNullOrWhiteSpace(Flight.Aircraft)) throw new ArgumentException("flightMetadata.Aircraft cannot be null or empty");
-            AircraftId = flightMetadata.Aircraft;
-            Flight = flightMetadata.Flight;
-            StartOrContinueProcessing();
+        public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata.Flight) {
+            AircraftId = AircraftId ?? flightMetadata.Aircraft;
         }
 
         /// <summary>
@@ -71,7 +68,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
         /// processing has been done.</param>
         public FlightContext(Flight flight) {
-            if (String.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException("flight.Aircraft cannot be null or empty");
+            if(String.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException("flight.Aircraft cannot be null or empty");
             AircraftId = flight.Aircraft;
             Flight = flight;
             StartOrContinueProcessing();

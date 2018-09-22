@@ -1,5 +1,7 @@
 ﻿using Boerman.FlightAnalysis;
+using Boerman.FlightAnalysis.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace Boerman.FlightAnalyis.Tests
 {
@@ -33,6 +35,45 @@ namespace Boerman.FlightAnalyis.Tests
             ff.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
             ff.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
             ff.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
+        }
+
+        [TestMethod]
+        public void AttachEmptyMetadataObjectToFactory()
+        {
+            try
+            {
+                var ff = new FlightContextFactory();
+
+                var metadata = new FlightMetadata
+                {
+                    Aircraft = "FLRDD056A"
+                };
+
+                ff.Attach(metadata);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void AttachEmptyFlightContextObjectToFactory()
+        {
+            try
+            {
+                var ff = new FlightContextFactory();
+
+                var context = new FlightContext(new FlightMetadata
+                {
+                    Aircraft = "FLRDD056A"
+                });
+
+                ff.Attach(context);
+            } catch (Exception ex)
+            {
+                Assert.Fail();
+            }
         }
     }
 }
