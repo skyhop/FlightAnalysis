@@ -3,6 +3,7 @@ using RBush;
 
 namespace Boerman.FlightAnalysis.Models
 {
+    // ToDo: Get this into a readonly struct for performance reasons
     public class PositionUpdate : ISpatialData
     {
         /// <summary>

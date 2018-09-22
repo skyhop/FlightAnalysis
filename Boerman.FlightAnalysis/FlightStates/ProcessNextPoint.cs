@@ -38,15 +38,15 @@ namespace Boerman.FlightAnalysis.FlightStates
                     Context.QueueState(typeof(ProcessNextPoint));
                     return;
                 }
-                
-                TimingChecks(positionUpdate.TimeStamp);
-                
-                Context.QueueState(typeof(DetermineFlightState));
+
+                // Do a few checks to see whether the timing of positionupdates allows further processing.
+                if (TimingChecks(positionUpdate.TimeStamp)) Context.QueueState(typeof(DetermineFlightState));
             }
         }
 
         // ToDo: Make the time periods used in this function configurable from the options class. (Context.Options)
-        private void TimingChecks(DateTime currentTimeStamp)
+        // ToDo: As this function is only used once, integrate it with the main flow for readability. (It's not completely clear right now where the queued states come from)
+        private bool TimingChecks(DateTime currentTimeStamp)
         {
             if (Context.LatestTimeStamp == DateTime.MinValue) Context.LatestTimeStamp = currentTimeStamp;
 
@@ -63,9 +63,12 @@ namespace Boerman.FlightAnalysis.FlightStates
                 Context.InvokeOnCompletedWithErrorsEvent();
                 Context.QueueState(typeof(InitializeFlightState));
                 Context.QueueState(typeof(ProcessNextPoint));
+                Context.LatestTimeStamp = currentTimeStamp;
+                return false;
             }
 
             Context.LatestTimeStamp = currentTimeStamp;
+            return true;
         }
 
         // ToDo: Add information about the aircrafts climbrate and so on, if possible

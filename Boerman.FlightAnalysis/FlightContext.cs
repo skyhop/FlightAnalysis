@@ -54,6 +54,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
         public FlightContext(FlightMetadata flightMetadata) {
+            AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flightMetadata.Flight;
         }
 
@@ -63,6 +64,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
         /// processing has been done.</param>
         public FlightContext(Flight flight) {
+            AircraftId = flight.Aircraft;           // Se explanation by previous constructor.
             Flight = flight;
         }
 
