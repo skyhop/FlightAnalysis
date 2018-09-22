@@ -26,6 +26,13 @@ namespace Boerman.FlightAnalysis
 
         public CancellationTokenSource CancellationTokenSource { get; private set; }
 
+        /*
+         * This is the only constructor which is allowed to initiale a FlightContext without aircraft identifier.
+         * Only to facilitate the few moments where your workflow is set up in a way that it's logical to only process
+         * data from a single aircraft. For all other reasons I'd strongly recommend using the FlightContextFactory
+         * anyway.
+         */
+
         /// <summary>
         /// FlightContext Constructor
         /// </summary>
@@ -33,7 +40,6 @@ namespace Boerman.FlightAnalysis
         public FlightContext(string aircraftId = null)
         {
             AircraftId = aircraftId;
-
             QueueState(typeof(InitializeFlightState));
 
             /*
@@ -53,7 +59,10 @@ namespace Boerman.FlightAnalysis
         /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
         public FlightContext(FlightMetadata flightMetadata) {
+            if (String.IsNullOrWhiteSpace(Flight.Aircraft)) throw new ArgumentException("flightMetadata.Aircraft cannot be null or empty");
+            AircraftId = flightMetadata.Aircraft;
             Flight = flightMetadata.Flight;
+            StartOrContinueProcessing();
         }
 
         /// <summary>
@@ -62,7 +71,10 @@ namespace Boerman.FlightAnalysis
         /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
         /// processing has been done.</param>
         public FlightContext(Flight flight) {
+            if (String.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException("flight.Aircraft cannot be null or empty");
+            AircraftId = flight.Aircraft;
             Flight = flight;
+            StartOrContinueProcessing();
         }
 
         /// <summary>
