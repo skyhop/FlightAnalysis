@@ -22,7 +22,7 @@ namespace Boerman.FlightAnalysis.FlightStates
                 .Take(5)
                 .ToList();
 
-            if (departure.Count() < 5) return; // ToDo: try again next time.
+            if (departure.Count() < 5) return;
             
             Context.Flight.DepartureHeading = Convert.ToInt16(departure.Average(q => q.Heading));
             Context.Flight.DepartureLocation = departure.First().Location;
