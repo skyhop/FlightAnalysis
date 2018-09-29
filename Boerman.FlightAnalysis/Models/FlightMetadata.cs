@@ -1,5 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using GeoAPI.Geometries;
+using System;
 
 namespace Boerman.FlightAnalysis.Models
 {
@@ -17,38 +17,35 @@ namespace Boerman.FlightAnalysis.Models
         public FlightMetadata(Flight flight)
         {
             if (flight == null) return;
-
+            
             Id = flight.Id;
             Aircraft = flight.Aircraft;
             LastSeen = flight.LastSeen;
-            StartTime = flight.StartTime;
+            DepartureTime = flight.StartTime;
             DepartureHeading = flight.DepartureHeading;
-            DepartureLocation = flight.DepartureLocation?.ToString();
+            DepartureLocation = flight.DepartureLocation;
             DepartureInfoFound = flight.DepartureInfoFound;
-            EndTime = flight.EndTime;
+            ArrivalTime = flight.EndTime;
             ArrivalHeading = flight.ArrivalHeading;
-            ArrivalLocation = flight.ArrivalLocation?.ToString();
+            ArrivalLocation = flight.ArrivalLocation;
             ArrivalInfoFound = flight.ArrivalInfoFound;
         }
 
         public Guid? Id { get; set; }
         public string Aircraft { get; set; }
         public DateTime? LastSeen { get; set; }
-        public DateTime? StartTime { get; set; }
+        public DateTime? DepartureTime { get; set; }
         public short DepartureHeading { get; set; }
-        public string DepartureLocation { get; set; }
+        public Coordinate DepartureLocation { get; set; }
         public bool? DepartureInfoFound { get; set; }
-        public DateTime? EndTime { get; set; }
+        public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
-        public string ArrivalLocation { get; set; }
+        public Coordinate ArrivalLocation { get; set; }
         public bool? ArrivalInfoFound { get; set; }
+        
+        public bool Completed => (DepartureInfoFound != null || DepartureTime != null) && (ArrivalInfoFound != null || ArrivalTime != null);
 
-        // Some helper methods
-        public double[] DepartureCoordinate => DepartureLocation?.Split(',')?.Select(q => Double.Parse(q)).ToArray();
-        public double[] ArrivalCoordinate => ArrivalLocation?.Split(',')?.Select(q => Double.Parse(q)).ToArray();
-        public bool Completed => (DepartureInfoFound != null || StartTime != null) && (ArrivalInfoFound != null || EndTime != null);
-
-        // ToDo: Make internal
-        public Flight Flight => new Flight(this);
+        // ToDo: Make internal => Done 2018-09-29
+        internal Flight Flight => new Flight(this);
     }
 }

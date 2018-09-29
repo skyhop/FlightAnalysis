@@ -23,11 +23,11 @@ namespace RealtimeFlightActivityMonitor
         static void Main(string[] args)
         {
             FlightContextFactory.OnTakeoff += (sender, e) => {
-                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Took off from {e.Flight.DepartureLocation.Latitude}, {e.Flight.DepartureLocation.Longitude}");
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Took off from {e.Flight.DepartureLocation.X}, {e.Flight.DepartureLocation.Y}");
             };
 
             FlightContextFactory.OnLanding += (sender, e) => {
-                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Landed at {e.Flight.ArrivalLocation.Latitude}, {e.Flight.ArrivalLocation.Longitude}");
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Landed at {e.Flight.ArrivalLocation.X}, {e.Flight.ArrivalLocation.Y}");
             };
 
             FlightContextFactory.OnRadarContact += (sender, e) => {

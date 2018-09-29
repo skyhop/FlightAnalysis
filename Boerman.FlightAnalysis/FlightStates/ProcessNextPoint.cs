@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Boerman.FlightAnalysis.Helpers;
@@ -86,14 +85,15 @@ namespace Boerman.FlightAnalysis.FlightStates
             double? heading = null;
             double? speed = null;
 
-            if (Double.IsNaN(position.Heading)) heading = Geo.DegreeBearing(previousPosition.GeoCoordinate, position.GeoCoordinate);
+            if (Double.IsNaN(position.Heading)) heading = Geo.DegreeBearing(previousPosition.Location, position.Location);
             
             if (Double.IsNaN(position.Speed))
             {
                 // 1. Get the distance (meters)
                 // 2. Calculate the time difference (seconds)
                 // 3. Convert to knots (1.94384449 is a constant)
-                var distance = previousPosition.GeoCoordinate.GetDistanceTo(position.GeoCoordinate);
+                //var distance = previousPosition.Location.GetDistanceTo(position.Location);
+                var distance = previousPosition.Location.DistanceTo(position.Location);
                 var timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Seconds;
 
                 if (distance == 0 || timeDifference == 0) return null;

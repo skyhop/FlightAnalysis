@@ -26,7 +26,7 @@ namespace Boerman.FlightAnalysis.FlightStates
 
             Context.Flight.ArrivalInfoFound = true;
             Context.Flight.ArrivalHeading = Convert.ToInt16(arrival.Average(q => q.Heading));
-            Context.Flight.ArrivalLocation = arrival.First().GeoCoordinate;
+            Context.Flight.ArrivalLocation = arrival.First().Location;
             
             Context.InvokeOnLandingEvent();
         }

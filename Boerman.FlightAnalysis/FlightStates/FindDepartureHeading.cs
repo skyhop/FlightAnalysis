@@ -25,7 +25,7 @@ namespace Boerman.FlightAnalysis.FlightStates
             if (departure.Count() < 5) return; // ToDo: try again next time.
             
             Context.Flight.DepartureHeading = Convert.ToInt16(departure.Average(q => q.Heading));
-            Context.Flight.DepartureLocation = departure.First().GeoCoordinate;
+            Context.Flight.DepartureLocation = departure.First().Location;
             
             Context.InvokeOnTakeoffEvent();
         }

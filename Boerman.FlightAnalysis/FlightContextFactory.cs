@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
-using RBush;
 
 namespace Boerman.FlightAnalysis
 {
@@ -17,9 +16,6 @@ namespace Boerman.FlightAnalysis
     {
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
-
-        // ToDo: Write documentation about the additional functionality of the RBush on the FlightContextFactory. (Meeting points, tow start detection)
-        private readonly RBush<PositionUpdate> _bush = new RBush<PositionUpdate>();
 
         internal readonly Options Options;
 
@@ -115,9 +111,6 @@ namespace Boerman.FlightAnalysis
                     // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
                     // data, is not the moment this data is also available on the FlightContext's Flight
                     // property. We should find a way to make sure the data in the bush stays clean!
-
-                    if (lastPosition != null) _bush.Delete(lastPosition);
-                    _bush.Insert(updates.OrderByDescending(q => q.TimeStamp).FirstOrDefault());
                 }
             }
         }
@@ -135,9 +128,6 @@ namespace Boerman.FlightAnalysis
             SubscribeContextEventHandlers(context);
 
             _flightContextDictionary.TryAdd(context.AircraftId, context);
-
-            var lastPosition = context.Flight.PositionUpdates.LastOrDefault();
-            if (lastPosition != null) _bush.Insert(lastPosition);
         }
 
         /// <summary>

@@ -15,8 +15,10 @@
     <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Boerman/FlightAnalysis</RepositoryUrl>
-    <Version>1.0.19</Version>
+    <Version>2.0.0-beta1</Version>
     <Copyright>Corstian Boerman</Copyright>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -27,6 +29,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Boerman.Core" Version="2.0.2" />
+    <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.1.1" />
     <PackageReference Include="RBush" Version="2.0.31" />
   </ItemGroup>

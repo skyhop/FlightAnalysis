@@ -34,6 +34,10 @@ namespace Boerman.FlightAnalysis
         public FlightContext(string aircraftId = null)
         {
             AircraftId = aircraftId;
+            Flight = new Flight
+            {
+                Aircraft = aircraftId
+            };
 
             QueueState(typeof(InitializeFlightState));
 

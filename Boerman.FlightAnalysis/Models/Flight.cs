@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GeoAPI.Geometries;
+using System;
 using System.Collections.Generic;
 
 namespace Boerman.FlightAnalysis.Models
@@ -15,14 +16,14 @@ namespace Boerman.FlightAnalysis.Models
             Id = metadata.Id ?? Guid.NewGuid();
             Aircraft = metadata.Aircraft;
             LastSeen = metadata.LastSeen;
-            StartTime = metadata.StartTime;
+            StartTime = metadata.DepartureTime;
             DepartureHeading = metadata.DepartureHeading;
-            DepartureLocation = metadata.DepartureCoordinate != null ? new GeoCoordinate(metadata.DepartureCoordinate[0], metadata.DepartureCoordinate[1]) : null;
+            DepartureLocation = metadata.DepartureLocation;// != null ? new GeoCoordinate(metadata.DepartureCoordinate[0], metadata.DepartureCoordinate[1]) : null;
             DepartureInfoFound = metadata.DepartureInfoFound;
-            EndTime = metadata.EndTime;
+            EndTime = metadata.ArrivalTime;
             ArrivalHeading = metadata.ArrivalHeading;
             ArrivalInfoFound = metadata.ArrivalInfoFound;
-            ArrivalLocation = metadata.ArrivalCoordinate != null ? new GeoCoordinate(metadata.ArrivalCoordinate[0], metadata.ArrivalCoordinate[1]) : null;
+            ArrivalLocation = metadata.ArrivalLocation;// != null ? new GeoCoordinate(metadata.ArrivalCoordinate[0], metadata.ArrivalCoordinate[1]) : null;
 
             if (metadata is FlightViewModel) 
                 PositionUpdates = ((FlightViewModel)metadata).PositionUpdates ?? new List<PositionUpdate>();
@@ -38,12 +39,12 @@ namespace Boerman.FlightAnalysis.Models
 
         public DateTime? StartTime { get; internal set; }
         public short DepartureHeading { get; internal set; }
-        public GeoCoordinate DepartureLocation { get; internal set; }
+        public Coordinate DepartureLocation { get; internal set; }
         public bool? DepartureInfoFound { get; internal set; }
 
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }
-        public GeoCoordinate ArrivalLocation { get; internal set; }
+        public Coordinate ArrivalLocation { get; internal set; }
         public bool? ArrivalInfoFound { get; internal set; }
 
         public ICollection<PositionUpdate> PositionUpdates { get; internal set; }
