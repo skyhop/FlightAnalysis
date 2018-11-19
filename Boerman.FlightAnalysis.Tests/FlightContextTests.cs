@@ -40,6 +40,7 @@ namespace Boerman.FlightAnalysis.Tests
             {
                 Assert.AreEqual(636272628474023926, ((FlightContext) sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(250, ((FlightContext) sender).Flight.ArrivalHeading);
+                
                 callbacks++;
             };
 
@@ -85,6 +86,7 @@ namespace Boerman.FlightAnalysis.Tests
             {
                 Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(249, ((FlightContext)sender).Flight.ArrivalHeading);
+
                 callbacks++;
             };
 
@@ -163,6 +165,10 @@ namespace Boerman.FlightAnalysis.Tests
             {
                 Assert.AreEqual(636283891197427348, ((FlightContext) sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(338, ((FlightContext) sender).Flight.ArrivalHeading);
+
+
+                var kml = ((FlightContext)sender).Flight.ViewModel.PositionUpdates.AsKmlXml();
+
             };
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));

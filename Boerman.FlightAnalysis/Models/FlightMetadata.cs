@@ -17,7 +17,7 @@ namespace Boerman.FlightAnalysis.Models
         public FlightMetadata(Flight flight)
         {
             if (flight == null) return;
-            
+
             Id = flight.Id;
             Aircraft = flight.Aircraft;
             LastSeen = flight.LastSeen;
@@ -42,9 +42,9 @@ namespace Boerman.FlightAnalysis.Models
         public short ArrivalHeading { get; set; }
         public IPoint ArrivalLocation { get; set; }
         public bool? ArrivalInfoFound { get; set; }
-        
+
         public bool Completed => (DepartureInfoFound != null || DepartureTime != null) && (ArrivalInfoFound != null || ArrivalTime != null);
-        
+
         internal Flight Flight => new Flight(this);
     }
 }

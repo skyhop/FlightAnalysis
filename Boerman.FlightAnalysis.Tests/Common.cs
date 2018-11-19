@@ -27,7 +27,10 @@ namespace Boerman.FlightAnalysis.Tests
                 var y = BitConverter.ToDouble(location, 14);
 
                 if (useSubset)
-                    yield return new PositionUpdate(fields[1], new DateTime(Int64.Parse(fields[10])),  x, y);
+                {
+                    yield return new PositionUpdate(fields[1], new DateTime(Int64.Parse(fields[10])), x, y);
+                    continue;
+                }
 
                 yield return new PositionUpdate(
                     fields[1],
