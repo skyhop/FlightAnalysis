@@ -1,5 +1,6 @@
 ﻿using System;
 using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 using RBush;
 
 namespace Boerman.FlightAnalysis.Models
@@ -21,7 +22,7 @@ namespace Boerman.FlightAnalysis.Models
         {
             Aircraft = aircraft;
             TimeStamp = timeStamp;
-            Location = new Coordinate(latitude, longitude, altitude);
+            Location = new Point(latitude, longitude, altitude);
             Speed = speed;
             Heading = heading;
 
@@ -51,7 +52,7 @@ namespace Boerman.FlightAnalysis.Models
 
         public DateTime TimeStamp { get; }
 
-        public Coordinate Location { get; internal set; }
+        public IPoint Location { get; internal set; }
         
         public double Latitude => Location.X;
         public double Longitude => Location.Y;

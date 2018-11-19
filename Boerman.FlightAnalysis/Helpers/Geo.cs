@@ -8,8 +8,8 @@ namespace Boerman.FlightAnalysis.Helpers
         // See https://stackoverflow.com/a/2042883/1720761 for more information about these methods.
 
         public static double DegreeBearing(
-            Coordinate coordinate1,
-            Coordinate coordinate2)
+            IPoint coordinate1,
+            IPoint coordinate2)
         {
             var dLon = ToRad(coordinate2.Y - coordinate1.Y);
             var dPhi = Math.Log(
@@ -43,7 +43,7 @@ namespace Boerman.FlightAnalysis.Helpers
         ///     The distance between the two coordinates, in meters.
         /// </returns>
         /// <param name="other">The GeoCoordinate for the location to calculate the distance to.</param>
-        public static double DistanceTo(this Coordinate from, Coordinate to)
+        public static double DistanceTo(this IPoint from, IPoint to)
         {
             if (double.IsNaN(from.X) || double.IsNaN(from.Y) || double.IsNaN(to.X) ||
                 double.IsNaN(to.Y))
@@ -60,5 +60,6 @@ namespace Boerman.FlightAnalysis.Helpers
 
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
+
     }
 }

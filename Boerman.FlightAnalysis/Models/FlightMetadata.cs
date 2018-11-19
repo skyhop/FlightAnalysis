@@ -36,16 +36,15 @@ namespace Boerman.FlightAnalysis.Models
         public DateTime? LastSeen { get; set; }
         public DateTime? DepartureTime { get; set; }
         public short DepartureHeading { get; set; }
-        public Coordinate DepartureLocation { get; set; }
+        public IPoint DepartureLocation { get; set; }
         public bool? DepartureInfoFound { get; set; }
         public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
-        public Coordinate ArrivalLocation { get; set; }
+        public IPoint ArrivalLocation { get; set; }
         public bool? ArrivalInfoFound { get; set; }
         
         public bool Completed => (DepartureInfoFound != null || DepartureTime != null) && (ArrivalInfoFound != null || ArrivalTime != null);
-
-        // ToDo: Make internal => Done 2018-09-29
+        
         internal Flight Flight => new Flight(this);
     }
 }

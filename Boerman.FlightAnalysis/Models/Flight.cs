@@ -4,6 +4,18 @@ using System.Collections.Generic;
 
 namespace Boerman.FlightAnalysis.Models
 {
+    /*
+     * ToDo: As this model is mainly used for processing the actual flight,
+     * try to abstract this class away from the event handlers.
+     * 
+     * There is no need in immutability of events when the model is already
+     * copied.
+     * 
+     */
+    
+    /// <summary>
+    /// The Flight class is the workhorse for the FlightAnalysis library. 
+    /// </summary>
     public class Flight
     {
         public Flight() {
@@ -39,12 +51,12 @@ namespace Boerman.FlightAnalysis.Models
 
         public DateTime? StartTime { get; internal set; }
         public short DepartureHeading { get; internal set; }
-        public Coordinate DepartureLocation { get; internal set; }
+        public IPoint DepartureLocation { get; internal set; }
         public bool? DepartureInfoFound { get; internal set; }
 
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }
-        public Coordinate ArrivalLocation { get; internal set; }
+        public IPoint ArrivalLocation { get; internal set; }
         public bool? ArrivalInfoFound { get; internal set; }
 
         public ICollection<PositionUpdate> PositionUpdates { get; internal set; }

@@ -15,7 +15,7 @@
     <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Boerman/FlightAnalysis</RepositoryUrl>
-    <Version>1.1.0-beta1</Version>
+    <Version>1.1.0-beta2</Version>
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
@@ -30,6 +30,7 @@
   <ItemGroup>
     <PackageReference Include="Boerman.Core" Version="2.0.2" />
     <PackageReference Include="GeoAPI" Version="1.7.5" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.1" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.1.1" />
     <PackageReference Include="RBush" Version="2.0.31" />
   </ItemGroup>
