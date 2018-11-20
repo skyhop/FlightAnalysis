@@ -94,6 +94,8 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
+            if (positionUpdate.TimeStamp > Flight.LastSeen) Flight.LastSeen = positionUpdate.TimeStamp;
+
             Enqueue(positionUpdate, true);
         }
         

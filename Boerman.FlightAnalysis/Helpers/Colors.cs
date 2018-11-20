@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Boerman.FlightAnalysis.Helpers
 {
-    public static class Colors
+    internal static class Colors
     {
-        public static void RgbToHls(int r, int g, int b,
+        internal static void RgbToHls(int r, int g, int b,
     out double h, out double l, out double s)
         {
             // Convert RGB to a 0.0 to 1.0 range.
@@ -58,7 +56,7 @@ namespace Boerman.FlightAnalysis.Helpers
         /// <param name="r"></param>
         /// <param name="g"></param>
         /// <param name="b"></param>
-        public static void HlsToRgb(double h, double l, double s,
+        internal static void HlsToRgb(double h, double l, double s,
             out int r, out int g, out int b)
         {
             double p2;
