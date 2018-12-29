@@ -84,7 +84,7 @@ namespace Boerman.FlightAnalysis.FlightStates
                 Context.Flight.PositionUpdates.LastOrDefault();
 
             // ToDo: Check whether these two position updates are not too similar
-            if (position == null || previousPosition == null) return null;
+            if (position == null || previousPosition == null) return position;
 
             double? heading = null;
             double? speed = null;
@@ -98,21 +98,17 @@ namespace Boerman.FlightAnalysis.FlightStates
                 // 3. Convert to knots (1.94384449 is a constant)
                 //var distance = previousPosition.Location.GetDistanceTo(position.Location);
                 var distance = previousPosition.Location.DistanceTo(position.Location);
-                var timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Seconds;
+                var timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Milliseconds;
 
-                if (distance == 0 || timeDifference == 0) return null;
+                if (timeDifference == 0) return null;
 
-                speed =  distance / timeDifference * 1.94384449;
+                if (distance != 0) speed = distance / (timeDifference / 1000) * 1.94384449;
             }
-            
-            return new PositionUpdate(
-                position.Aircraft,
-                position.TimeStamp,
-                position.Latitude,
-                position.Longitude,
-                position.Altitude,
-                speed ?? position.Speed,
-                heading ?? position.Heading);
+
+            position.Speed = speed ?? position.Speed;
+            position.Heading = heading ?? position.Heading;
+
+            return position;
         }
     }
 }

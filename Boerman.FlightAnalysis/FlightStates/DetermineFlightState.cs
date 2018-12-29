@@ -31,6 +31,8 @@ namespace Boerman.FlightAnalysis.FlightStates
                  * ToDo: Also check the vertical speed as it might be an indication
                  * that the flight is still in progress! (Aerobatic stuff and so)
                  */
+                
+                // We might as well check for Context.Flight.DepartureInfoFound != null, I think
                 if (Context.Flight.StartTime != null ||
                    Context.Flight.DepartureInfoFound == false)
                 {
@@ -48,7 +50,7 @@ namespace Boerman.FlightAnalysis.FlightStates
                     // We have to start the flight
 
                     // Walk back to when the speed was 0
-                    var start = Context.Flight.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && q.Speed == 0)
+                    var start = Context.Flight.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && (q.Speed == 0 || Double.IsNaN(q.Speed)))
                         .OrderByDescending(q => q.TimeStamp)
                         .FirstOrDefault();
                     

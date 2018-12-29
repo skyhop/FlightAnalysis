@@ -50,7 +50,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
 
             Assert.AreEqual(2, callbacks);
         }
@@ -78,14 +78,14 @@ namespace Boerman.FlightAnalysis.Tests
             fc.OnTakeoff += (sender, args) =>
             {
                 Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                Assert.AreEqual(254, ((FlightContext)sender).Flight.DepartureHeading);
+                Assert.AreEqual(249, ((FlightContext)sender).Flight.DepartureHeading);
                 callbacks++;
             };
 
             fc.OnLanding += (sender, args) =>
             {
-                Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                Assert.AreEqual(249, ((FlightContext)sender).Flight.ArrivalHeading);
+                Assert.AreEqual(636272591764373758, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                Assert.AreEqual(244, ((FlightContext)sender).Flight.ArrivalHeading);
 
                 callbacks++;
             };
@@ -96,7 +96,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
 
             Assert.AreEqual(2, callbacks);
         }
@@ -128,7 +128,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
 
             Assert.AreEqual(2, callbacks);
         }
@@ -173,7 +173,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -221,7 +221,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -269,7 +269,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -333,7 +333,7 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
 
-            fc.WaitForIdleProcess.WaitOne();
+            fc.WaitForIdleProcess();
 
             Assert.AreEqual(4, pass);
             Assert.AreEqual(8, callbacks);

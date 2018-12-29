@@ -146,7 +146,7 @@ namespace Boerman.FlightAnalysis
                 OnTakeoff?.Invoke(this, new OnTakeoffEventArgs(Flight));
             }
             catch (Exception ex)
-            {
+           {
                 Trace.Write(ex);
             }
         }
@@ -207,5 +207,20 @@ namespace Boerman.FlightAnalysis
         /// been detected. (For example destination airfield could not be found)
         /// </summary>
         public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
+
+        private new bool StateQueueContainsStates => base.StateQueueContainsStates;
+        public new Func<bool> WaitForIdleProcess => base.WaitForIdleProcess;
+        public new bool IsQueueRunning => base.IsQueueRunning;
+
+        protected new internal BaseContext QueueState(Type state)
+        {
+            base.QueueState(state);
+            return this;
+        }
+
+        protected new internal void Run(CancellationToken cancellationToken = default)
+        {
+            base.Run(cancellationToken);
+        }
     }
 }

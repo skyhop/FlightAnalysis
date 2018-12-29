@@ -1,7 +1,6 @@
 ﻿using System;
 using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
-using RBush;
 
 namespace Boerman.FlightAnalysis.Models
 {

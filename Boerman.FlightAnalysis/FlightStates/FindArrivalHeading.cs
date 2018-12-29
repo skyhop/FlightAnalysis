@@ -17,7 +17,7 @@ namespace Boerman.FlightAnalysis.FlightStates
         public override async Task Run()
         {
             var arrival = Context.Flight.PositionUpdates
-                .Where(q => q.Heading != 0)
+                .Where(q => q.Heading != 0 && !Double.IsNaN(q.Heading))
                 .OrderByDescending(q => q.TimeStamp)
                 .Take(5)
                 .ToList();
@@ -27,7 +27,9 @@ namespace Boerman.FlightAnalysis.FlightStates
             Context.Flight.ArrivalInfoFound = true;
             Context.Flight.ArrivalHeading = Convert.ToInt16(arrival.Average(q => q.Heading));
             Context.Flight.ArrivalLocation = arrival.First().Location;
-            
+
+            if (Context.Flight.ArrivalHeading == 0) Context.Flight.ArrivalHeading = 360;
+
             Context.InvokeOnLandingEvent();
         }
     }

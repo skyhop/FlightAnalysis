@@ -17,7 +17,7 @@ namespace Boerman.FlightAnalysis.FlightStates
         public override async Task Run()
         {
             var departure = Context.Flight.PositionUpdates
-                .Where(q => q.Heading != 0)
+                .Where(q => q.Heading != 0 && !Double.IsNaN(q.Heading))
                 .OrderBy(q => q.TimeStamp)
                 .Take(5)
                 .ToList();
@@ -26,6 +26,8 @@ namespace Boerman.FlightAnalysis.FlightStates
             
             Context.Flight.DepartureHeading = Convert.ToInt16(departure.Average(q => q.Heading));
             Context.Flight.DepartureLocation = departure.First().Location;
+
+            if (Context.Flight.DepartureHeading == 0) Context.Flight.DepartureHeading = 360;
             
             Context.InvokeOnTakeoffEvent();
         }

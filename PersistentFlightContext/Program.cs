@@ -18,6 +18,7 @@ using Boerman.Core.Extensions;
 using Boerman.FlightAnalysis;
 using Boerman.FlightAnalysis.Models;
 using Microsoft.EntityFrameworkCore;
+using Humanizer;
 
 namespace PersistentFlightContext
 {
@@ -51,7 +52,7 @@ namespace PersistentFlightContext
             FlightContextFactory.OnRadarContact += async (sender, e) => {
                 var lastPositionUpdate = e.Flight.PositionUpdates.OrderByDescending(q => q.TimeStamp).First();
 
-                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToStringArrow()}");
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToHeadingArrow()}");
 
                 await StoreModelChange(e.Flight.Metadata);
             };

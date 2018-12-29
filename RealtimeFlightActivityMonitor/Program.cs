@@ -10,7 +10,7 @@ using System;
 using System.Linq;
 using Boerman.AprsClient;
 using Boerman.FlightAnalysis;
-using Boerman.Core.Extensions;
+using Humanizer;
 
 namespace RealtimeFlightActivityMonitor
 {
@@ -33,7 +33,7 @@ namespace RealtimeFlightActivityMonitor
             FlightContextFactory.OnRadarContact += (sender, e) => {
                 var lastPositionUpdate = e.Flight.PositionUpdates.OrderByDescending(q => q.TimeStamp).First();
 
-                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToStringArrow()}");
+                Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToHeadingArrow()}");
             };
 
             FlightContextFactory.OnContextDispose += (sender, e) =>
