@@ -1,4 +1,4 @@
-﻿using Boerman.FlightAnalysis.Models;
+using Boerman.FlightAnalysis.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -58,6 +58,45 @@ namespace Boerman.FlightAnalysis.Tests
                 ff.Attach(flightMetadata);
             }
             catch (Exception ex)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void AttachEmptyMetadataObjectToFactory()
+        {
+            try
+            {
+                var ff = new FlightContextFactory();
+
+                var metadata = new FlightMetadata
+                {
+                    Aircraft = "FLRDD056A"
+                };
+
+                ff.Attach(metadata);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void AttachEmptyFlightContextObjectToFactory()
+        {
+            try
+            {
+                var ff = new FlightContextFactory();
+
+                var context = new FlightContext(new FlightMetadata
+                {
+                    Aircraft = "FLRDD056A"
+                });
+
+                ff.Attach(context);
+            } catch (Exception ex)
             {
                 Assert.Fail();
             }
