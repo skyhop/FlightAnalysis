@@ -81,7 +81,8 @@ namespace Boerman.FlightAnalysis
         {
             if (positionUpdate == null) return;
 
-            // ToDo: When a positionUpdate is queued which doesn't contain all information which is require
+            if (positionUpdate.TimeStamp > Flight.LastSeen) Flight.LastSeen = positionUpdate.TimeStamp;
+            
             PriorityQueue.Enqueue(positionUpdate, positionUpdate.TimeStamp.Ticks);
 
             if (startOrContinueProcessing) StartOrContinueProcessing();
@@ -94,8 +95,6 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
-            if (positionUpdate.TimeStamp > Flight.LastSeen) Flight.LastSeen = positionUpdate.TimeStamp;
-
             Enqueue(positionUpdate, true);
         }
         
