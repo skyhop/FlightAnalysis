@@ -59,7 +59,7 @@ namespace Boerman.FlightAnalysis.Models
         public IPoint ArrivalLocation { get; internal set; }
         public bool? ArrivalInfoFound { get; internal set; }
 
-        public IList<PositionUpdate> PositionUpdates { get; internal set; }
+        public List<PositionUpdate> PositionUpdates { get; internal set; }
 
         public FlightViewModel ViewModel => new FlightViewModel(this);
         public FlightMetadata Metadata => new FlightMetadata(this);

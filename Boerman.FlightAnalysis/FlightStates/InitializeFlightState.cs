@@ -9,7 +9,7 @@ namespace Boerman.FlightAnalysis.FlightStates
     /// The InitializeFlightState class is being used to clear the FlightContext to allow for further processing after 
     /// a single flight has been processed.
     /// </summary>
-    public class InitializeFlightState : FlightState
+    internal class InitializeFlightState : FlightState
     {
         public InitializeFlightState(FlightContext context) : base(context)
         {

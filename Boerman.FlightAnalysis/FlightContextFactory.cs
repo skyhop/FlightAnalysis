@@ -18,7 +18,7 @@ namespace Boerman.FlightAnalysis
             new ConcurrentDictionary<string, FlightContext>();
 
         internal readonly Options Options;
-
+        
         /// <summary>
         /// The constructor for the FlightContextFactory.
         /// </summary>
@@ -103,9 +103,7 @@ namespace Boerman.FlightAnalysis
                 EnsureContextAvailable(updates.Key);
 
                 if (_flightContextDictionary.TryGetValue(updates.Key, out var flightContext))
-                {
-                    var lastPosition = flightContext.Flight.PositionUpdates.LastOrDefault();
-                    
+                {                    
                     flightContext.Enqueue(updates);
 
                     // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
@@ -123,6 +121,12 @@ namespace Boerman.FlightAnalysis
         /// <param name="context"></param>
         public void Attach(FlightContext context)
         {
+            if (Options.MinifyMemoryPressure)
+            {
+                context.MinifyMemoryPressure = true;
+                context.CleanupDataPoints();
+            }
+
             _flightContextDictionary.TryRemove(context.AircraftId, out _);
 
             SubscribeContextEventHandlers(context);

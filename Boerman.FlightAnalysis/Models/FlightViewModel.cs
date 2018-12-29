@@ -66,12 +66,10 @@ namespace Boerman.FlightAnalysis.Models
 
             // Use `cluster.Modes` to retrieve the groups that have been found.
             // Then we can check what parts of the flight are related to that cluster from and to what time.
-
-            
             
             throw new NotImplementedException();
         }
 
-        public IList<PositionUpdate> PositionUpdates { get; set; }
+        public List<PositionUpdate> PositionUpdates { get; set; }
     }
 }

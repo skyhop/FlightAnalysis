@@ -9,7 +9,7 @@ namespace Boerman.FlightAnalysis.FlightStates
     /// <summary>
     /// The ProcessNextPoint state is being invoked to start processing of the next available data point.
     /// </summary>
-    public class ProcessNextPoint : FlightState
+    internal class ProcessNextPoint : FlightState
     {
         public ProcessNextPoint(FlightContext context) : base(context)
         {
@@ -28,7 +28,11 @@ namespace Boerman.FlightAnalysis.FlightStates
 
                 var positionUpdate = NormalizeData(Context.PriorityQueue.Dequeue());
 
-                if (positionUpdate != null) Context.Flight.PositionUpdates.Add(positionUpdate);
+                if (positionUpdate != null)
+                {
+                    Context.Flight.PositionUpdates.Add(positionUpdate);
+                    Context.CleanupDataPoints();
+                }
 
                 if (positionUpdate == null
                     || Double.IsNaN(positionUpdate.Heading)

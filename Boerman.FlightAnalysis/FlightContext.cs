@@ -18,6 +18,9 @@ namespace Boerman.FlightAnalysis
     /// </summary>
     public class FlightContext : BaseContext
     {
+        internal const int MinimumRequiredPositionUpdateCount = 5;
+        internal bool MinifyMemoryPressure;
+
         internal readonly string AircraftId;
         public Flight Flight;
 
@@ -31,9 +34,11 @@ namespace Boerman.FlightAnalysis
         /// FlightContext Constructor
         /// </summary>
         /// <param name="aircraftId">Optional string used to identify this context.</param>
-        public FlightContext(string aircraftId = null)
+        public FlightContext(string aircraftId = null, bool minifyMemoryPressure = false)
         {
             AircraftId = aircraftId;
+            MinifyMemoryPressure = minifyMemoryPressure;
+
             Flight = new Flight
             {
                 Aircraft = aircraftId
@@ -119,6 +124,15 @@ namespace Boerman.FlightAnalysis
 
             CancellationTokenSource = new CancellationTokenSource();
             Run(CancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        /// This method casually removes some position updates.
+        /// </summary>
+        internal void CleanupDataPoints()
+        {
+            if (Flight.PositionUpdates.Count > MinimumRequiredPositionUpdateCount)
+                Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - MinimumRequiredPositionUpdateCount);
         }
 
         /*

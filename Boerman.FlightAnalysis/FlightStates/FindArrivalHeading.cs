@@ -8,7 +8,7 @@ namespace Boerman.FlightAnalysis.FlightStates
     /// The FindArrivalHeading state is invoked once a landing is detected. Sole purpose of this class is to determine
     /// the heading during landing. Heading can later on be used to determine the active runway.
     /// </summary>
-    public class FindArrivalHeading : FlightState
+    internal class FindArrivalHeading : FlightState
     {
         public FindArrivalHeading(FlightContext context) : base(context)
         {

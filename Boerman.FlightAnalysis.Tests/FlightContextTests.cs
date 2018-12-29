@@ -225,6 +225,54 @@ namespace Boerman.FlightAnalysis.Tests
         }
 
         [TestMethod]
+        public async Task MinimalMemory_Flights_PH1387_20170419_20170421()
+        {
+            FlightContext fc = new FlightContext("2842", true);
+
+            int pass = 0;
+
+            fc.OnTakeoff += (sender, args) =>
+            {
+                switch (pass)
+                {
+                    case 0:
+                        Assert.AreEqual(636281989825441178, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                        Assert.AreEqual(355, ((FlightContext)sender).Flight.DepartureHeading);
+                        break;
+                    case 1:
+                        Assert.AreEqual(636283687551363359, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                        Assert.AreEqual(355, ((FlightContext)sender).Flight.DepartureHeading);
+                        break;
+                    case 2:
+                        Assert.AreEqual(636283906924363860, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                        Assert.AreEqual(21, ((FlightContext)sender).Flight.DepartureHeading);
+                        break;
+                }
+            };
+
+            fc.OnLanding += (sender, args) =>
+            {
+                switch (pass)
+                {
+                    case 0:
+                        Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                        Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                        break;
+                    case 1:
+                        Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                        Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
+                        break;
+                }
+
+                pass++;
+            };
+
+            fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+
+            fc.WaitForIdleProcess.WaitOne();
+        }
+
+        [TestMethod]
         public void Flights_PH1384_20170425()
         {
             FlightContext fc = new FlightContext("5657");

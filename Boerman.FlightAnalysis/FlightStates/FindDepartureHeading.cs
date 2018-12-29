@@ -8,7 +8,7 @@ namespace Boerman.FlightAnalysis.FlightStates
     /// The FindDepartureHeading state is being invoked once takeoff had been detected. Sole purpose of this class is 
     /// to determine the heading during takeoff. This data can later on be used to determine the departure runway.
     /// </summary>
-    public class FindDepartureHeading : FlightState
+    internal class FindDepartureHeading : FlightState
     {
         public FindDepartureHeading(FlightContext context) : base(context)
         {

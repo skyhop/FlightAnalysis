@@ -7,7 +7,7 @@ namespace Boerman.FlightAnalysis.FlightStates
     /// <summary>
     /// The DetermineFlightState class contains the main logic to check whether a specific aircraft is flying or not
     /// </summary>
-    public class DetermineFlightState : FlightState
+    internal class DetermineFlightState : FlightState
     {
         public DetermineFlightState(FlightContext context) : base(context)
         {
