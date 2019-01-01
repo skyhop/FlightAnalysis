@@ -143,6 +143,32 @@ namespace Boerman.FlightAnalysis
         public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
         
         /// <summary>
+        /// Retrieves the <seealso cref="FlightContext"/> from the factory. Please note that the <seealso cref="FlightContext"/> will still be attached to the factory.
+        /// </summary>
+        /// <param name="aircraft">The identifier of the aircraft for which you want to retrieve the context.</param>
+        /// <returns></returns>
+        public FlightContext GetContext(string aircraft)
+        {
+            if (_flightContextDictionary.TryGetValue(aircraft, out FlightContext context))
+                return context;
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Removes the <seealso cref="FlightContext"/> for the specified aircraft, and returns the result.
+        /// </summary>
+        /// <param name="aircraft">The removed <seealso cref="FlightContext"/></param>
+        /// <returns></returns>
+        public FlightContext Detach(string aircraft)
+        {
+            if (_flightContextDictionary.TryRemove(aircraft, out FlightContext context))
+                return context;
+
+            return null;
+        }
+
+        /// <summary>
         /// Checks whether there is a context available for the aircraft which will be processed.
         /// </summary>
         /// <param name="aircraft"></param>
