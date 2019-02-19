@@ -1,6 +1,7 @@
 language: csharp
 solution: FlightAnalysis.sln
-dotnet: 2.2
+mono: none
+dotnet: 2.2.104
 script:
     - dotnet restore
     - dotnet test
