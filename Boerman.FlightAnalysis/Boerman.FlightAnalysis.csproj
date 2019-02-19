@@ -35,5 +35,6 @@
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
     <PackageReference Include="RBush" Version="2.0.31" />
     <PackageReference Include="SharpKml.Core" Version="4.0.1" />
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
   </ItemGroup>
 </Project>

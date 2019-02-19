@@ -11,7 +11,9 @@ namespace Boerman.FlightAnalysis
     {
         public static Kml AsKml(this IList<PositionUpdate> positionUpdates)
         {
-            var updates = positionUpdates.OrderBy(q => q.TimeStamp).ToList();
+            var updates = positionUpdates
+                .OrderBy(q => q.TimeStamp)
+                .ToList();
 
             var top = updates.Max(q => q.Altitude);
 

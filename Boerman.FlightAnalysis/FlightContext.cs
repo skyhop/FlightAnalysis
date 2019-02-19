@@ -8,6 +8,7 @@ using Boerman.FlightAnalysis.Models;
 using Boerman.Core.Extensions;
 using Boerman.Core.State;
 using Priority_Queue;
+using System.Reactive.Linq;
 
 namespace Boerman.FlightAnalysis
 {
@@ -81,10 +82,11 @@ namespace Boerman.FlightAnalysis
         /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
         /// processing has been done.</param>
         public FlightContext(Flight flight) {
-            if(String.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException("flight.Aircraft cannot be null or empty");
-            AircraftId = flight.Aircraft;
+            if(String.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException($"{nameof(flight.Aircraft)} cannot be null or empty");
 
+            AircraftId = flight.Aircraft;
             Flight = flight;
+
             StartOrContinueProcessing();
         }
 
@@ -204,9 +206,27 @@ namespace Boerman.FlightAnalysis
         public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
         /// <summary>
-        /// The OnLanding event will fire once the data indicates a landing
+        /// Observable source for live updates on departures.
+        /// </summary>
+        public IObservable<OnTakeoffEventArgs> Departure => Observable
+            .FromEventPattern<OnTakeoffEventArgs>(
+                (args) => OnTakeoff += args,
+                (args) => OnTakeoff -= args)
+            .Select(q => q.EventArgs);
+
+        /// <summary>
+        /// The OnLanding event will fire once the data indicates a landing.
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
+
+        /// <summary>
+        /// Observable source for live updates on arrivals.
+        /// </summary>
+        public IObservable<OnLandingEventArgs> Arrival => Observable
+            .FromEventPattern<OnLandingEventArgs>(
+                (args) => OnLanding += args,
+                (args) => OnLanding -= args)
+            .Select(q => q.EventArgs);
 
         /// <summary>
         /// The OnRadarContact event will fire when a takeoff has not been recorded but an aircraft is mid flight
@@ -214,10 +234,29 @@ namespace Boerman.FlightAnalysis
         public event EventHandler<OnRadarContactEventArgs> OnRadarContact;
 
         /// <summary>
+        /// Observable source to get notified when a new aircraft is being tracked.
+        /// </summary>
+        public IObservable<OnRadarContactEventArgs> RadarContact => Observable
+            .FromEventPattern<OnRadarContactEventArgs>(
+                (args) => OnRadarContact += args,
+                (args) => OnRadarContact -= args)
+            .Select(q => q.EventArgs);
+
+        /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
         /// been detected. (For example destination airfield could not be found)
         /// </summary>
         public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
+
+        /// <summary>
+        /// Observable source to get notified when a certain tracked aircraft hasn't been heard of in a while, 
+        /// while it hasn't been observed to have landed.
+        /// </summary>
+        public IObservable<OnCompletedWithErrorsEventArgs> Vanished => Observable
+            .FromEventPattern<OnCompletedWithErrorsEventArgs>(
+                (args) => OnCompletedWithErrors += args,
+                (args) => OnCompletedWithErrors -= args)
+            .Select(q => q.EventArgs);
 
         private new bool StateQueueContainsStates => base.StateQueueContainsStates;
         public new Func<bool> WaitForIdleProcess => base.WaitForIdleProcess;

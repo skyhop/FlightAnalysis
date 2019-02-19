@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
 
@@ -210,11 +211,23 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
+        public IObservable<OnTakeoffEventArgs> Departure => Observable
+            .FromEventPattern<OnTakeoffEventArgs>(
+                (args) => OnTakeoff += args,
+                (args) => OnTakeoff -= args)
+            .Select(q => q.EventArgs);
+
         /// <summary>
         /// The OnLanding event will fire once a landing is detected. Please note that the events from individual 
         /// FlightContext instances will be propagated through this event handler.
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
+
+        public IObservable<OnLandingEventArgs> Arrival => Observable
+            .FromEventPattern<OnLandingEventArgs>(
+                (args) => OnLanding += args,
+                (args) => OnLanding -= args)
+            .Select(q => q.EventArgs);
 
         /// <summary>
         /// The OnRadarContact event will fire when a takeoff has not been recorded but an aircraft is mid flight.
@@ -223,6 +236,12 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnRadarContactEventArgs> OnRadarContact;
 
+        public IObservable<OnRadarContactEventArgs> RadarContact => Observable
+            .FromEventPattern<OnRadarContactEventArgs>(
+                (args) => OnRadarContact += args,
+                (args) => OnRadarContact -= args)
+            .Select(q => q.EventArgs);
+
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
         /// been detected (For example destination airfield could not be found). Please note that events from 
@@ -230,10 +249,22 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
 
+        public IObservable<OnCompletedWithErrorsEventArgs> Vanished => Observable
+            .FromEventPattern<OnCompletedWithErrorsEventArgs>(
+                (args) => OnCompletedWithErrors += args,
+                (args) => OnCompletedWithErrors -= args)
+            .Select(q => q.EventArgs);
+
         /// <summary>
         /// The OnContextDispose event will fire when a specific FlightContext instance is being disposed. Disposal of
         /// instances will happen if there is no activity for a specific time period.
         /// </summary>
         public event EventHandler<OnContextDisposedEventArgs> OnContextDispose;
+
+        public IObservable<OnContextDisposedEventArgs> Untracked => Observable
+            .FromEventPattern<OnContextDisposedEventArgs>(
+                (args) => OnContextDispose += args,
+                (args) => OnContextDispose -= args)
+            .Select(q => q.EventArgs);
     }
 }

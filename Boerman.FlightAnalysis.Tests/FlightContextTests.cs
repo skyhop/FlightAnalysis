@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Boerman.FlightAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,7 +57,7 @@ namespace Boerman.FlightAnalysis.Tests
         }
         
         [TestMethod]
-        public void Flight_D1908_20170408_Subset()
+        public async Task Flight_D1908_20170408_Subset()
         {
             /*
              * While this test is pretty well similar to the previous test, some of the data used (speed /
