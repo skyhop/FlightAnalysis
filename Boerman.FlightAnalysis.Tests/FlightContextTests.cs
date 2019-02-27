@@ -24,7 +24,7 @@ namespace Boerman.FlightAnalysis.Tests
     public class FlightContextTests
     {
         [TestMethod]
-        public void Flight_D1908_20170408()
+        public static void Flight_D1908_20170408()
         {
             FlightContext fc = new FlightContext("6770");
 
@@ -85,7 +85,7 @@ namespace Boerman.FlightAnalysis.Tests
          * 
          */
         //[TestMethod]
-        public async Task Flight_D1908_20170408_Subset()
+        public static async Task Flight_D1908_20170408_Subset()
         {
             
 
@@ -120,7 +120,7 @@ namespace Boerman.FlightAnalysis.Tests
         }
 
         [TestMethod]
-        public void Flight_D1908_20170408_Partial() {
+        public static void Flight_D1908_20170408_Partial() {
             FlightContext fc = new FlightContext("6770");
 
             int callbacks = 0;
@@ -152,7 +152,7 @@ namespace Boerman.FlightAnalysis.Tests
         }
 
         [TestMethod]
-        public void Flight_PH1387_20170421()
+        public static void Flight_PH1387_20170421()
         {
             FlightContext fc = new FlightContext("2842");
 
@@ -165,17 +165,15 @@ namespace Boerman.FlightAnalysis.Tests
 
             fc.OnTakeoff += (sender, args) =>
             {
-                switch (pass)
-                {
-                    case 0:
-                        Assert.AreEqual(636283687551363359, ((FlightContext) sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(355, ((FlightContext) sender).Flight.DepartureHeading);
-                        break;
-                    case 1:
-                        Assert.AreEqual(636283906924363860, ((FlightContext) sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(21, ((FlightContext) sender).Flight.DepartureHeading);
-                        break;
+                if (pass == 0) {
+                    Assert.AreEqual(636283687551363359, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                    Assert.AreEqual(355, ((FlightContext)sender).Flight.DepartureHeading);
                 }
+                else if (pass == 1) {
+                    Assert.AreEqual(636283906924363860, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                    Assert.AreEqual(21, ((FlightContext)sender).Flight.DepartureHeading);
+                }
+                
                 pass++;
             };
 
@@ -217,21 +215,20 @@ namespace Boerman.FlightAnalysis.Tests
                         Assert.AreEqual(636283906924363860, ((FlightContext) sender).Flight.StartTime?.Ticks);
                         Assert.AreEqual(21, ((FlightContext) sender).Flight.DepartureHeading);
                         break;
+                    default:
+                        break;
                 }
             };
 
             fc.OnLanding += (sender, args) =>
             {
-                switch (pass)
-                {
-                    case 0:
-                        Assert.AreEqual(636282163561655897, ((FlightContext) sender).Flight.EndTime?.Ticks);
-                        Assert.AreEqual(339, ((FlightContext) sender).Flight.ArrivalHeading);
-                        break;
-                    case 1:
-                        Assert.AreEqual(636283891197427348, ((FlightContext) sender).Flight.EndTime?.Ticks);
-                        Assert.AreEqual(338, ((FlightContext) sender).Flight.ArrivalHeading);
-                        break;
+                if (pass == 0) {
+                    Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                    Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                }
+                if (pass == 1) {
+                    Assert.AreEqual(636283891197427348, ((FlightContext) sender).Flight.EndTime?.Ticks);
+                    Assert.AreEqual(338, ((FlightContext) sender).Flight.ArrivalHeading);
                 }
 
                 pass++;
@@ -265,21 +262,21 @@ namespace Boerman.FlightAnalysis.Tests
                         Assert.AreEqual(636283906924363860, ((FlightContext)sender).Flight.StartTime?.Ticks);
                         Assert.AreEqual(21, ((FlightContext)sender).Flight.DepartureHeading);
                         break;
+                    default:
+                        break;
                 }
             };
 
             fc.OnLanding += (sender, args) =>
             {
-                switch (pass)
+                if (pass == 0) {
+                    Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                    Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                }
+                if (pass == 1)
                 {
-                    case 0:
-                        Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                        Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
-                        break;
-                    case 1:
-                        Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                        Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
-                        break;
+                    Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                    Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
                 }
 
                 pass++;
@@ -318,6 +315,8 @@ namespace Boerman.FlightAnalysis.Tests
                         Assert.AreEqual(636287407314361125, ((FlightContext) sender).Flight.StartTime?.Ticks);
                         Assert.AreEqual(248, ((FlightContext) sender).Flight.DepartureHeading);
                         break;
+                    default:
+                        break;
                 }
 
                 callbacks++;
@@ -342,6 +341,8 @@ namespace Boerman.FlightAnalysis.Tests
                     case 3:
                         Assert.AreEqual(636287429323052452, ((FlightContext) sender).Flight.EndTime?.Ticks);
                         Assert.AreEqual(248, ((FlightContext) sender).Flight.ArrivalHeading);
+                        break;
+                    default:
                         break;
                 }
 

@@ -1,5 +1,4 @@
-﻿using Boerman.FlightAnalysis.Helpers;
-using Boerman.FlightAnalysis.Models;
+﻿using Boerman.FlightAnalysis.Models;
 using SharpKml.Base;
 using SharpKml.Dom;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 
 namespace Boerman.FlightAnalysis
 {
-    public static class Extensions
+    public static class KmlExtensions
     {
         public static Kml AsKml(this IList<PositionUpdate> positionUpdates)
         {
@@ -66,8 +65,14 @@ namespace Boerman.FlightAnalysis
 
         private static Color32 GetColor(double value)
         {
-            Colors.HlsToRgb(1 - (value * 120), .5, .75, out int r, out int g, out int b);
-            return new Color32(255, (byte)b, (byte)g, (byte)r);
+            var rgb = new Hls
+            {
+                H = 1 - (value * 120),
+                L = .5,
+                S = .75
+            }.ToRgb();
+
+            return new Color32(255, rgb.B, rgb.G, rgb.R);
         }
     }
 }

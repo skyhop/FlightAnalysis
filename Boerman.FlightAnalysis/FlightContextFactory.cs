@@ -24,7 +24,7 @@ namespace Boerman.FlightAnalysis
         /// The constructor for the FlightContextFactory.
         /// </summary>
         /// <param name="options"></param>
-        public FlightContextFactory(Options options = null)
+        public FlightContextFactory(Options options)
         {
             Options = options ?? new Options();
 
@@ -33,10 +33,12 @@ namespace Boerman.FlightAnalysis
             {
                 Enabled = true,
                 Interval = 10000
-            }.Elapsed += TimerOnElapsed;
+            }.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Options options = null) {
+        public FlightContextFactory() : this(new Options()) { }
+
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Options options) {
             foreach (var flight in metadata) {
                 EnsureContextAvailable(flight);
             }
@@ -48,12 +50,14 @@ namespace Boerman.FlightAnalysis
             {
                 Enabled = true,
                 Interval = 10000
-            }.Elapsed += TimerOnElapsed;
+            }.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
+
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata) : this(metadata, new Options()) { }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
 
-        private void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        private void TimerOnElapsed()
         {
             var contextsToRemove =
                 _flightContextDictionary
@@ -211,7 +215,7 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
-        public IObservable<OnTakeoffEventArgs> Departure => Observable
+        public IObservable<OnTakeoffEventArgs> Departures => Observable
             .FromEventPattern<OnTakeoffEventArgs>(
                 (args) => OnTakeoff += args,
                 (args) => OnTakeoff -= args)
@@ -223,7 +227,7 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
 
-        public IObservable<OnLandingEventArgs> Arrival => Observable
+        public IObservable<OnLandingEventArgs> Arrivals => Observable
             .FromEventPattern<OnLandingEventArgs>(
                 (args) => OnLanding += args,
                 (args) => OnLanding -= args)

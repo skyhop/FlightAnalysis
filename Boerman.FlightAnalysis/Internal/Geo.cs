@@ -3,7 +3,7 @@ using System;
 
 namespace Boerman.FlightAnalysis.Helpers
 {
-    public static class Geo
+    internal static class Geo
     {
         /// <summary>
         /// 

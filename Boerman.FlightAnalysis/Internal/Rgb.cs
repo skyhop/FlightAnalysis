@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Boerman.FlightAnalysis.Models
 {
-    public struct Rgb
+    internal struct Rgb
     {
-        public int R { get; set; }
-        public int G { get; set; }
-        public int B { get; set; }
+        public byte R { get; set; }
+        public byte G { get; set; }
+        public byte B { get; set; }
 
         public Hls ToHls()
         {
             var hls = new Hls();
 
-            // Get the maximum and minimum RGB components.
             var data = new[] { R, G, B };
 
             var max = data.Max();
@@ -50,8 +47,29 @@ namespace Boerman.FlightAnalysis.Models
                     : 4 + g_dist - r_dist;
 
             result.H = result.H * 60;
+
             if (result.H < 0) result.H += 360;
-            throw new NotImplementedException();
+
+            return result;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = (Rgb)obj;
+
+            return R == other.R
+                && G == other.G
+                && B == other.B;
+        }
+
+        public static bool operator ==(Rgb left, Rgb right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Rgb left, Rgb right)
+        {
+            return !(left == right);
         }
     }
 }

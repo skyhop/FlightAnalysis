@@ -23,7 +23,7 @@ namespace Boerman.FlightAnalysis
         internal bool MinifyMemoryPressure;
 
         internal readonly string AircraftId;
-        public Flight Flight;
+        public Flight Flight { get; internal set; }
 
         internal SimplePriorityQueue<PositionUpdate> PriorityQueue = new SimplePriorityQueue<PositionUpdate>();
 
@@ -37,12 +37,12 @@ namespace Boerman.FlightAnalysis
          * data from a single aircraft. For all other reasons I'd strongly recommend using the FlightContextFactory
          * anyway.
          */
-
+        
         /// <summary>
         /// FlightContext Constructor
         /// </summary>
         /// <param name="aircraftId">Optional string used to identify this context.</param>
-        public FlightContext(string aircraftId = null, bool minifyMemoryPressure = false)
+        public FlightContext(string aircraftId, bool minifyMemoryPressure)
         {
             AircraftId = aircraftId;
 
@@ -66,22 +66,28 @@ namespace Boerman.FlightAnalysis
             StartOrContinueProcessing();
         }
 
+        public FlightContext(string aircraftId) : this(aircraftId, false) { }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Boerman.FlightAnalysis.FlightContext"/> class.
+        /// Initializes a new instance of the <see cref="FlightContext"/> class.
         /// </summary>
         /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(FlightMetadata flightMetadata) {
+        public FlightContext(FlightMetadata flightMetadata, bool minifyMemoryPressure) {
+            MinifyMemoryPressure = minifyMemoryPressure;
+
             AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flightMetadata.Flight;
         }
 
+        public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, false) { }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Boerman.FlightAnalysis.FlightContext"/> class.
+        /// Initializes a new instance of the <see cref="FlightContext"/> class.
         /// </summary>
         /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(Flight flight) {
+        public FlightContext(Flight flight, bool minifyMemoryPressure) {
             if(String.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException($"{nameof(flight.Aircraft)} cannot be null or empty");
 
             AircraftId = flight.Aircraft;
@@ -89,6 +95,8 @@ namespace Boerman.FlightAnalysis
 
             StartOrContinueProcessing();
         }
+
+        public FlightContext(Flight flight) : this(flight, false) { }
 
         /// <summary>
         /// Queue a positionupdate for this specific context to process.
