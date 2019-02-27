@@ -24,7 +24,7 @@ namespace Boerman.FlightAnalysis.Tests
     public class FlightContextTests
     {
         [TestMethod]
-        public static void Flight_D1908_20170408()
+        public void Flight_D1908_20170408()
         {
             FlightContext fc = new FlightContext("6770");
 
@@ -84,7 +84,7 @@ namespace Boerman.FlightAnalysis.Tests
          * So long as this hasn't been solved we're disabling this test method.
          * 
          */
-        //[TestMethod]
+        [TestMethod]
         public static async Task Flight_D1908_20170408_Subset()
         {
             
@@ -120,7 +120,7 @@ namespace Boerman.FlightAnalysis.Tests
         }
 
         [TestMethod]
-        public static void Flight_D1908_20170408_Partial() {
+        public void Flight_D1908_20170408_Partial() {
             FlightContext fc = new FlightContext("6770");
 
             int callbacks = 0;
@@ -152,7 +152,7 @@ namespace Boerman.FlightAnalysis.Tests
         }
 
         [TestMethod]
-        public static void Flight_PH1387_20170421()
+        public void Flight_PH1387_20170421()
         {
             FlightContext fc = new FlightContext("2842");
 
