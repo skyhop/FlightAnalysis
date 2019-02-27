@@ -11,6 +11,7 @@ namespace Boerman.FlightAnalysis.FlightStates
     /// </summary>
     internal class ProcessNextPoint : FlightState
     {
+
         public ProcessNextPoint(FlightContext context) : base(context)
         {
         }
@@ -77,14 +78,15 @@ namespace Boerman.FlightAnalysis.FlightStates
         // ToDo: Add information about the aircrafts climbrate and so on, if possible
         private PositionUpdate NormalizeData(PositionUpdate position)
         {
+            if (position == null) return position;
+
             if (Context.Flight.PositionUpdates.Count < 2
                 || (!Double.IsNaN(position.Heading) && !Double.IsNaN(position.Speed))) return position;
             
             var previousPosition =
                 Context.Flight.PositionUpdates.LastOrDefault();
 
-            // ToDo: Check whether these two position updates are not too similar
-            if (position == null || previousPosition == null) return position;
+            if (previousPosition == null) return position;
 
             double? heading = null;
             double? speed = null;
@@ -96,7 +98,6 @@ namespace Boerman.FlightAnalysis.FlightStates
                 // 1. Get the distance (meters)
                 // 2. Calculate the time difference (seconds)
                 // 3. Convert to knots (1.94384449 is a constant)
-                //var distance = previousPosition.Location.GetDistanceTo(position.Location);
                 var distance = previousPosition.Location.DistanceTo(position.Location);
                 var timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Milliseconds;
 

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
 
@@ -23,7 +24,7 @@ namespace Boerman.FlightAnalysis
         /// The constructor for the FlightContextFactory.
         /// </summary>
         /// <param name="options"></param>
-        public FlightContextFactory(Options options = null)
+        public FlightContextFactory(Options options)
         {
             Options = options ?? new Options();
 
@@ -32,10 +33,12 @@ namespace Boerman.FlightAnalysis
             {
                 Enabled = true,
                 Interval = 10000
-            }.Elapsed += TimerOnElapsed;
+            }.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Options options = null) {
+        public FlightContextFactory() : this(new Options()) { }
+
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Options options) {
             foreach (var flight in metadata) {
                 EnsureContextAvailable(flight);
             }
@@ -47,12 +50,14 @@ namespace Boerman.FlightAnalysis
             {
                 Enabled = true,
                 Interval = 10000
-            }.Elapsed += TimerOnElapsed;
+            }.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
+
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata) : this(metadata, new Options()) { }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
 
-        private void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        private void TimerOnElapsed()
         {
             var contextsToRemove =
                 _flightContextDictionary
@@ -143,6 +148,32 @@ namespace Boerman.FlightAnalysis
         public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
         
         /// <summary>
+        /// Retrieves the <seealso cref="FlightContext"/> from the factory. Please note that the <seealso cref="FlightContext"/> will still be attached to the factory.
+        /// </summary>
+        /// <param name="aircraft">The identifier of the aircraft for which you want to retrieve the context.</param>
+        /// <returns></returns>
+        public FlightContext GetContext(string aircraft)
+        {
+            if (_flightContextDictionary.TryGetValue(aircraft, out FlightContext context))
+                return context;
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Removes the <seealso cref="FlightContext"/> for the specified aircraft, and returns the result.
+        /// </summary>
+        /// <param name="aircraft">The removed <seealso cref="FlightContext"/></param>
+        /// <returns></returns>
+        public FlightContext Detach(string aircraft)
+        {
+            if (_flightContextDictionary.TryRemove(aircraft, out FlightContext context))
+                return context;
+
+            return null;
+        }
+
+        /// <summary>
         /// Checks whether there is a context available for the aircraft which will be processed.
         /// </summary>
         /// <param name="aircraft"></param>
@@ -184,11 +215,23 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnTakeoffEventArgs> OnTakeoff;
 
+        public IObservable<OnTakeoffEventArgs> Departures => Observable
+            .FromEventPattern<OnTakeoffEventArgs>(
+                (args) => OnTakeoff += args,
+                (args) => OnTakeoff -= args)
+            .Select(q => q.EventArgs);
+
         /// <summary>
         /// The OnLanding event will fire once a landing is detected. Please note that the events from individual 
         /// FlightContext instances will be propagated through this event handler.
         /// </summary>
         public event EventHandler<OnLandingEventArgs> OnLanding;
+
+        public IObservable<OnLandingEventArgs> Arrivals => Observable
+            .FromEventPattern<OnLandingEventArgs>(
+                (args) => OnLanding += args,
+                (args) => OnLanding -= args)
+            .Select(q => q.EventArgs);
 
         /// <summary>
         /// The OnRadarContact event will fire when a takeoff has not been recorded but an aircraft is mid flight.
@@ -197,6 +240,12 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnRadarContactEventArgs> OnRadarContact;
 
+        public IObservable<OnRadarContactEventArgs> RadarContact => Observable
+            .FromEventPattern<OnRadarContactEventArgs>(
+                (args) => OnRadarContact += args,
+                (args) => OnRadarContact -= args)
+            .Select(q => q.EventArgs);
+
         /// <summary>
         /// The OnCompletedWithErrors event will fire when flight processing has been completed but some errors have 
         /// been detected (For example destination airfield could not be found). Please note that events from 
@@ -204,10 +253,22 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         public event EventHandler<OnCompletedWithErrorsEventArgs> OnCompletedWithErrors;
 
+        public IObservable<OnCompletedWithErrorsEventArgs> Vanished => Observable
+            .FromEventPattern<OnCompletedWithErrorsEventArgs>(
+                (args) => OnCompletedWithErrors += args,
+                (args) => OnCompletedWithErrors -= args)
+            .Select(q => q.EventArgs);
+
         /// <summary>
         /// The OnContextDispose event will fire when a specific FlightContext instance is being disposed. Disposal of
         /// instances will happen if there is no activity for a specific time period.
         /// </summary>
         public event EventHandler<OnContextDisposedEventArgs> OnContextDispose;
+
+        public IObservable<OnContextDisposedEventArgs> Untracked => Observable
+            .FromEventPattern<OnContextDisposedEventArgs>(
+                (args) => OnContextDispose += args,
+                (args) => OnContextDispose -= args)
+            .Select(q => q.EventArgs);
     }
 }

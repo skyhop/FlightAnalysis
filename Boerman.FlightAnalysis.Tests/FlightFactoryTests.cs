@@ -57,7 +57,7 @@ namespace Boerman.FlightAnalysis.Tests
 
                 ff.Attach(flightMetadata);
             }
-            catch (Exception ex)
+            catch
             {
                 Assert.Fail();
             }
@@ -77,7 +77,7 @@ namespace Boerman.FlightAnalysis.Tests
 
                 ff.Attach(metadata);
             }
-            catch (Exception ex)
+            catch
             {
                 Assert.Fail();
             }
@@ -96,7 +96,7 @@ namespace Boerman.FlightAnalysis.Tests
                 });
 
                 ff.Attach(context);
-            } catch (Exception ex)
+            } catch
             {
                 Assert.Fail();
             }

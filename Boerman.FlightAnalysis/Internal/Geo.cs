@@ -3,10 +3,15 @@ using System;
 
 namespace Boerman.FlightAnalysis.Helpers
 {
-    public static class Geo
+    internal static class Geo
     {
-        // See https://stackoverflow.com/a/2042883/1720761 for more information about these methods.
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="coordinate1"></param>
+        /// <param name="coordinate2"></param>
+        /// <returns></returns>
+        /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
         public static double DegreeBearing(
             IPoint coordinate1,
             IPoint coordinate2)
@@ -19,6 +24,12 @@ namespace Boerman.FlightAnalysis.Helpers
             return ToBearing(Math.Atan2(dLon, dPhi));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="degrees"></param>
+        /// <returns></returns>
+        /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
         static double ToRad(double degrees)
         {
             return degrees * (Math.PI / 180);
@@ -29,9 +40,14 @@ namespace Boerman.FlightAnalysis.Helpers
             return radians * 180 / Math.PI;
         }
 
+        /// <summary>
+        /// Convert radians to degrees (as bearing: 0...360)
+        /// </summary>
+        /// <param name="radians"></param>
+        /// <returns></returns>
+        /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
         static double ToBearing(double radians)
         {
-            // convert radians to degrees (as bearing: 0...360)
             return (ToDegrees(radians) + 360) % 360;
         }
 
@@ -45,8 +61,8 @@ namespace Boerman.FlightAnalysis.Helpers
         /// <param name="other">The GeoCoordinate for the location to calculate the distance to.</param>
         public static double DistanceTo(this IPoint from, IPoint to)
         {
-            if (double.IsNaN(from.X) || double.IsNaN(from.Y) || double.IsNaN(to.X) ||
-                double.IsNaN(to.Y))
+            if (double.IsNaN(from.X) || double.IsNaN(from.Y)
+               || double.IsNaN(to.X) || double.IsNaN(to.Y))
             {
                 throw new ArgumentException("Argument latitude or longitude is not a number");
             }
@@ -60,6 +76,5 @@ namespace Boerman.FlightAnalysis.Helpers
 
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
-
     }
 }
