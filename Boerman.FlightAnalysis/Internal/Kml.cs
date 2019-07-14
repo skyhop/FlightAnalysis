@@ -59,8 +59,8 @@ namespace Boerman.FlightAnalysis
 
             return updates
                 .Select(q => new Coordinate(
-                    q.Latitude,
                     q.Longitude,
+                    q.Latitude,
                     q.Altitude))
                 .ToList()
                 .AsKml();

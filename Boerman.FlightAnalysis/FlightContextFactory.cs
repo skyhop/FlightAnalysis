@@ -6,6 +6,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
+using GeoAPI.Geometries;
+using NetTopologySuite.Index;
+using NetTopologySuite.Index.Quadtree;
 
 namespace Boerman.FlightAnalysis
 {
@@ -17,6 +20,8 @@ namespace Boerman.FlightAnalysis
     {
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
+
+        private readonly Quadtree<string> _quadTree = new Quadtree<string>();
 
         internal readonly Options Options;
         
@@ -68,6 +73,13 @@ namespace Boerman.FlightAnalysis
             {
                 _flightContextDictionary.TryRemove(contextId, out FlightContext context);
 
+                var latest = context.Flight.PositionUpdates.LastOrDefault();
+
+                if (latest != null)
+                {
+                    _quadTree.Remove(new Envelope(new Coordinate(latest.Longitude, latest.Latitude)), context.AircraftId);
+                }
+
                 try
                 {
                     OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
@@ -100,6 +112,7 @@ namespace Boerman.FlightAnalysis
 
             var updatesByAircraft = positionUpdates
                 .Where(q => !String.IsNullOrWhiteSpace(q?.Aircraft))
+                .OrderBy(q => q.TimeStamp)
                 .GroupBy(q => q.Aircraft);
 
             // Group the data by aircraft
@@ -108,14 +121,54 @@ namespace Boerman.FlightAnalysis
                 EnsureContextAvailable(updates.Key);
 
                 if (_flightContextDictionary.TryGetValue(updates.Key, out var flightContext))
-                {                    
+                {
+                    // Grab the most recent position available
+                    var previousPoint = flightContext.Flight.PositionUpdates.LastOrDefault();
+
                     flightContext.Enqueue(updates);
+
+                    var latest = updates.LastOrDefault();
+                    _quadTree.Insert(new Envelope(
+                        new Coordinate(
+                            latest.Longitude,
+                            latest.Latitude)), latest.Aircraft);
+
+                    Debug.WriteLine($"{latest.Aircraft}: {latest.Longitude}, {latest.Latitude}");
+
+                    if (previousPoint != null)
+                    {
+                        _quadTree.Remove(new Envelope(
+                            new Coordinate(
+                                previousPoint.Longitude,
+                                previousPoint.Latitude)), previousPoint.Aircraft);
+                    }
 
                     // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
                     // data, is not the moment this data is also available on the FlightContext's Flight
                     // property. We should find a way to make sure the data in the bush stays clean!
                 }
             }
+        }
+
+        /// <summary>
+        /// Retrieves all objects which are (roughly) nearby
+        /// </summary>
+        /// <param name="coordinate"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
+        public IEnumerable<string> FindNearby(Coordinate coordinate, double distance = 0.0002)
+        {
+            var envelope = new Envelope(coordinate);
+
+            // In the cartesian coordinate system 0.001 is roughly 111 meters. By using a distance of
+            // roughly 220 meters we can make sure that a position update once about every 5 seconds is
+            // enough to relate two aircraft together when departing (glider and the towplane).
+            
+            envelope.ExpandBy(distance);
+            
+            var nearby = _quadTree.Query(envelope);
+            return nearby;
         }
 
         /// <summary>
