@@ -152,7 +152,7 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         internal void CleanupDataPoints()
         {
-            if (Flight.PositionUpdates.Count > MinimumRequiredPositionUpdateCount)
+            if (MinifyMemoryPressure && Flight.PositionUpdates.Count > MinimumRequiredPositionUpdateCount)
                 Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - MinimumRequiredPositionUpdateCount);
         }
 

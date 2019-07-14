@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
 using GeoAPI.Geometries;
-using NetTopologySuite.Index;
 using NetTopologySuite.Index.Quadtree;
 
 namespace Boerman.FlightAnalysis
@@ -24,7 +23,7 @@ namespace Boerman.FlightAnalysis
         private readonly Quadtree<string> _quadTree = new Quadtree<string>();
 
         internal readonly Options Options;
-        
+
         /// <summary>
         /// The constructor for the FlightContextFactory.
         /// </summary>
@@ -66,7 +65,7 @@ namespace Boerman.FlightAnalysis
         {
             var contextsToRemove =
                 _flightContextDictionary
-                    .Where( q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
+                    .Where(q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
                     .Select(q => q.Key);
 
             foreach (var contextId in contextsToRemove)
@@ -98,7 +97,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
-            Enqueue(new [] { positionUpdate });
+            Enqueue(new[] { positionUpdate });
         }
 
         /// <summary>
@@ -157,18 +156,26 @@ namespace Boerman.FlightAnalysis
         /// <param name="distance"></param>
         /// <returns></returns>
         // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
-        public IEnumerable<string> FindNearby(Coordinate coordinate, double distance = 0.0002)
+        public IEnumerable<PositionUpdate> FindNearby(Coordinate coordinate, double distance = 0.0002)
         {
             var envelope = new Envelope(coordinate);
 
             // In the cartesian coordinate system 0.001 is roughly 111 meters. By using a distance of
             // roughly 220 meters we can make sure that a position update once about every 5 seconds is
             // enough to relate two aircraft together when departing (glider and the towplane).
-            
+
             envelope.ExpandBy(distance);
-            
-            var nearby = _quadTree.Query(envelope);
-            return nearby;
+
+            var nearbyAircraft = _quadTree.Query(envelope);
+
+            foreach (var aircraft in nearbyAircraft)
+            {
+                var positionUpdate = _flightContextDictionary[aircraft].Flight.PositionUpdates.LastOrDefault();
+
+                if (positionUpdate == null) continue;
+
+                yield return positionUpdate;
+            }
         }
 
         /// <summary>
@@ -199,7 +206,7 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         /// <param name="metadata"></param>
         public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
-        
+
         /// <summary>
         /// Retrieves the <seealso cref="FlightContext"/> from the factory. Please note that the <seealso cref="FlightContext"/> will still be attached to the factory.
         /// </summary>
@@ -209,7 +216,7 @@ namespace Boerman.FlightAnalysis
         {
             if (_flightContextDictionary.TryGetValue(aircraft, out FlightContext context))
                 return context;
-            
+
             return null;
         }
 
@@ -323,5 +330,13 @@ namespace Boerman.FlightAnalysis
                 (args) => OnContextDispose += args,
                 (args) => OnContextDispose -= args)
             .Select(q => q.EventArgs);
+
+        public void WaitForIdleProcess()
+        {
+            foreach (var context in _flightContextDictionary)
+            {
+                context.Value.WaitForIdleProcess();
+            }
+        }
     }
 }

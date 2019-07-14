@@ -12,7 +12,9 @@ namespace Boerman.FlightAnalysis.Tests
         [TestMethod]
         public void TestFlightFactory()
         {
-            InitializeFlightContextWithData();
+            var flightContextFactory = InitializeFlightContextWithData();
+
+            flightContextFactory.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -80,11 +82,13 @@ namespace Boerman.FlightAnalysis.Tests
         {
             var flightContext = InitializeFlightContextWithData();
 
-            // X, Y, Z: Longiutde, Latitude, Altitude
-            var nearby = flightContext.FindNearby(new Coordinate(5.930606, 44.282189), 0.0002);
+            flightContext.WaitForIdleProcess();
 
+            // X, Y, Z: Longiutde, Latitude, Altitude
+            var nearby = flightContext.FindNearby(new Coordinate(5.930606, 44.282189), 0.00002);
+            
             Assert.AreEqual(1, nearby.Count());
-            Assert.AreEqual("2842", nearby.First());
+            Assert.AreEqual("2842", nearby.First().Aircraft);
         }
 
         public FlightContextFactory InitializeFlightContextWithData()
