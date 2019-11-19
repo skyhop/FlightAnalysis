@@ -1,5 +1,5 @@
-﻿using GeoAPI.Geometries;
-using System;
+﻿using System;
+using NetTopologySuite.Geometries;
 
 namespace Boerman.FlightAnalysis.Helpers
 {
@@ -13,8 +13,8 @@ namespace Boerman.FlightAnalysis.Helpers
         /// <returns></returns>
         /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
         public static double DegreeBearing(
-            IPoint coordinate1,
-            IPoint coordinate2)
+            Point coordinate1,
+            Point coordinate2)
         {
             var dLon = ToRad(coordinate2.Y - coordinate1.Y);
             var dPhi = Math.Log(
@@ -59,7 +59,7 @@ namespace Boerman.FlightAnalysis.Helpers
         ///     The distance between the two coordinates, in meters.
         /// </returns>
         /// <param name="other">The GeoCoordinate for the location to calculate the distance to.</param>
-        public static double DistanceTo(this IPoint from, IPoint to)
+        public static double DistanceTo(this Point from, Point to)
         {
             if (double.IsNaN(from.X) || double.IsNaN(from.Y)
                || double.IsNaN(to.X) || double.IsNaN(to.Y))

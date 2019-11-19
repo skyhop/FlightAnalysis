@@ -1,5 +1,4 @@
 ﻿using System;
-using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 
 namespace Boerman.FlightAnalysis.Models
@@ -51,7 +50,7 @@ namespace Boerman.FlightAnalysis.Models
 
         public DateTime TimeStamp { get; }
 
-        public IPoint Location { get; internal set; }
+        public Point Location { get; internal set; }
         
         public double Latitude => Location.X;
         public double Longitude => Location.Y;

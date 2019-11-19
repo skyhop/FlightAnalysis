@@ -1,6 +1,6 @@
 using Boerman.FlightAnalysis.Models;
-using GeoAPI.Geometries;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTopologySuite.Geometries;
 using System;
 using System.Linq;
 

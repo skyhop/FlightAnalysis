@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Quadtree;
 
 namespace Boerman.FlightAnalysis

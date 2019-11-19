@@ -1,9 +1,11 @@
 ﻿using Boerman.FlightAnalysis.Models;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 using SharpKml.Base;
 using SharpKml.Dom;
 using System.Collections.Generic;
 using System.Linq;
+using LineString = SharpKml.Dom.LineString;
+using Point = SharpKml.Dom.Point;
 
 namespace Boerman.FlightAnalysis
 {
@@ -58,10 +60,12 @@ namespace Boerman.FlightAnalysis
                 .ToList();
 
             return updates
-                .Select(q => new Coordinate(
-                    q.Longitude,
-                    q.Latitude,
-                    q.Altitude))
+                .Select(q => new Coordinate
+                {
+                    X = q.Longitude,
+                    Y = q.Latitude,
+                    Z = q.Altitude
+                })
                 .ToList()
                 .AsKml();
         }

@@ -1,6 +1,6 @@
-﻿using GeoAPI.Geometries;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 
 namespace Boerman.FlightAnalysis.Models
 {
@@ -51,12 +51,12 @@ namespace Boerman.FlightAnalysis.Models
 
         public DateTime? StartTime { get; internal set; }
         public short DepartureHeading { get; internal set; }
-        public IPoint DepartureLocation { get; internal set; }
+        public Point DepartureLocation { get; internal set; }
         public bool? DepartureInfoFound { get; internal set; }
 
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }
-        public IPoint ArrivalLocation { get; internal set; }
+        public Point ArrivalLocation { get; internal set; }
         public bool? ArrivalInfoFound { get; internal set; }
 
         public List<PositionUpdate> PositionUpdates { get; internal set; }

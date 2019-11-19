@@ -1,6 +1,5 @@
 ﻿using Accord.MachineLearning;
 using Accord.Statistics.Distributions.DensityKernels;
-using GeoAPI.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +25,7 @@ namespace Boerman.FlightAnalysis.Models
         /// Departure and arrival points are not included.
         /// </summary>
         /// <returns></returns>
-        public IDictionary<IPoint, DateTime> Hotspots()
+        public IDictionary<Point, DateTime> Hotspots()
         {
             var algo = new MeanShift
             {
