@@ -6,16 +6,16 @@
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/25320889</PackageIconUrl>
     <Owners>Corstian Boerman</Owners>
-    <PackageReleaseNotes>New functionality to the FlightContextFactory</PackageReleaseNotes>
+    <PackageReleaseNotes>Upgrade NetTopologySuite</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
     <Title>Boerman.FlightAnalysis</Title>
     <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
     <PackageId>Boerman.FlightAnalysis</PackageId>
-    <PackageProjectUrl>https://github.com/Boerman/FlightAnalysis</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/SkyHop/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/Boerman/FlightAnalysis</RepositoryUrl>
-    <Version>1.1.3</Version>
+    <RepositoryUrl>https://github.com/SkyHop/FlightAnalysis</RepositoryUrl>
+    <Version>1.2.0</Version>
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
@@ -30,15 +30,14 @@
   <ItemGroup>
     <PackageReference Include="Accord.MachineLearning" Version="3.8.0" />
     <PackageReference Include="Boerman.Core" Version="2.1.1" />
-    <PackageReference Include="GeoAPI" Version="1.7.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NetTopologySuite" Version="1.15.1" />
+    <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
-    <PackageReference Include="RBush" Version="2.0.31" />
-    <PackageReference Include="SharpKml.Core" Version="4.1.0" />
-    <PackageReference Include="System.Reactive" Version="4.1.3" />
+    <PackageReference Include="RBush" Version="2.0.41" />
+    <PackageReference Include="SharpKml.Core" Version="5.1.0" />
+    <PackageReference Include="System.Reactive" Version="4.2.0" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Timers;
 using Boerman.FlightAnalysis.Models;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Index.Quadtree;
 
 namespace Boerman.FlightAnalysis
 {
@@ -18,8 +20,10 @@ namespace Boerman.FlightAnalysis
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
 
+        private readonly Quadtree<string> _quadTree = new Quadtree<string>();
+
         internal readonly Options Options;
-        
+
         /// <summary>
         /// The constructor for the FlightContextFactory.
         /// </summary>
@@ -61,12 +65,19 @@ namespace Boerman.FlightAnalysis
         {
             var contextsToRemove =
                 _flightContextDictionary
-                    .Where( q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
+                    .Where(q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
                     .Select(q => q.Key);
 
             foreach (var contextId in contextsToRemove)
             {
                 _flightContextDictionary.TryRemove(contextId, out FlightContext context);
+
+                var latest = context.Flight.PositionUpdates.LastOrDefault();
+
+                if (latest != null)
+                {
+                    _quadTree.Remove(new Envelope(new Coordinate(latest.Longitude, latest.Latitude)), context.AircraftId);
+                }
 
                 try
                 {
@@ -86,7 +97,7 @@ namespace Boerman.FlightAnalysis
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
-            Enqueue(new [] { positionUpdate });
+            Enqueue(new[] { positionUpdate });
         }
 
         /// <summary>
@@ -100,6 +111,7 @@ namespace Boerman.FlightAnalysis
 
             var updatesByAircraft = positionUpdates
                 .Where(q => !String.IsNullOrWhiteSpace(q?.Aircraft))
+                .OrderBy(q => q.TimeStamp)
                 .GroupBy(q => q.Aircraft);
 
             // Group the data by aircraft
@@ -108,13 +120,61 @@ namespace Boerman.FlightAnalysis
                 EnsureContextAvailable(updates.Key);
 
                 if (_flightContextDictionary.TryGetValue(updates.Key, out var flightContext))
-                {                    
+                {
+                    // Grab the most recent position available
+                    var previousPoint = flightContext.Flight.PositionUpdates.LastOrDefault();
+
                     flightContext.Enqueue(updates);
+
+                    var latest = updates.LastOrDefault();
+                    _quadTree.Insert(new Envelope(
+                        new Coordinate(
+                            latest.Longitude,
+                            latest.Latitude)), latest.Aircraft);
+
+                    Debug.WriteLine($"{latest.Aircraft}: {latest.Longitude}, {latest.Latitude}");
+
+                    if (previousPoint != null)
+                    {
+                        _quadTree.Remove(new Envelope(
+                            new Coordinate(
+                                previousPoint.Longitude,
+                                previousPoint.Latitude)), previousPoint.Aircraft);
+                    }
 
                     // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
                     // data, is not the moment this data is also available on the FlightContext's Flight
                     // property. We should find a way to make sure the data in the bush stays clean!
                 }
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all objects which are (roughly) nearby
+        /// </summary>
+        /// <param name="coordinate"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
+        public IEnumerable<PositionUpdate> FindNearby(Coordinate coordinate, double distance = 0.0002)
+        {
+            var envelope = new Envelope(coordinate);
+
+            // In the cartesian coordinate system 0.001 is roughly 111 meters. By using a distance of
+            // roughly 220 meters we can make sure that a position update once about every 5 seconds is
+            // enough to relate two aircraft together when departing (glider and the towplane).
+
+            envelope.ExpandBy(distance);
+
+            var nearbyAircraft = _quadTree.Query(envelope);
+
+            foreach (var aircraft in nearbyAircraft)
+            {
+                var positionUpdate = _flightContextDictionary[aircraft].Flight.PositionUpdates.LastOrDefault();
+
+                if (positionUpdate == null) continue;
+
+                yield return positionUpdate;
             }
         }
 
@@ -146,7 +206,7 @@ namespace Boerman.FlightAnalysis
         /// </summary>
         /// <param name="metadata"></param>
         public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
-        
+
         /// <summary>
         /// Retrieves the <seealso cref="FlightContext"/> from the factory. Please note that the <seealso cref="FlightContext"/> will still be attached to the factory.
         /// </summary>
@@ -156,7 +216,7 @@ namespace Boerman.FlightAnalysis
         {
             if (_flightContextDictionary.TryGetValue(aircraft, out FlightContext context))
                 return context;
-            
+
             return null;
         }
 
@@ -270,5 +330,13 @@ namespace Boerman.FlightAnalysis
                 (args) => OnContextDispose += args,
                 (args) => OnContextDispose -= args)
             .Select(q => q.EventArgs);
+
+        public void WaitForIdleProcess()
+        {
+            foreach (var context in _flightContextDictionary)
+            {
+                context.Value.WaitForIdleProcess();
+            }
+        }
     }
 }

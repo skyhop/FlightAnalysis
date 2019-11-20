@@ -1,27 +1,26 @@
 ﻿using Boerman.FlightAnalysis.Models;
+using NetTopologySuite.Geometries;
 using SharpKml.Base;
 using SharpKml.Dom;
 using System.Collections.Generic;
 using System.Linq;
+using LineString = SharpKml.Dom.LineString;
+using Point = SharpKml.Dom.Point;
 
 namespace Boerman.FlightAnalysis
 {
     public static class KmlExtensions
     {
-        public static Kml AsKml(this IList<PositionUpdate> positionUpdates)
+        public static Kml AsKml(this IList<Coordinate> coordinates)
         {
-            var updates = positionUpdates
-                .OrderBy(q => q.TimeStamp)
-                .ToList();
-
-            var top = updates.Max(q => q.Altitude);
+            var top = coordinates.Max(q => q.Z);
 
             var kml = new Kml
             {
                 Feature = new Document()
             };
-           
-            for (var i = 0; i < updates.Count() - 1; i++)
+
+            for (var i = 0; i < coordinates.Count() - 1; i++)
             {
                 LineString ls = new LineString
                 {
@@ -32,8 +31,8 @@ namespace Boerman.FlightAnalysis
                 ls.Coordinates = new CoordinateCollection();
 
                 // I guess KML (and Google Earth) works with an altitude in meters. So therefore the 0.3048.
-                ls.Coordinates.Add(new Vector(updates[i].Latitude, updates[i].Longitude, updates[i].Altitude * 0.3048));
-                ls.Coordinates.Add(new Vector(updates[i+1].Latitude, updates[i+1].Longitude, updates[i+1].Altitude * 0.3048));
+                ls.Coordinates.Add(new Vector(coordinates[i].Y, coordinates[i].X, coordinates[i].Z * 0.3048));
+                ls.Coordinates.Add(new Vector(coordinates[i + 1].Y, coordinates[i + 1].X, coordinates[i + 1].Z * 0.3048));
 
                 var placemark = new Placemark
                 {
@@ -44,14 +43,40 @@ namespace Boerman.FlightAnalysis
                 {
                     Line = new LineStyle
                     {
-                        Color = GetColor(updates[i].Altitude/top)
+                        Color = GetColor(coordinates[i].Z / top)
                     }
                 });
 
                 kml.Feature.AddChild(placemark);
             }
-            
+
             return kml;
+        }
+
+        public static Kml AsKml(this IList<PositionUpdate> positionUpdates)
+        {
+            var updates = positionUpdates
+                .OrderBy(q => q.TimeStamp)
+                .ToList();
+
+            return updates
+                .Select(q => new Coordinate
+                {
+                    X = q.Longitude,
+                    Y = q.Latitude,
+                    Z = q.Altitude
+                })
+                .ToList()
+                .AsKml();
+        }
+
+        public static string AsKmlXml(this IList<Coordinate> coordinates)
+        {
+            var kml = coordinates.AsKml();
+
+            Serializer serializer = new Serializer();
+            serializer.Serialize(kml);
+            return serializer.Xml;
         }
 
         public static string AsKmlXml(this IList<PositionUpdate> positionUpdates)
