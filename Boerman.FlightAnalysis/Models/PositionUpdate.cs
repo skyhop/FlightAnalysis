@@ -1,5 +1,6 @@
 ﻿using System;
 using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 
 namespace Boerman.FlightAnalysis.Models
 {
@@ -20,7 +21,10 @@ namespace Boerman.FlightAnalysis.Models
         {
             Aircraft = aircraft;
             TimeStamp = timeStamp;
-            Location = new Point(latitude, longitude, altitude);
+            //Location = new Point(latitude, longitude, altitude);
+            Latitude = latitude;
+            Longitude = longitude;
+            Altitude = altitude;
             Speed = speed;
             Heading = heading;
 
@@ -50,12 +54,15 @@ namespace Boerman.FlightAnalysis.Models
 
         public DateTime TimeStamp { get; }
 
-        public Point Location { get; internal set; }
-        
-        public double Latitude => Location.X;
-        public double Longitude => Location.Y;
-        public double Altitude => Location.Z;
-        public double Speed { get; set; }
-        public double Heading { get; set; }
+        [JsonIgnore]
+        public Point Location => new Point(Latitude, Longitude, Altitude);
+
+        public double Latitude { get; }
+        public double Longitude { get; }
+        public double Altitude { get; }
+
+        // Note that these properties need to be internally assignable for the normalization algorithm to work.
+        public double Speed { get; internal set; }
+        public double Heading { get; internal set; }
     }
 }
