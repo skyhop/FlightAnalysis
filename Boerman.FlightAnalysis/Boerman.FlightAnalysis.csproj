@@ -15,7 +15,7 @@
     <PackageProjectUrl>https://github.com/SkyHop/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/SkyHop/FlightAnalysis</RepositoryUrl>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>

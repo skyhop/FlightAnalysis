@@ -17,6 +17,7 @@ namespace Boerman.FlightAnalysis.Models
         /// <param name="altitude"></param>
         /// <param name="speed"></param>
         /// <param name="heading"></param>
+        [JsonConstructor]
         public PositionUpdate(string aircraft, DateTime timeStamp, double latitude, double longitude, double altitude, double speed, double heading)
         {
             Aircraft = aircraft;
