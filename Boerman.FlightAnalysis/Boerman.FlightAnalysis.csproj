@@ -6,7 +6,7 @@
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/25320889</PackageIconUrl>
     <Owners>Corstian Boerman</Owners>
-    <PackageReleaseNotes>Upgrade NetTopologySuite</PackageReleaseNotes>
+    <PackageReleaseNotes>Make the flightmetadata serializeable</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
     <Title>Boerman.FlightAnalysis</Title>
@@ -15,7 +15,7 @@
     <PackageProjectUrl>https://github.com/SkyHop/FlightAnalysis</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/SkyHop/FlightAnalysis</RepositoryUrl>
-    <Version>1.2.0</Version>
+    <Version>1.2.3</Version>
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>

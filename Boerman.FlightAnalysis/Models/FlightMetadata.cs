@@ -1,8 +1,11 @@
 ﻿using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 using System;
 
 namespace Boerman.FlightAnalysis.Models
 {
+    // ToDo: Map the departure/arrival location in an object so that the model becomes clearer (no more smurf typing)
+
     /// <summary>
     /// The flight metadata object contains information extracted from position
     /// updates. Position updates themselves are not included in this model.
@@ -23,11 +26,17 @@ namespace Boerman.FlightAnalysis.Models
             LastSeen = flight.LastSeen;
             DepartureTime = flight.StartTime;
             DepartureHeading = flight.DepartureHeading;
-            DepartureLocation = flight.DepartureLocation;
+            
+            DepartureLongitude = flight.DepartureLocation?.X ?? 0;
+            DepartureLatitude = flight.DepartureLocation?.Y ?? 0;
+
             DepartureInfoFound = flight.DepartureInfoFound;
             ArrivalTime = flight.EndTime;
             ArrivalHeading = flight.ArrivalHeading;
-            ArrivalLocation = flight.ArrivalLocation;
+
+            ArrivalLongitude = flight.ArrivalLocation?.X ?? 0;
+            ArrivalLatitude = flight.ArrivalLocation?.Y ?? 0;
+            
             ArrivalInfoFound = flight.ArrivalInfoFound;
         }
 
@@ -36,11 +45,23 @@ namespace Boerman.FlightAnalysis.Models
         public DateTime? LastSeen { get; set; }
         public DateTime? DepartureTime { get; set; }
         public short DepartureHeading { get; set; }
-        public Point DepartureLocation { get; set; }
+
+        [JsonIgnore]
+        public Point DepartureLocation => new Point(DepartureLongitude, DepartureLatitude);
+        
+        public double DepartureLatitude { get; set; }
+        public double DepartureLongitude { get; set; }
+
         public bool? DepartureInfoFound { get; set; }
         public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
-        public Point ArrivalLocation { get; set; }
+
+        [JsonIgnore]
+        public Point ArrivalLocation => new Point(ArrivalLongitude, ArrivalLatitude);
+
+        public double ArrivalLatitude { get; set; }
+        public double ArrivalLongitude { get; set; }
+
         public bool? ArrivalInfoFound { get; set; }
 
         public bool Completed => (DepartureInfoFound != null || DepartureTime != null) && (ArrivalInfoFound != null || ArrivalTime != null);
