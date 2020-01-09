@@ -1,3 +1,7 @@
+<a href="https://skyhop.org"><img src="https://app.skyhop.org/assets/images/skyhop.svg" width=200 alt="skyhop logo" /></a>
+
+----
+
 Thank you for checking out the documentation for the `FlightAnalysis` project! This library is a powerful tool to process a flight track into information you can directly enter into your (EASA) flight log. The idea behind this library is that it should be possible to extract basic flight information based on automatic position reports broadcasted by systems like ADSB or Flarm. An alternative would be to manually extract the flight log from the avionic systems and analyse these later using a specific tool.
 
 > This library is part of the foundation on which we run [SkyHop](https://skyhop.org), which is an automated digital logbook for general aviation.
