@@ -1,8 +1,14 @@
 using Boerman.FlightAnalysis.Models;
+using CsvHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Boerman.FlightAnalysis.Tests
 {
@@ -89,6 +95,60 @@ namespace Boerman.FlightAnalysis.Tests
             
             Assert.AreEqual(1, nearby.Count());
             Assert.AreEqual("2842", nearby.First().Aircraft);
+        }
+
+        [TestMethod]
+        public void ProcessOneDayOfData()
+        {
+            var ff = new FlightContextFactory();
+
+            using (var reader = new StreamReader(Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "Dependencies",
+                "2020-03-07_EHWO.csv")))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var lines = csv.GetRecords<dynamic>();
+
+                var positionUpdates = new List<PositionUpdate>();
+
+                foreach (var line in lines)
+                {
+                    dynamic position = JsonConvert.DeserializeObject(line.location);
+
+                    positionUpdates.Add(new PositionUpdate(
+                        line.transponderCode as string,
+                        DateTime.ParseExact(line.timestamp as string, "MMM d, yyyy @ H:mm:ss.FFF", CultureInfo.InvariantCulture),
+                        Convert.ToDouble(position.lat as string),
+                        Convert.ToDouble(position.lon as string),
+                        Convert.ToDouble(line.altitude as string),
+                        Convert.ToDouble(line.speed as string),
+                        Convert.ToDouble(line.heading as string)));
+                }
+
+                var departureCounter = 0;
+                var arrivalCounter = 0;
+
+                ff.OnTakeoff += (sender, args) =>
+                {
+                    Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime}");
+
+                    departureCounter++;
+                };
+
+                ff.OnLanding += (sender, args) =>
+                {
+                    Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime} - {args.Flight.EndTime}");
+                    arrivalCounter++;
+                };
+
+                ff.Enqueue(positionUpdates.OrderBy(q => q.TimeStamp));
+
+                ff.WaitForIdleProcess();
+
+                Assert.AreEqual(50, departureCounter);
+                Assert.AreEqual(50, arrivalCounter);
+            }    
         }
 
         public FlightContextFactory InitializeFlightContextWithData()
