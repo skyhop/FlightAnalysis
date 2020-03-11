@@ -1,5 +1,5 @@
-﻿using Boerman.FlightAnalysis.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Skyhop.FlightAnalysis.Models;
 
 namespace PersistentFlightContext
 {

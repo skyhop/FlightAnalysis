@@ -11,9 +11,11 @@
     <PackageReference Include="Boerman.AprsClient" Version="1.2.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.0" />
+    <PackageReference Include="SharpKml.Core" Version="5.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Boerman.FlightAnalysis\Boerman.FlightAnalysis.csproj" />
+    <ProjectReference Include="..\Boerman.FlightAnalysis\Skyhop.FlightAnalysis.csproj" />
+    <ProjectReference Include="..\Skyhop.FlightAnalysis\Skyhop.FlightAnalysis.csproj" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />

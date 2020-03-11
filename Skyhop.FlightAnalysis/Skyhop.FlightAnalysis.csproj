@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackOnBuild>true</PackOnBuild>
+    <Authors>Corstian Boerman</Authors>
+    <PackageIconUrl>https://avatars0.githubusercontent.com/u/51444212</PackageIconUrl>
+    <Owners>Corstian Boerman</Owners>
+    <PackageReleaseNotes>- Move the namespace to Skyhop
+- Fix an issue where latitude and longitude is switched around in any output.</PackageReleaseNotes>
+    <Summary>Library to extract basic flight information from flight paths.</Summary>
+    <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
+    <Title>Boerman.FlightAnalysis</Title>
+    <Description>The Boerman.FlightAnalysis package contains algorithms to analyze flight movements and extract information like departure time and airfield, arrival time and airfield, total air time and more. </Description>
+    <PackageId>Skyhop.FlightAnalysis</PackageId>
+    <PackageProjectUrl>https://github.com/Skyhop/FlightAnalysis</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/Skyhop/FlightAnalysis</RepositoryUrl>
+    <Version>2.0.0</Version>
+    <Copyright>Corstian Boerman</Copyright>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>Latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>Latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Boerman.Core" Version="2.1.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NetTopologySuite" Version="2.0.0" />
+    <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+    <PackageReference Include="System.Reactive" Version="4.2.0" />
+  </ItemGroup>
+</Project>
