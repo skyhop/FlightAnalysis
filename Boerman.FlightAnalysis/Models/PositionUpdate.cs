@@ -56,7 +56,7 @@ namespace Boerman.FlightAnalysis.Models
         public DateTime TimeStamp { get; }
 
         [JsonIgnore]
-        public Point Location => new Point(Latitude, Longitude, Altitude);
+        public Point Location => new Point(Longitude, Latitude, Altitude);
 
         public double Latitude { get; }
         public double Longitude { get; }
