@@ -9,8 +9,8 @@
 using System;
 using System.Linq;
 using Boerman.AprsClient;
-using Boerman.FlightAnalysis;
 using Humanizer;
+using Skyhop.FlightAnalysis;
 
 namespace RealtimeFlightActivityMonitor
 {
@@ -54,7 +54,7 @@ namespace RealtimeFlightActivityMonitor
             AprsClient.PacketReceived += (sender, e) => {
                 if (e.AprsMessage.DataType == Boerman.AprsClient.Enums.DataType.Status) return;
 
-                FlightContextFactory.Enqueue(new Boerman.FlightAnalysis.Models.PositionUpdate(
+                FlightContextFactory.Enqueue(new Skyhop.FlightAnalysis.Models.PositionUpdate(
                     e.AprsMessage.Callsign,
                     e.AprsMessage.ReceivedDate,
                     e.AprsMessage.Latitude.AbsoluteValue,

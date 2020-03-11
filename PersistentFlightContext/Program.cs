@@ -14,11 +14,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Boerman.AprsClient;
-using Boerman.Core.Extensions;
-using Boerman.FlightAnalysis;
-using Boerman.FlightAnalysis.Models;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
+using Skyhop.FlightAnalysis.Models;
+using Skyhop.FlightAnalysis;
 
 namespace PersistentFlightContext
 {
