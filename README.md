@@ -1,4 +1,4 @@
-<a href="https://skyhop.org"><img src="https://app.skyhop.org/assets/images/skyhop.svg" width=200 alt="skyhop logo" /></a>
+<a href="https://skyhop.org"><img src="https://skyhop.org/assets/images/skyhop.png" width=200 alt="skyhop logo" /></a>
 
 ----
 
