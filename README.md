@@ -24,15 +24,15 @@ The library can be added to your project in a number of ways:
 
 ### NuGet
 
-The `Boerman.FlightAnalysis` library is available through NuGet and can be installed as follows:
+The `Skyhop.FlightAnalysis` library is available through NuGet and can be installed as follows:
 
-    Install-Package Boerman.FlightAnalysis
+    Install-Package Skyhop.FlightAnalysis
 
 ### .NET CLI
 
 To install the library through the .NET CLI you can use the following command:
 
-    dotnet add package Boerman.Networking
+    dotnet add package Skyhop.Networking
 
 ### Building From Source
 
