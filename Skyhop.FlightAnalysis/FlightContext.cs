@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Boerman.Core.Extensions;
-using Boerman.Core.State;
 using Priority_Queue;
 using System.Reactive.Linq;
-using Skyhop.FlightAnalysis.FlightStates;
 using Skyhop.FlightAnalysis.Models;
+using Stateless;
+using Stateless.Graph;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -17,9 +16,32 @@ namespace Skyhop.FlightAnalysis
     /// 
     /// To process data points from multiple aircraft use the FlightContextFactory.
     /// </summary>
-    public class FlightContext : BaseContext
+    public class FlightContext
     {
-        internal const int MinimumRequiredPositionUpdateCount = 5;
+        public enum State
+        {
+            None,
+            DetermineFlightState,
+            FindArrivalHeading,
+            FindDepartureHeading,
+            InitializeFlightState,
+            ProcessPoint,
+            WaitingForData
+        }
+
+        public enum Trigger
+        {
+            Next,
+            Standby,
+            ResolveState,
+            ResolveDeparture,
+            ResolveArrival,
+            Initialize
+        }
+
+        public readonly StateMachine<State, Trigger> StateMachine;
+
+        internal int MinimumRequiredPositionUpdateCount = 5;
         internal bool MinifyMemoryPressure;
 
         internal readonly string AircraftId;
@@ -31,43 +53,6 @@ namespace Skyhop.FlightAnalysis
 
         public CancellationTokenSource CancellationTokenSource { get; private set; }
 
-        /*
-         * This is the only constructor which is allowed to initiale a FlightContext without aircraft identifier.
-         * Only to facilitate the few moments where your workflow is set up in a way that it's logical to only process
-         * data from a single aircraft. For all other reasons I'd strongly recommend using the FlightContextFactory
-         * anyway.
-         */
-
-        /// <summary>
-        /// FlightContext Constructor
-        /// </summary>
-        /// <param name="aircraftId">Optional string used to identify this context.</param>
-        public FlightContext(string aircraftId, bool minifyMemoryPressure)
-        {
-            AircraftId = aircraftId;
-
-            MinifyMemoryPressure = minifyMemoryPressure;
-
-            Flight = new Flight
-            {
-                Aircraft = aircraftId
-            };
-
-            QueueState(typeof(InitializeFlightState));
-
-            /*
-             * While one might think that process execution is being started from the constructor this is not the case.
-             * The `StartOrContinueProcessing` call continues to call the `Run` function, which exists in the `BaseContext`
-             * class. The `Run` function in turn queues the state and continues execution of the state onto the threadpool.
-             * Therefore only initial state scheduling happens during construction of the instance.
-             * 
-             * For more information go check out the source code at https://github.com/Boerman/Boerman.Core/tree/master/State
-             */
-            StartOrContinueProcessing();
-        }
-
-        public FlightContext(string aircraftId) : this(aircraftId, false) { }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="FlightContext"/> class.
         /// </summary>
@@ -75,11 +60,62 @@ namespace Skyhop.FlightAnalysis
         /// processing has been done.</param>
         public FlightContext(FlightMetadata flightMetadata, bool minifyMemoryPressure)
         {
+            StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
+
+            StateMachine.Configure(State.None)
+                .Permit(Trigger.Initialize, State.InitializeFlightState);
+
+            StateMachine.Configure(State.InitializeFlightState)
+                .OnEntry(() => this.Initialize())
+                .PermitReentry(Trigger.Initialize)
+                .Permit(Trigger.Next, State.ProcessPoint);
+
+            StateMachine.Configure(State.ProcessPoint)
+                .OnEntry(this.ProcessNextPoint)
+                .PermitReentry(Trigger.Next)
+                .Permit(Trigger.Standby, State.WaitingForData)
+                .Permit(Trigger.Initialize, State.InitializeFlightState)
+                .Permit(Trigger.ResolveState, State.DetermineFlightState);
+
+            StateMachine.Configure(State.DetermineFlightState)
+                .OnEntry(this.DetermineFlightState)
+                .PermitReentry(Trigger.ResolveState)
+                .Permit(Trigger.Next, State.ProcessPoint)
+                .Permit(Trigger.ResolveDeparture, State.FindDepartureHeading)
+                .Permit(Trigger.ResolveArrival, State.FindArrivalHeading);
+
+            StateMachine.Configure(State.FindDepartureHeading)
+                .OnEntry(this.FindDepartureHeading)
+                .PermitReentry(Trigger.ResolveDeparture)
+                .Permit(Trigger.Next, State.ProcessPoint);
+
+            StateMachine.Configure(State.FindArrivalHeading)
+                .OnEntry(this.FindArrivalHeading)
+                .PermitReentry(Trigger.ResolveArrival)
+                .Permit(Trigger.Next, State.ProcessPoint);
+
+            StateMachine.Configure(State.WaitingForData)
+                .PermitReentry(Trigger.Standby)
+                .Permit(Trigger.Next, State.ProcessPoint);
+
+            StateMachine.Fire(Trigger.Initialize);
+
             MinifyMemoryPressure = minifyMemoryPressure;
 
             AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flightMetadata.Flight;
         }
+
+        /// <summary>
+        /// FlightContext Constructor
+        /// </summary>
+        /// <param name="aircraftId">Optional string used to identify this context.</param>
+        public FlightContext(string aircraftId, bool minifyMemoryPressure = false) : this(
+            new FlightMetadata
+            {
+                Aircraft = aircraftId
+            },
+            minifyMemoryPressure) { }
 
         public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, false) { }
 
@@ -94,8 +130,6 @@ namespace Skyhop.FlightAnalysis
 
             AircraftId = flight.Aircraft;
             Flight = flight;
-
-            StartOrContinueProcessing();
         }
 
         public FlightContext(Flight flight) : this(flight, false) { }
@@ -105,7 +139,7 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="positionUpdate">The positionupdate to queue</param>
         /// <param name="startOrContinueProcessing">Whether or not to start/continue processing</param>
-        void Enqueue(PositionUpdate positionUpdate, bool startOrContinueProcessing)
+        public void Enqueue(PositionUpdate positionUpdate)
         {
             if (positionUpdate == null) return;
 
@@ -113,17 +147,10 @@ namespace Skyhop.FlightAnalysis
 
             PriorityQueue.Enqueue(positionUpdate, positionUpdate.TimeStamp.Ticks);
 
-            if (startOrContinueProcessing) StartOrContinueProcessing();
-        }
-
-        /// <summary>
-        /// Queue a position update on this context for processing. Processing will either start directly or continue 
-        /// in case it is still running.
-        /// </summary>
-        /// <param name="positionUpdate">The position update to queue</param>
-        public void Enqueue(PositionUpdate positionUpdate)
-        {
-            Enqueue(positionUpdate, true);
+            if (StateMachine.IsInState(State.WaitingForData))
+            {
+                StateMachine.Fire(Trigger.Next);
+            }
         }
 
         /// <summary>
@@ -133,20 +160,10 @@ namespace Skyhop.FlightAnalysis
         /// <param name="positionUpdates">The position updates to queue</param>
         public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
         {
-            positionUpdates.AsParallel().ForEach(q => Enqueue(q, false));
-            StartOrContinueProcessing();
-        }
-
-        /// <summary>
-        /// Starts or continues processing the queued data in this instance
-        /// </summary>
-        private void StartOrContinueProcessing()
-        {
-            if (IsQueueRunning) return;
-            if (!StateQueueContainsStates) QueueState(typeof(ProcessNextPoint));
-
-            CancellationTokenSource = new CancellationTokenSource();
-            Run(CancellationTokenSource.Token);
+            foreach (var update in positionUpdates.OrderBy(q => q.TimeStamp))
+            {
+                Enqueue(update);
+            }
         }
 
         /// <summary>
@@ -156,6 +173,11 @@ namespace Skyhop.FlightAnalysis
         {
             if (MinifyMemoryPressure && Flight.PositionUpdates.Count > MinimumRequiredPositionUpdateCount)
                 Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - MinimumRequiredPositionUpdateCount);
+        }
+
+        public string ToDotGraph()
+        {
+            return UmlDotGraph.Format(StateMachine.GetInfo());
         }
 
         /*
@@ -267,20 +289,5 @@ namespace Skyhop.FlightAnalysis
                 (args) => OnCompletedWithErrors += args,
                 (args) => OnCompletedWithErrors -= args)
             .Select(q => q.EventArgs);
-
-        private new bool StateQueueContainsStates => base.StateQueueContainsStates;
-        public new Func<bool> WaitForIdleProcess => base.WaitForIdleProcess;
-        public new bool IsQueueRunning => base.IsQueueRunning;
-
-        protected new internal BaseContext QueueState(Type state)
-        {
-            base.QueueState(state);
-            return this;
-        }
-
-        protected new internal void Run(CancellationToken cancellationToken = default)
-        {
-            base.Run(cancellationToken);
-        }
     }
 }

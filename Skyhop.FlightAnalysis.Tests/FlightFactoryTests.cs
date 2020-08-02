@@ -19,8 +19,6 @@ namespace Skyhop.FlightAnalysis.Tests
         public void TestFlightFactory()
         {
             var flightContextFactory = InitializeFlightContextWithData();
-
-            flightContextFactory.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -89,8 +87,6 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             var flightContext = InitializeFlightContextWithData();
 
-            flightContext.WaitForIdleProcess();
-
             // X, Y, Z: Longiutde, Latitude, Altitude
             var nearby = flightContext.FindNearby(new Coordinate(5.930606, 44.282189), 0.00002);
 
@@ -144,8 +140,6 @@ namespace Skyhop.FlightAnalysis.Tests
                 };
 
                 ff.Enqueue(positionUpdates.OrderBy(q => q.TimeStamp));
-
-                ff.WaitForIdleProcess();
 
                 Assert.AreEqual(50, departureCounter);
                 Assert.AreEqual(50, arrivalCounter);

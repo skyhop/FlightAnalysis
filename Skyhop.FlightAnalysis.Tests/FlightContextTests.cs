@@ -51,8 +51,6 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
 
-            fc.WaitForIdleProcess();
-
             Assert.AreEqual(2, callbacks);
         }
 
@@ -114,8 +112,6 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
 
-            fc.WaitForIdleProcess();
-
             Assert.AreEqual(2, callbacks);
         }
 
@@ -146,8 +142,6 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
-
-            fc.WaitForIdleProcess();
 
             Assert.AreEqual(2, callbacks);
         }
@@ -188,7 +182,6 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -237,7 +230,6 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -286,7 +278,6 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -353,8 +344,6 @@ namespace Skyhop.FlightAnalysis.Tests
             };
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
-
-            fc.WaitForIdleProcess();
 
             Assert.AreEqual(4, pass);
             Assert.AreEqual(8, callbacks);
