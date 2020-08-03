@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackOnBuild>true</PackOnBuild>
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars0.githubusercontent.com/u/51444212</PackageIconUrl>
