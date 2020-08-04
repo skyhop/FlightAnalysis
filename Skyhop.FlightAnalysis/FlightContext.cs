@@ -52,6 +52,8 @@ namespace Skyhop.FlightAnalysis
 
         internal DateTime LatestTimeStamp;
 
+        public DateTime LastActive { get; private set; }
+
         public CancellationTokenSource CancellationTokenSource { get; private set; }
 
         /// <summary>
@@ -103,6 +105,8 @@ namespace Skyhop.FlightAnalysis
 
             AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flightMetadata.Flight;
+
+            LastActive = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -152,6 +156,8 @@ namespace Skyhop.FlightAnalysis
                     .FireAsync(Trigger.Next)
                     .ConfigureAwait(false);
             }
+
+            LastActive = DateTime.UtcNow;
         }
 
         /// <summary>

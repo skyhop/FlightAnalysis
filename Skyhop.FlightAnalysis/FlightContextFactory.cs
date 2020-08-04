@@ -68,31 +68,31 @@ namespace Skyhop.FlightAnalysis
 
         private void TimerOnElapsed()
         {
-        //    var contextsToRemove =
-        //        _flightContextDictionary
-        //            .Where(q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
-        //            .Select(q => q.Key);
+            var contextsToRemove =
+                _flightContextDictionary
+                    .Where(q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
+                    .Select(q => q.Key);
 
-        //    foreach (var contextId in contextsToRemove)
-        //    {
-        //        _flightContextDictionary.TryRemove(contextId, out FlightContext context);
+            foreach (var contextId in contextsToRemove)
+            {
+                _flightContextDictionary.TryRemove(contextId, out FlightContext context);
 
-        //        var latest = context.Flight.PositionUpdates.LastOrDefault();
+                var latest = context.Flight.PositionUpdates.LastOrDefault();
 
-        //        if (latest != null)
-        //        {
-        //            _quadTree.Remove(new Envelope(new Coordinate(latest.Longitude, latest.Latitude)), context.AircraftId);
-        //        }
+                if (latest != null)
+                {
+                    _map.Remove(latest);
+                }
 
-        //        try
-        //        {
-        //            OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Trace.Write(ex);
-        //        }
-        //    }
+                try
+                {
+                    OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
+                }
+                catch (Exception ex)
+                {
+                    Trace.Write(ex);
+                }
+            }
         }
 
         /// <summary>
