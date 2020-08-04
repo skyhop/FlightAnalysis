@@ -31,6 +31,9 @@ namespace Skyhop.FlightAnalysis.Models
             DepartureLatitude = flight.DepartureLocation?.Y ?? 0;
 
             DepartureInfoFound = flight.DepartureInfoFound;
+
+            LaunchMethod = flight.LaunchMethod;
+
             ArrivalTime = flight.EndTime;
             ArrivalHeading = flight.ArrivalHeading;
 
@@ -53,6 +56,9 @@ namespace Skyhop.FlightAnalysis.Models
         public double DepartureLongitude { get; set; }
 
         public bool? DepartureInfoFound { get; set; }
+
+        public LaunchMethod LaunchMethod { get; set; }
+
         public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
 
