@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Skyhop.FlightAnalysis.Tests
@@ -23,17 +24,18 @@ namespace Skyhop.FlightAnalysis.Tests
     public class FlightContextTests
     {
         [TestMethod]
-        public void Flight_D1908_20170408()
+        public async Task Flight_D1908_20170408()
         {
             FlightContext fc = new FlightContext("6770");
 
-            int callbacks = 0;
+            var countdownEvent = new CountdownEvent(2);
 
             fc.OnTakeoff += (sender, args) =>
             {
                 Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
-                callbacks++;
+                
+                countdownEvent.Signal();
             };
 
             fc.OnLanding += (sender, args) =>
@@ -41,16 +43,18 @@ namespace Skyhop.FlightAnalysis.Tests
                 Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(250, ((FlightContext)sender).Flight.ArrivalHeading);
 
-                callbacks++;
+                countdownEvent.Signal();
             };
 
             // These events should NOT be fired
             fc.OnRadarContact += (sender, e) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
+            await fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
 
-            Assert.AreEqual(2, callbacks);
+            countdownEvent.Wait(1000);
+
+            Assert.IsTrue(countdownEvent.CurrentCount == 0);
         }
 
         /*

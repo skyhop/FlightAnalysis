@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using Skyhop.FlightAnalysis.Models;
 using Stateless;
 using Stateless.Graph;
+using System.Threading.Tasks;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -63,10 +64,10 @@ namespace Skyhop.FlightAnalysis
             StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
 
             StateMachine.Configure(State.None)
-                .Permit(Trigger.Initialize, State.InitializeFlightState);
+                .Permit(Trigger.Next, State.ProcessPoint);
 
             StateMachine.Configure(State.InitializeFlightState)
-                .OnEntry(() => this.Initialize())
+                .OnEntry(this.Initialize)
                 .PermitReentry(Trigger.Initialize)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
@@ -97,8 +98,6 @@ namespace Skyhop.FlightAnalysis
             StateMachine.Configure(State.WaitingForData)
                 .PermitReentry(Trigger.Standby)
                 .Permit(Trigger.Next, State.ProcessPoint);
-
-            StateMachine.Fire(Trigger.Initialize);
 
             MinifyMemoryPressure = minifyMemoryPressure;
 
@@ -139,7 +138,7 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="positionUpdate">The positionupdate to queue</param>
         /// <param name="startOrContinueProcessing">Whether or not to start/continue processing</param>
-        public void Enqueue(PositionUpdate positionUpdate)
+        public async Task Enqueue(PositionUpdate positionUpdate)
         {
             if (positionUpdate == null) return;
 
@@ -147,9 +146,11 @@ namespace Skyhop.FlightAnalysis
 
             PriorityQueue.Enqueue(positionUpdate, positionUpdate.TimeStamp.Ticks);
 
-            if (StateMachine.IsInState(State.WaitingForData))
+            if (StateMachine.IsInState(State.WaitingForData) || StateMachine.IsInState(State.None))
             {
-                StateMachine.Fire(Trigger.Next);
+                await StateMachine
+                    .FireAsync(Trigger.Next)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -158,11 +159,12 @@ namespace Skyhop.FlightAnalysis
         /// directly or continue in case it is still running.
         /// </summary>
         /// <param name="positionUpdates">The position updates to queue</param>
-        public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
+        public async Task Enqueue(IEnumerable<PositionUpdate> positionUpdates)
         {
             foreach (var update in positionUpdates.OrderBy(q => q.TimeStamp))
             {
-                Enqueue(update);
+                await Enqueue(update)
+                    .ConfigureAwait(false);
             }
         }
 

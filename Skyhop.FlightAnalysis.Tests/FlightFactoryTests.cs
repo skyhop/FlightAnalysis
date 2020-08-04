@@ -88,10 +88,12 @@ namespace Skyhop.FlightAnalysis.Tests
             var flightContext = InitializeFlightContextWithData();
 
             // X, Y, Z: Longiutde, Latitude, Altitude
-            var nearby = flightContext.FindNearby(new Coordinate(5.930606, 44.282189), 0.00002);
+            var nearby = flightContext
+                .FindNearby(new Coordinate(4.356565, 51.452385), 2.2)
+                .ToList();
 
             Assert.AreEqual(1, nearby.Count());
-            Assert.AreEqual("2842", nearby.First().Aircraft);
+            Assert.AreEqual("5657", nearby.First().Aircraft);
         }
 
         [TestMethod]

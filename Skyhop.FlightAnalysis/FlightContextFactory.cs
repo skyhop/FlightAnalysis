@@ -17,10 +17,13 @@ namespace Skyhop.FlightAnalysis
     /// </summary>
     public class FlightContextFactory
     {
+        // ToDo: Possible performance improvement over here
+        private readonly SpatialMap<PositionUpdate> _map = new SpatialMap<PositionUpdate>(
+            q => Math.Cos(Math.PI / 180 * q.Location.Y) * 111 * q.Location.X,
+            q => q.Location.Y * 111);
+
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
-
-        private readonly Quadtree<string> _quadTree = new Quadtree<string>();
 
         internal readonly Options Options;
 
@@ -129,19 +132,14 @@ namespace Skyhop.FlightAnalysis
                     flightContext.Enqueue(updates);
 
                     var latest = updates.LastOrDefault();
-                    _quadTree.Insert(new Envelope(
-                        new Coordinate(
-                            latest.Longitude,
-                            latest.Latitude)), latest.Aircraft);
+
+                    _map.Add(latest);
 
                     Debug.WriteLine($"{latest.Aircraft}: {latest.Longitude}, {latest.Latitude}");
 
                     if (previousPoint != null)
                     {
-                        _quadTree.Remove(new Envelope(
-                            new Coordinate(
-                                previousPoint.Longitude,
-                                previousPoint.Latitude)), previousPoint.Aircraft);
+                        _map.Remove(previousPoint);
                     }
 
                     // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
@@ -158,21 +156,15 @@ namespace Skyhop.FlightAnalysis
         /// <param name="distance"></param>
         /// <returns></returns>
         // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
-        public IEnumerable<PositionUpdate> FindNearby(Coordinate coordinate, double distance = 0.0002)
+        public IEnumerable<PositionUpdate> FindNearby(Coordinate coordinate, double distance = 0.2)
         {
-            var envelope = new Envelope(coordinate);
+            if (coordinate == null) throw new ArgumentException($"{nameof(coordinate)} should not be null");
 
-            // In the cartesian coordinate system 0.001 is roughly 111 meters. By using a distance of
-            // roughly 220 meters we can make sure that a position update once about every 5 seconds is
-            // enough to relate two aircraft together when departing (glider and the towplane).
+            var nearbyPositions = _map.Nearby(new PositionUpdate(null, DateTime.MinValue, coordinate.Y, coordinate.X), distance);
 
-            envelope.ExpandBy(distance);
-
-            var nearbyAircraft = _quadTree.Query(envelope);
-
-            foreach (var aircraft in nearbyAircraft)
+            foreach (var position in nearbyPositions)
             {
-                var positionUpdate = _flightContextDictionary[aircraft].Flight.PositionUpdates.LastOrDefault();
+                var positionUpdate = _flightContextDictionary[position.Aircraft].Flight.PositionUpdates.LastOrDefault();
 
                 if (positionUpdate == null) continue;
 

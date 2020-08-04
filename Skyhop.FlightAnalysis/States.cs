@@ -1,6 +1,7 @@
 ﻿using Skyhop.FlightAnalysis.Models;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -8,67 +9,72 @@ namespace Skyhop.FlightAnalysis
     {
         internal static void Initialize(this FlightContext context)
         {
-            context.LatestTimeStamp = DateTime.MinValue;
+                context.LatestTimeStamp = DateTime.MinValue;
 
-            context.Flight = new Flight
-            {
-                Aircraft = context.AircraftId
-            };
+                context.Flight = new Flight
+                {
+                    Aircraft = context.AircraftId
+                };
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
         }
 
         internal static void ProcessNextPoint(this FlightContext context)
         {
-            if (context.Flight.EndTime != null)
-            {
-                // Reset the context
-                context.StateMachine.Fire(FlightContext.Trigger.Initialize);
-                return;
-            }
-            
-            if (!context.PriorityQueue.Any())
-            {
-                context.StateMachine.Fire(FlightContext.Trigger.Standby);
-                return;
-            }
+                if (context.Flight == null || context.Flight.EndTime != null)
+                {
+                    // Reset the context
+                    context.StateMachine.Fire(FlightContext.Trigger.Initialize);
+                    
+                    return;
+                }
 
-            // ToDo: Put this part in a state step
-            var position = States.States.NormalizeData(context, context.PriorityQueue.Dequeue());
+                if (!context.PriorityQueue.Any())
+                {
+                    context.StateMachine.Fire(FlightContext.Trigger.Standby);
+                    return;
+                }
 
-            if (position == null
-                || double.IsNaN(position.Heading)
-                || double.IsNaN(position.Speed))
-            {
-                context.StateMachine.Fire(FlightContext.Trigger.Next);
-                return;
-            }
-            else
-            {
-                context.Flight.PositionUpdates.Add(position);
-                context.CleanupDataPoints();
-            }
+                // ToDo: Put this part in a state step
+                var position = States.States.NormalizeData(context, context.PriorityQueue.Dequeue());
 
-            if (context.LatestTimeStamp == DateTime.MinValue) context.LatestTimeStamp = position.TimeStamp;
+                if (position == null
+                    || double.IsNaN(position.Heading)
+                    || double.IsNaN(position.Speed))
+                {
+                    context.StateMachine.Fire(FlightContext.Trigger.Next);
 
-            if (context.Flight.StartTime == null)
-            {
-                // Just keep the buffer small by removing points older then 2 minutes. The flight hasn't started anyway
-                context.Flight.PositionUpdates
-                        .Where(q => q.TimeStamp < position.TimeStamp.AddMinutes(-2))
-                        .ToList()
-                        .ForEach(q => context.Flight.PositionUpdates.Remove(q));
-            }
-            else if (context.LatestTimeStamp < position.TimeStamp.AddHours(-8))
-            {
-                context.InvokeOnCompletedWithErrorsEvent();
-                context.StateMachine.Fire(FlightContext.Trigger.Initialize);
+                    return;
+                }
+                else
+                {
+                    context.Flight.PositionUpdates.Add(position);
+                    context.CleanupDataPoints();
+                }
+
+                if (context.LatestTimeStamp == DateTime.MinValue) context.LatestTimeStamp = position.TimeStamp;
+
+                if (context.Flight.StartTime == null)
+                {
+                    // Just keep the buffer small by removing points older then 2 minutes. The flight hasn't started anyway
+                    context.Flight.PositionUpdates
+                            .Where(q => q.TimeStamp < position.TimeStamp.AddMinutes(-2))
+                            .ToList()
+                            .ForEach(q => context.Flight.PositionUpdates.Remove(q));
+                }
+                else if (context.LatestTimeStamp < position.TimeStamp.AddHours(-8))
+                {
+                    context.InvokeOnCompletedWithErrorsEvent();
+                    
+                    context.StateMachine.Fire(FlightContext.Trigger.Initialize);
+
+                    context.LatestTimeStamp = position.TimeStamp;
+                    return;
+                }
+
                 context.LatestTimeStamp = position.TimeStamp;
-                return;
-            }
 
-            context.LatestTimeStamp = position.TimeStamp;
-            context.StateMachine.Fire(FlightContext.Trigger.ResolveState);
+                context.StateMachine.Fire(FlightContext.Trigger.ResolveState);
         }
 
         internal static void DetermineFlightState(this FlightContext context)
@@ -79,20 +85,20 @@ namespace Skyhop.FlightAnalysis
             if (positionUpdate.Speed == 0)
             {
                 /*
-                 * If a flight has been in progress, end the flight.
-                 * 
-                 * When the aircraft has been registered mid flight the departure
-                 * location is unknown, and so is the time. Therefore look at the
-                 * flag which is set to indicate whether the departure location has
-                 * been found.
-                 * 
-                 * ToDo: Also check the vertical speed as it might be an indication
-                 * that the flight is still in progress! (Aerobatic stuff and so)
-                 */
+                    * If a flight has been in progress, end the flight.
+                    * 
+                    * When the aircraft has been registered mid flight the departure
+                    * location is unknown, and so is the time. Therefore look at the
+                    * flag which is set to indicate whether the departure location has
+                    * been found.
+                    * 
+                    * ToDo: Also check the vertical speed as it might be an indication
+                    * that the flight is still in progress! (Aerobatic stuff and so)
+                    */
 
                 // We might as well check for Context.Flight.DepartureInfoFound != null, I think
                 if (context.Flight.StartTime != null ||
-                   context.Flight.DepartureInfoFound == false)
+                    context.Flight.DepartureInfoFound == false)
                 {
                     context.Flight.EndTime = positionUpdate.TimeStamp;
                     context.StateMachine.Fire(FlightContext.Trigger.ResolveArrival);
