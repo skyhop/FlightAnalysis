@@ -50,8 +50,7 @@ namespace Skyhop.FlightAnalysis.Tests
             DepartureLatitude = 2,
             DepartureLongitude = 4,
             DepartureTime = DateTime.Parse("2019-09-01T00:00:00.002"),
-            Id = Guid.Parse("{D45455FB-C2CD-46AA-8F3D-8A3F8E1A02B8}"),
-            LastSeen = DateTime.Parse("2019-09-01T00:00:00.100")
+            Id = Guid.Parse("{D45455FB-C2CD-46AA-8F3D-8A3F8E1A02B8}")
         };
 
         string serializedMetadata = "{\"Id\":\"d45455fb-c2cd-46aa-8f3d-8a3f8e1a02b8\",\"Aircraft\":\"PH-ABC\",\"LastSeen\":\"2019-09-01T00:00:00.1\",\"DepartureTime\":\"2019-09-01T00:00:00.002\",\"DepartureHeading\":205,\"DepartureLatitude\":2.0,\"DepartureLongitude\":4.0,\"DepartureInfoFound\":true,\"ArrivalTime\":\"2019-09-01T00:00:00.001\",\"ArrivalHeading\":205,\"ArrivalLatitude\":1.0,\"ArrivalLongitude\":2.0,\"ArrivalInfoFound\":true,\"Completed\":true}";

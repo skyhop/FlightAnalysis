@@ -153,8 +153,6 @@ namespace Skyhop.FlightAnalysis
         {
             if (positionUpdate == null) return;
 
-            if (positionUpdate.TimeStamp > Flight.LastSeen) Flight.LastSeen = positionUpdate.TimeStamp;
-
             PriorityQueue.Enqueue(positionUpdate, positionUpdate.TimeStamp.Ticks);
 
             if (StateMachine.IsInState(State.WaitingForData) || StateMachine.IsInState(State.None))
@@ -172,10 +170,19 @@ namespace Skyhop.FlightAnalysis
         /// <param name="positionUpdates">The position updates to queue</param>
         public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
         {
-            foreach (var update in positionUpdates.OrderBy(q => q.TimeStamp))
+            if (!positionUpdates.Any()) return;
+
+            foreach (var update in positionUpdates)
             {
-                Enqueue(update);
+                PriorityQueue.Enqueue(update, update.TimeStamp.Ticks);
             }
+
+            if (StateMachine.IsInState(State.WaitingForData) || StateMachine.IsInState(State.None))
+            {
+                StateMachine.Fire(Trigger.Next);
+            }
+
+            LastActive = DateTime.UtcNow;
         }
 
         /// <summary>

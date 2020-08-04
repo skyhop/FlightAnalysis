@@ -50,9 +50,10 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnRadarContact += (sender, e) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
+            var points = Common.ReadFlightPoints("2017-04-08_D-1908.csv");
+            fc.Enqueue(points);
 
-            countdownEvent.Wait(100000);
+            countdownEvent.Wait(1000);
 
             Assert.IsTrue(countdownEvent.CurrentCount == 0);
         }

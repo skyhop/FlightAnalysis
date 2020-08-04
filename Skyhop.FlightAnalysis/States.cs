@@ -157,11 +157,11 @@ namespace Skyhop.FlightAnalysis
             {
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
             } 
-            else if (context.Flight.DepartureInfoFound == true
-                && context.Flight.LaunchMethod == LaunchMethod.Unknown)
-            {
-                context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
-            }
+            //else if (context.Flight.DepartureInfoFound == true
+            //    && context.Flight.LaunchMethod == LaunchMethod.Unknown)
+            //{
+            //    context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
+            //}
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
         }

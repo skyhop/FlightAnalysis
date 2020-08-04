@@ -23,7 +23,6 @@ namespace Skyhop.FlightAnalysis.Models
 
             Id = flight.Id;
             Aircraft = flight.Aircraft;
-            LastSeen = flight.LastSeen;
             DepartureTime = flight.StartTime;
             DepartureHeading = flight.DepartureHeading;
 
@@ -45,7 +44,6 @@ namespace Skyhop.FlightAnalysis.Models
 
         public Guid? Id { get; set; }
         public string Aircraft { get; set; }
-        public DateTime? LastSeen { get; set; }
         public DateTime? DepartureTime { get; set; }
         public short DepartureHeading { get; set; }
 
