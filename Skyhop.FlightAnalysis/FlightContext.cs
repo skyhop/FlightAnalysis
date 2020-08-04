@@ -142,7 +142,7 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="positionUpdate">The positionupdate to queue</param>
         /// <param name="startOrContinueProcessing">Whether or not to start/continue processing</param>
-        public async Task Enqueue(PositionUpdate positionUpdate)
+        public void Enqueue(PositionUpdate positionUpdate)
         {
             if (positionUpdate == null) return;
 
@@ -152,9 +152,7 @@ namespace Skyhop.FlightAnalysis
 
             if (StateMachine.IsInState(State.WaitingForData) || StateMachine.IsInState(State.None))
             {
-                await StateMachine
-                    .FireAsync(Trigger.Next)
-                    .ConfigureAwait(false);
+                StateMachine.Fire(Trigger.Next);
             }
 
             LastActive = DateTime.UtcNow;
@@ -165,12 +163,11 @@ namespace Skyhop.FlightAnalysis
         /// directly or continue in case it is still running.
         /// </summary>
         /// <param name="positionUpdates">The position updates to queue</param>
-        public async Task Enqueue(IEnumerable<PositionUpdate> positionUpdates)
+        public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
         {
             foreach (var update in positionUpdates.OrderBy(q => q.TimeStamp))
             {
-                await Enqueue(update)
-                    .ConfigureAwait(false);
+                Enqueue(update);
             }
         }
 
