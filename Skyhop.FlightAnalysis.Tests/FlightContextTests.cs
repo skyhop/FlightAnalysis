@@ -32,18 +32,18 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.OnTakeoff += (sender, args) =>
             {
+                countdownEvent.Signal();
+
                 Assert.AreEqual(636272590876740641, ((FlightContext)sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
-                
-                countdownEvent.Signal();
             };
 
             fc.OnLanding += (sender, args) =>
             {
+                countdownEvent.Signal();
+
                 Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(250, ((FlightContext)sender).Flight.ArrivalHeading);
-
-                countdownEvent.Signal();
             };
 
             // These events should NOT be fired

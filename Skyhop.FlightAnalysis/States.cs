@@ -38,9 +38,9 @@ namespace Skyhop.FlightAnalysis
             var position = context.PriorityQueue.Dequeue();
 
             if (context.Flight.PositionUpdates
-                .Skip(context.Flight.PositionUpdates.Count - 10)
-                .Take(10)
-                .Any(q => q.Latitude == position.Latitude
+                .TakeLast(5)
+                .Any(q => q.Speed > 30
+                    && q.Latitude == position.Latitude
                     && q.Longitude == position.Longitude))
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Next);
@@ -70,9 +70,9 @@ namespace Skyhop.FlightAnalysis
             {
                 // Just keep the buffer small by removing points older then 2 minutes. The flight hasn't started anyway
                 context.Flight.PositionUpdates
-                        .Where(q => q.TimeStamp < position.TimeStamp.AddMinutes(-2))
-                        .ToList()
-                        .ForEach(q => context.Flight.PositionUpdates.Remove(q));
+                    .Where(q => q.TimeStamp < position.TimeStamp.AddMinutes(-2))
+                    .ToList()
+                    .ForEach(q => context.Flight.PositionUpdates.Remove(q));
             }
             else if (context.LatestTimeStamp < position.TimeStamp.AddHours(-8))
             {
@@ -156,12 +156,12 @@ namespace Skyhop.FlightAnalysis
                 && context.Flight.DepartureHeading == 0)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
-            } 
-            //else if (context.Flight.DepartureInfoFound == true
-            //    && context.Flight.LaunchMethod == LaunchMethod.Unknown)
-            //{
-            //    context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
-            //}
+            }
+            else if (context.Flight.DepartureInfoFound == true
+                && context.Flight.LaunchMethod == LaunchMethod.Unknown)
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
+            }
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
         }
