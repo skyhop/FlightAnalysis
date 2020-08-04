@@ -22,60 +22,72 @@ namespace Skyhop.FlightAnalysis
 
         internal static void ProcessNextPoint(this FlightContext context)
         {
-                if (context.Flight == null || context.Flight.EndTime != null)
-                {
-                    // Reset the context
-                    context.StateMachine.Fire(FlightContext.Trigger.Initialize);
+            if (context.Flight == null || context.Flight.EndTime != null)
+            {
+                // Reset the context
+                context.StateMachine.Fire(FlightContext.Trigger.Initialize);
                     
-                    return;
-                }
+                return;
+            }
 
-                if (!context.PriorityQueue.Any())
-                {
-                    context.StateMachine.Fire(FlightContext.Trigger.Standby);
-                    return;
-                }
+            if (!context.PriorityQueue.Any())
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.Standby);
+                return;
+            }
 
-                // ToDo: Put this part in a state step
-                var position = States.States.NormalizeData(context, context.PriorityQueue.Dequeue());
+            var position = context.PriorityQueue.Dequeue();
 
-                if (position == null
-                    || double.IsNaN(position.Heading)
-                    || double.IsNaN(position.Speed))
-                {
-                    context.StateMachine.Fire(FlightContext.Trigger.Next);
+            if (context.Flight.PositionUpdates
+                .Skip(context.Flight.PositionUpdates.Count - 10)
+                .Take(10)
+                .Any(q => q.Latitude == position.Latitude
+                    && q.Longitude == position.Longitude))
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.Next);
+                return;
+            }
 
-                    return;
-                }
-                else
-                {
-                    context.Flight.PositionUpdates.Add(position);
-                    context.CleanupDataPoints();
-                }
+            // ToDo: Put this part in a state step
+            position = States.States.NormalizeData(context, position);
 
-                if (context.LatestTimeStamp == DateTime.MinValue) context.LatestTimeStamp = position.TimeStamp;
+            if (position == null
+                || double.IsNaN(position.Heading)
+                || double.IsNaN(position.Speed))
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.Next);
 
-                if (context.Flight.StartTime == null)
-                {
-                    // Just keep the buffer small by removing points older then 2 minutes. The flight hasn't started anyway
-                    context.Flight.PositionUpdates
-                            .Where(q => q.TimeStamp < position.TimeStamp.AddMinutes(-2))
-                            .ToList()
-                            .ForEach(q => context.Flight.PositionUpdates.Remove(q));
-                }
-                else if (context.LatestTimeStamp < position.TimeStamp.AddHours(-8))
-                {
-                    context.InvokeOnCompletedWithErrorsEvent();
+                return;
+            }
+            else
+            {
+                context.Flight.PositionUpdates.Add(position);
+                context.CleanupDataPoints();
+            }
+
+            if (context.LatestTimeStamp == DateTime.MinValue) context.LatestTimeStamp = position.TimeStamp;
+
+            if (context.Flight.StartTime == null)
+            {
+                // Just keep the buffer small by removing points older then 2 minutes. The flight hasn't started anyway
+                context.Flight.PositionUpdates
+                        .Where(q => q.TimeStamp < position.TimeStamp.AddMinutes(-2))
+                        .ToList()
+                        .ForEach(q => context.Flight.PositionUpdates.Remove(q));
+            }
+            else if (context.LatestTimeStamp < position.TimeStamp.AddHours(-8))
+            {
+                context.InvokeOnCompletedWithErrorsEvent();
                     
-                    context.StateMachine.Fire(FlightContext.Trigger.Initialize);
-
-                    context.LatestTimeStamp = position.TimeStamp;
-                    return;
-                }
+                context.StateMachine.Fire(FlightContext.Trigger.Initialize);
 
                 context.LatestTimeStamp = position.TimeStamp;
+                return;
+            }
 
-                context.StateMachine.Fire(FlightContext.Trigger.ResolveState);
+            context.LatestTimeStamp = position.TimeStamp;
+
+            context.StateMachine.Fire(FlightContext.Trigger.ResolveState);
         }
 
         internal static void DetermineFlightState(this FlightContext context)
