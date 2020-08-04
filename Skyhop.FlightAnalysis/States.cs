@@ -1,5 +1,6 @@
 ﻿using Skyhop.FlightAnalysis.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -144,11 +145,11 @@ namespace Skyhop.FlightAnalysis
                 && context.Flight.DepartureHeading == 0)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
-            }
-
-            if (context.Flight.DepartureInfoFound == true)
+            } 
+            else if (context.Flight.DepartureInfoFound == true
+                && context.Flight.LaunchMethod == LaunchMethod.Unknown)
             {
-
+                context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
             }
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
@@ -170,8 +171,6 @@ namespace Skyhop.FlightAnalysis
             if (context.Flight.DepartureHeading == 0) context.Flight.DepartureHeading = 360;
 
             context.InvokeOnTakeoffEvent();
-
-            context.StateMachine.Fire(FlightContext.Trigger.Next);
         }
 
         internal static void FindArrivalHeading(this FlightContext context)
@@ -191,8 +190,6 @@ namespace Skyhop.FlightAnalysis
             if (context.Flight.ArrivalHeading == 0) context.Flight.ArrivalHeading = 360;
 
             context.InvokeOnLandingEvent();
-
-            context.StateMachine.Fire(FlightContext.Trigger.Next);
         }
 
         internal static void DetermineLaunchMethod(this FlightContext context)
@@ -212,7 +209,25 @@ namespace Skyhop.FlightAnalysis
              * - Winch distance per meter altitude between 0.2 and 0.8?
              */
 
-            context.InvokeOnLaunchCompletedEvent();
+            var climbrate = new List<double>(context.Flight.PositionUpdates.Count);
+
+            for (var i = 1; i < context.Flight.PositionUpdates.Count; i++)
+            {
+                var deltaAltitude = context.Flight.PositionUpdates[i].Altitude - context.Flight.PositionUpdates[i - 1].Altitude;
+                var deltaTime = context.Flight.PositionUpdates[i].TimeStamp - context.Flight.PositionUpdates[i - 1].TimeStamp;
+
+                climbrate.Add(deltaAltitude / deltaTime.TotalMinutes);
+            }
+
+            if (climbrate.Count < 11) return;
+
+            var result = ZScore.StartAlgo(climbrate, 10, 2, 1);
+
+            if (result.Signals.Any(q => q == -1))
+            {
+                context.Flight.LaunchMethod = LaunchMethod.Winch;
+                context.InvokeOnLaunchCompletedEvent();
+            }
         }
     }
 }

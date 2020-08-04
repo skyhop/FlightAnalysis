@@ -8,7 +8,6 @@ using System.Reactive.Linq;
 using Skyhop.FlightAnalysis.Models;
 using Stateless;
 using Stateless.Graph;
-using System.Threading.Tasks;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -24,6 +23,7 @@ namespace Skyhop.FlightAnalysis
             None,
             DetermineFlightState,
             FindArrivalHeading,
+            LaunchMethodElimination,
             FindDepartureHeading,
             InitializeFlightState,
             ProcessPoint,
@@ -36,6 +36,7 @@ namespace Skyhop.FlightAnalysis
             Standby,
             ResolveState,
             ResolveDeparture,
+            ResolveLaunchMethod,
             ResolveArrival,
             Initialize
         }
@@ -85,11 +86,17 @@ namespace Skyhop.FlightAnalysis
                 .PermitReentry(Trigger.ResolveState)
                 .Permit(Trigger.Next, State.ProcessPoint)
                 .Permit(Trigger.ResolveDeparture, State.FindDepartureHeading)
+                .Permit(Trigger.ResolveLaunchMethod, State.LaunchMethodElimination)
                 .Permit(Trigger.ResolveArrival, State.FindArrivalHeading);
 
             StateMachine.Configure(State.FindDepartureHeading)
                 .OnEntry(this.FindDepartureHeading)
                 .PermitReentry(Trigger.ResolveDeparture)
+                .Permit(Trigger.Next, State.ProcessPoint);
+
+            StateMachine.Configure(State.LaunchMethodElimination)
+                .OnEntry(this.DetermineLaunchMethod)
+                .PermitReentry(Trigger.ResolveLaunchMethod)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
             StateMachine.Configure(State.FindArrivalHeading)
