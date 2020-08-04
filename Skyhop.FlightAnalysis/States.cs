@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -225,15 +224,18 @@ namespace Skyhop.FlightAnalysis
 
             for (var i = 1; i < context.Flight.PositionUpdates.Count; i++)
             {
-                var deltaAltitude = context.Flight.PositionUpdates[i].Altitude - context.Flight.PositionUpdates[i - 1].Altitude;
                 var deltaTime = context.Flight.PositionUpdates[i].TimeStamp - context.Flight.PositionUpdates[i - 1].TimeStamp;
+
+                if (deltaTime.TotalSeconds < 0.1) continue;
+
+                var deltaAltitude = context.Flight.PositionUpdates[i].Altitude - context.Flight.PositionUpdates[i - 1].Altitude;
 
                 climbrate.Add(deltaAltitude / deltaTime.TotalMinutes);
             }
 
-            if (climbrate.Count < 11) return;
+            if (climbrate.Count < 21) return;
 
-            var result = ZScore.StartAlgo(climbrate, 10, 2, 1);
+            var result = ZScore.StartAlgo(climbrate, 20, 2, 1);
 
             if (result.Signals.Any(q => q == -1))
             {

@@ -32,7 +32,7 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.OnTakeoff += (sender, args) =>
             {
-                Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                Assert.AreEqual(636272590876740641, ((FlightContext)sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
                 
                 countdownEvent.Signal();
@@ -52,7 +52,7 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
 
-            countdownEvent.Wait(1000);
+            countdownEvent.Wait(100000);
 
             Assert.IsTrue(countdownEvent.CurrentCount == 0);
         }
