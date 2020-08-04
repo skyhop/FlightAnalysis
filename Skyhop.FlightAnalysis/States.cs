@@ -103,45 +103,52 @@ namespace Skyhop.FlightAnalysis
                     context.Flight.EndTime = positionUpdate.TimeStamp;
                     context.StateMachine.Fire(FlightContext.Trigger.ResolveArrival);
                 }
+
+                context.StateMachine.Fire(FlightContext.Trigger.Next);
+                
+                return;
             }
-            else
+            
+            // This part is about the departure
+            if (context.Flight.StartTime == null
+                && positionUpdate.Speed > 30
+                && context.Flight.DepartureInfoFound != false)
             {
-                // This part is about the departure
-                if (context.Flight.StartTime == null
-                    && positionUpdate.Speed > 30
-                    && context.Flight.DepartureInfoFound != false)
+                // We have to start the flight
+
+                // Walk back to when the speed was 0
+                var start = context.Flight.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && (q.Speed == 0 || double.IsNaN(q.Speed)))
+                    .OrderByDescending(q => q.TimeStamp)
+                    .FirstOrDefault();
+
+                if (start == null)
                 {
-                    // We have to start the flight
-
-                    // Walk back to when the speed was 0
-                    var start = context.Flight.PositionUpdates.Where(q => q.TimeStamp < positionUpdate.TimeStamp && (q.Speed == 0 || double.IsNaN(q.Speed)))
-                        .OrderByDescending(q => q.TimeStamp)
-                        .FirstOrDefault();
-
-                    if (start == null)
-                    {
-                        // This means that an aircraft is flying but the takeoff itself hasn't been recorded due to insufficient flarm coverage
-                        context.Flight.DepartureInfoFound = false;
-                        context.InvokeOnRadarContactEvent();
-                    }
-                    else
-                    {
-                        context.Flight.DepartureInfoFound = true;
-                        context.Flight.StartTime = start.TimeStamp;
-
-                        // Remove the points we do not need. (From before the flight, for example during taxi)
-                        context.Flight.PositionUpdates
-                            .Where(q => q.TimeStamp < context.Flight.StartTime.Value)
-                            .ToList()
-                            .ForEach(q => context.Flight.PositionUpdates.Remove(q));
-                    }
+                    // This means that an aircraft is flying but the takeoff itself hasn't been recorded due to insufficient flarm coverage
+                    context.Flight.DepartureInfoFound = false;
+                    context.InvokeOnRadarContactEvent();
                 }
-
-                if (context.Flight.StartTime != null
-                    && context.Flight.DepartureHeading == 0)
+                else
                 {
-                    context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
+                    context.Flight.DepartureInfoFound = true;
+                    context.Flight.StartTime = start.TimeStamp;
+
+                    // Remove the points we do not need. (From before the flight, for example during taxi)
+                    context.Flight.PositionUpdates
+                        .Where(q => q.TimeStamp < context.Flight.StartTime.Value)
+                        .ToList()
+                        .ForEach(q => context.Flight.PositionUpdates.Remove(q));
                 }
+            }
+
+            if (context.Flight.StartTime != null
+                && context.Flight.DepartureHeading == 0)
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
+            }
+
+            if (context.Flight.DepartureInfoFound == true)
+            {
+
             }
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
@@ -186,6 +193,26 @@ namespace Skyhop.FlightAnalysis
             context.InvokeOnLandingEvent();
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
+        }
+
+        internal static void DetermineLaunchMethod(this FlightContext context)
+        {
+            /*
+             * The launch method will be determined after the departure direction has been confirmed.
+             * 
+             * After this we'll do an elimination to find the launch method. Preffered order;
+             * 
+             * 1. Winch launch
+             * 2. Aerotow
+             * 3. Self launch
+             * 
+             * First we'll check whether we're dealing with a winch launch. In order to qualify for a winch launch;
+             * - Average heading deviation no more than 15°
+             * - Climb distance less than 2 kilometers
+             * - Winch distance per meter altitude between 0.2 and 0.8?
+             */
+
+            context.InvokeOnLaunchCompletedEvent();
         }
     }
 }

@@ -204,6 +204,17 @@ namespace Skyhop.FlightAnalysis
             }
         }
 
+        internal void InvokeOnLaunchCompletedEvent()
+        {
+            try
+            {
+                OnLaunchCompleted?.Invoke(this, new OnLaunchCompletedEventArgs(Flight));
+            } catch (Exception ex)
+            {
+                Trace.Write(ex);
+            }
+        }
+
         internal void InvokeOnLandingEvent()
         {
             try
@@ -252,6 +263,14 @@ namespace Skyhop.FlightAnalysis
             .FromEventPattern<OnTakeoffEventArgs>(
                 (args) => OnTakeoff += args,
                 (args) => OnTakeoff -= args)
+            .Select(q => q.EventArgs);
+
+        public event EventHandler<OnLaunchCompletedEventArgs> OnLaunchCompleted;
+
+        public IObservable<OnLaunchCompletedEventArgs> LaunchCompleted => Observable
+            .FromEventPattern<OnLaunchCompletedEventArgs>(
+                (args) => OnLaunchCompleted += args,
+                (args) => OnLaunchCompleted -= args)
             .Select(q => q.EventArgs);
 
         /// <summary>
