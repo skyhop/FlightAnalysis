@@ -239,7 +239,10 @@ namespace Skyhop.FlightAnalysis.Tests
         [TestMethod]
         public async Task MinimalMemory_Flights_PH1387_20170419_20170421()
         {
-            FlightContext fc = new FlightContext("2842", true);
+            FlightContext fc = new FlightContext("2842", options =>
+            {
+                options.MinifyMemoryPressure = true;
+            });
 
             int pass = 0;
 
