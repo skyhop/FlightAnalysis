@@ -261,6 +261,7 @@ namespace Skyhop.FlightAnalysis
         {
             // Subscribe to the events so we can propagate 'em via the factory
             context.OnTakeoff += (sender, args) => OnTakeoff?.Invoke(sender, args);
+            context.OnLaunchCompleted += (sender, args) => OnLaunchCompleted?.Invoke(sender, args);
             context.OnLanding += (sender, args) => OnLanding?.Invoke(sender, args);
             context.OnRadarContact += (sender, args) => OnRadarContact?.Invoke(sender, args);
             context.OnCompletedWithErrors += (sender, args) => OnCompletedWithErrors?.Invoke(sender, args);
@@ -276,6 +277,14 @@ namespace Skyhop.FlightAnalysis
             .FromEventPattern<OnTakeoffEventArgs>(
                 (args) => OnTakeoff += args,
                 (args) => OnTakeoff -= args)
+            .Select(q => q.EventArgs);
+
+        public event EventHandler<OnLaunchCompletedEventArgs> OnLaunchCompleted;
+
+        public IObservable<OnLaunchCompletedEventArgs> CompletedLaunches => Observable
+            .FromEventPattern<OnLaunchCompletedEventArgs>(
+                (args) => OnLaunchCompleted += args,
+                (args) => OnLaunchCompleted -= args)
             .Select(q => q.EventArgs);
 
         /// <summary>
