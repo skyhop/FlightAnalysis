@@ -1,5 +1,6 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -43,9 +44,36 @@ namespace Skyhop.FlightAnalysis
             {
                 // ToDo: Determine the launchMethod
 
-                // Check the average heading and any deviation
-                // Check the length
+                // Check if there's another aircraft nearby (towing, or being towed)
+                var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke((
+                    coordinate: context.Flight.PositionUpdates.Last().Location, 
+                    distance: 200));
 
+                var towStatus = Geo.AircraftRelation.None;
+                FlightContext otherContext = null;
+
+                foreach (var aircraft in nearbyAircraft)
+                {
+                    var status = context.DetermineTowStatus(aircraft);
+
+                    if (status != Geo.AircraftRelation.None)
+                    {
+                        otherContext = aircraft;
+                        towStatus = status;
+                        break;
+                    }
+                }
+
+                if (towStatus != Geo.AircraftRelation.None && otherContext != null)
+                {
+                    // ToDo: Update the status, and continue tracking the tow, point for point
+                }
+
+                // ToDo: Go check whether we're dealing with a winch launch
+                // ToDo: Continue checking the tow status
+                // We're individually tracking the tow status for both aircraft. Consolidate this for more efficient tracking
+
+                // Check the average heading and any deviation
                 var averageHeading = context.Flight.PositionUpdates.Average(q => q.Heading);
 
                 // Skip the first element because heading is 0 when in rest
