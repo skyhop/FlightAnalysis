@@ -1,4 +1,5 @@
-﻿using Skyhop.FlightAnalysis.Models;
+﻿using Skyhop.FlightAnalysis.Internal;
+using Skyhop.FlightAnalysis.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,7 @@ namespace Skyhop.FlightAnalysis
             }
 
             // ToDo: Put this part in a state step
-            position = States.States.NormalizeData(context, position);
+            position = Geo.NormalizeData(context, position);
 
             if (position == null
                 || double.IsNaN(position.Heading)
@@ -256,7 +257,7 @@ namespace Skyhop.FlightAnalysis
                 // Skip the first element because heading is 0 when in rest
                 var headingError = context.Flight.PositionUpdates
                     .Skip(1)
-                    .Select(q => Helpers.GetHeadingError(averageHeading, q.Heading))
+                    .Select(q => Geo.GetHeadingError(averageHeading, q.Heading))
                     .ToList();
 
                 // Just assume we're screwing this winch launch over.
