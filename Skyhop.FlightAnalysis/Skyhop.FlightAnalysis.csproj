@@ -30,19 +30,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FlightState.cs" />
-    <Compile Remove="FlightStates\DetermineFlightState.cs" />
-    <Compile Remove="FlightStates\FindArrivalHeading.cs" />
-    <Compile Remove="FlightStates\FindDepartureHeading.cs" />
-    <Compile Remove="FlightStates\InitializeFlightState.cs" />
-    <Compile Remove="FlightStates\ProcessNextPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FlightState.cs" />
-    <None Include="FlightStates\DetermineFlightState.cs" />
-    <None Include="FlightStates\FindArrivalHeading.cs" />
-    <None Include="FlightStates\FindDepartureHeading.cs" />
-    <None Include="FlightStates\InitializeFlightState.cs" />
-    <None Include="FlightStates\ProcessNextPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Boerman.Core" Version="2.1.1" />

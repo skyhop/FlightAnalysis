@@ -12,7 +12,7 @@ namespace Skyhop.FlightAnalysis.Internal
         /// <param name="coordinate2"></param>
         /// <returns></returns>
         /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
-        public static double DegreeBearing(
+        internal static double DegreeBearing(
             Point coordinate1,
             Point coordinate2)
         {
@@ -30,12 +30,12 @@ namespace Skyhop.FlightAnalysis.Internal
         /// <param name="degrees"></param>
         /// <returns></returns>
         /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
-        static double ToRad(double degrees)
+        internal static double ToRad(double degrees)
         {
             return degrees * (Math.PI / 180);
         }
 
-        static double ToDegrees(double radians)
+        internal static double ToDegrees(double radians)
         {
             return radians * 180 / Math.PI;
         }
@@ -46,7 +46,7 @@ namespace Skyhop.FlightAnalysis.Internal
         /// <param name="radians"></param>
         /// <returns></returns>
         /// <remarks>See https://stackoverflow.com/a/2042883/1720761 for more information about this method.</remarks>
-        static double ToBearing(double radians)
+        internal static double ToBearing(double radians)
         {
             return (ToDegrees(radians) + 360) % 360;
         }
@@ -59,7 +59,7 @@ namespace Skyhop.FlightAnalysis.Internal
         ///     The distance between the two coordinates, in meters.
         /// </returns>
         /// <param name="other">The GeoCoordinate for the location to calculate the distance to.</param>
-        public static double DistanceTo(this Point from, Point to)
+        internal static double DistanceTo(this Point from, Point to)
         {
             if (double.IsNaN(from.X) || double.IsNaN(from.Y)
                || double.IsNaN(to.X) || double.IsNaN(to.Y))
@@ -75,6 +75,25 @@ namespace Skyhop.FlightAnalysis.Internal
                      Math.Cos(d1) * Math.Cos(d2) * Math.Pow(Math.Sin(num2 / 2.0), 2.0);
 
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
+        }
+
+        internal static double GetHeadingError(double initial, double final)
+        {
+            var diff = final - initial;
+            var absDiff = Math.Abs(diff);
+
+            if (absDiff <= 180)
+            {
+                return absDiff == 180 ? absDiff : diff;
+            }
+            else if (final > initial)
+            {
+                return absDiff - 360;
+            }
+            else
+            {
+                return 360 - absDiff;
+            }
         }
     }
 }
