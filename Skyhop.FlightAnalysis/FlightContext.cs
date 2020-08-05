@@ -43,19 +43,24 @@ namespace Skyhop.FlightAnalysis
 
         public readonly StateMachine<State, Trigger> StateMachine;
 
-        internal int MinimumRequiredPositionUpdateCount = 5;
-        internal bool MinifyMemoryPressure;
-
-        internal readonly string AircraftId;
         public Flight Flight { get; internal set; }
-
+        
+        internal FlightContextOptions Options = new FlightContextOptions();
         internal SimplePriorityQueue<PositionUpdate> PriorityQueue = new SimplePriorityQueue<PositionUpdate>();
-
         internal DateTime LatestTimeStamp;
-
+        
         public DateTime LastActive { get; private set; }
-
         public CancellationTokenSource CancellationTokenSource { get; private set; }
+
+
+        public static FlightContext CreateContext(Action<FlightContextOptions> options)
+        {
+            var instance = new FlightContext("");
+
+            options?.Invoke(instance.Options);
+
+            return instance;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FlightContext"/> class.
@@ -108,9 +113,9 @@ namespace Skyhop.FlightAnalysis
                 .PermitReentry(Trigger.Standby)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
-            MinifyMemoryPressure = minifyMemoryPressure;
+            Options.MinifyMemoryPressure = minifyMemoryPressure;
 
-            AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
+            Options.AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flightMetadata.Flight;
 
             LastActive = DateTime.UtcNow;
@@ -138,7 +143,7 @@ namespace Skyhop.FlightAnalysis
         {
             if (string.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException($"{nameof(flight.Aircraft)} cannot be null or empty");
 
-            AircraftId = flight.Aircraft;
+            Options.AircraftId = flight.Aircraft;
             Flight = flight;
         }
 
@@ -190,8 +195,8 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         internal void CleanupDataPoints()
         {
-            if (MinifyMemoryPressure && Flight.PositionUpdates.Count > MinimumRequiredPositionUpdateCount)
-                Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - MinimumRequiredPositionUpdateCount);
+            if (Options.MinifyMemoryPressure && Flight.PositionUpdates.Count > Options.MinimumRequiredPositionUpdateCount)
+                Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - Options.MinimumRequiredPositionUpdateCount);
         }
 
         public string ToDotGraph()

@@ -25,15 +25,15 @@ namespace Skyhop.FlightAnalysis
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
 
-        internal readonly Options Options;
+        internal readonly FlightContextFactoryOptions Options;
 
         /// <summary>
         /// The constructor for the FlightContextFactory.
         /// </summary>
         /// <param name="options"></param>
-        public FlightContextFactory(Options options)
+        public FlightContextFactory(FlightContextFactoryOptions options)
         {
-            Options = options ?? new Options();
+            Options = options ?? new FlightContextFactoryOptions();
 
             // Start a timer to remove outtimed context instances.
             new Timer
@@ -43,16 +43,16 @@ namespace Skyhop.FlightAnalysis
             }.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
-        public FlightContextFactory() : this(new Options()) { }
+        public FlightContextFactory() : this(new FlightContextFactoryOptions()) { }
 
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Options options)
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, FlightContextFactoryOptions options)
         {
             foreach (var flight in metadata)
             {
                 EnsureContextAvailable(flight);
             }
 
-            Options = options ?? new Options();
+            Options = options ?? new FlightContextFactoryOptions();
 
             // Start a timer to remove outtimed context instances.
             new Timer
@@ -62,7 +62,7 @@ namespace Skyhop.FlightAnalysis
             }.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
 
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata) : this(metadata, new Options()) { }
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata) : this(metadata, new FlightContextFactoryOptions()) { }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
 
@@ -182,15 +182,15 @@ namespace Skyhop.FlightAnalysis
         {
             if (Options.MinifyMemoryPressure)
             {
-                context.MinifyMemoryPressure = true;
+                context.Options.MinifyMemoryPressure = true;
                 context.CleanupDataPoints();
             }
 
-            _flightContextDictionary.TryRemove(context.AircraftId, out _);
+            _flightContextDictionary.TryRemove(context.Options.AircraftId, out _);
 
             SubscribeContextEventHandlers(context);
 
-            _flightContextDictionary.TryAdd(context.AircraftId, context);
+            _flightContextDictionary.TryAdd(context.Options.AircraftId, context);
         }
 
         /// <summary>

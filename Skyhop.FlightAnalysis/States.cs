@@ -13,7 +13,7 @@ namespace Skyhop.FlightAnalysis
 
                 context.Flight = new Flight
                 {
-                    Aircraft = context.AircraftId
+                    Aircraft = context.Options.AircraftId
                 };
 
             context.StateMachine.Fire(FlightContext.Trigger.Next);
