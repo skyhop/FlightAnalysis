@@ -24,7 +24,7 @@ namespace Skyhop.FlightAnalysis
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
 
-        internal readonly FlightContextFactoryOptions Options;
+        internal readonly FlightContextFactoryOptions Options = new FlightContextFactoryOptions();
 
         /// <summary>
         /// The constructor for the FlightContextFactory.
