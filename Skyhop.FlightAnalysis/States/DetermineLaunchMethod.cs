@@ -49,24 +49,27 @@ namespace Skyhop.FlightAnalysis
                     coordinate: context.Flight.PositionUpdates.Last().Location, 
                     distance: 200));
 
-                var towStatus = Geo.AircraftRelation.None;
-                FlightContext otherContext = null;
-
-                foreach (var aircraft in nearbyAircraft)
+                if (nearbyAircraft != null && nearbyAircraft.Any())
                 {
-                    var status = context.DetermineTowStatus(aircraft);
+                    var towStatus = Geo.AircraftRelation.None;
+                    FlightContext otherContext = null;
 
-                    if (status != Geo.AircraftRelation.None)
+                    foreach (var aircraft in nearbyAircraft)
                     {
-                        otherContext = aircraft;
-                        towStatus = status;
-                        break;
-                    }
-                }
+                        var status = context.DetermineTowStatus(aircraft);
 
-                if (towStatus != Geo.AircraftRelation.None && otherContext != null)
-                {
-                    // ToDo: Update the status, and continue tracking the tow, point for point
+                        if (status != Geo.AircraftRelation.None)
+                        {
+                            otherContext = aircraft;
+                            towStatus = status;
+                            break;
+                        }
+                    }
+
+                    if (towStatus != Geo.AircraftRelation.None && otherContext != null)
+                    {
+                        // ToDo: Update the status, and continue tracking the tow, point for point
+                    }
                 }
 
                 // ToDo: Go check whether we're dealing with a winch launch

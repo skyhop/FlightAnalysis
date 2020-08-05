@@ -22,10 +22,7 @@ namespace Skyhop.FlightAnalysis
         {
             None,
             DetermineFlightState,
-            FindArrivalHeading,
-            LaunchMethodElimination,
-            FindDepartureHeading,
-            InitializeFlightState,
+            TrackLaunchMethod,
             ProcessPoint,
             WaitingForData
         }
@@ -37,6 +34,9 @@ namespace Skyhop.FlightAnalysis
             ResolveState,
             ResolveDeparture,
             ResolveLaunchMethod,
+            TrackAerotow,
+            TrackWinchLaunch,
+            TrackSelfLaunch,
             ResolveArrival,
             Initialize
         }
@@ -69,39 +69,27 @@ namespace Skyhop.FlightAnalysis
             StateMachine.Configure(State.None)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
-            StateMachine.Configure(State.InitializeFlightState)
-                .OnEntry(this.Initialize)
-                .PermitReentry(Trigger.Initialize)
-                .Permit(Trigger.Next, State.ProcessPoint);
-
             StateMachine.Configure(State.ProcessPoint)
                 .OnEntry(this.ProcessNextPoint)
                 .PermitReentry(Trigger.Next)
+                .InternalTransition(Trigger.Initialize, this.Initialize)
                 .Permit(Trigger.Standby, State.WaitingForData)
-                .Permit(Trigger.Initialize, State.InitializeFlightState)
                 .Permit(Trigger.ResolveState, State.DetermineFlightState);
 
             StateMachine.Configure(State.DetermineFlightState)
                 .OnEntry(this.DetermineFlightState)
                 .PermitReentry(Trigger.ResolveState)
+                .InternalTransition(Trigger.ResolveDeparture, this.FindDepartureHeading)
+                .InternalTransition(Trigger.ResolveArrival, this.FindArrivalHeading)
                 .Permit(Trigger.Next, State.ProcessPoint)
-                .Permit(Trigger.ResolveDeparture, State.FindDepartureHeading)
-                .Permit(Trigger.ResolveLaunchMethod, State.LaunchMethodElimination)
-                .Permit(Trigger.ResolveArrival, State.FindArrivalHeading);
+                .Permit(Trigger.ResolveLaunchMethod, State.TrackLaunchMethod);
 
-            StateMachine.Configure(State.FindDepartureHeading)
-                .OnEntry(this.FindDepartureHeading)
-                .PermitReentry(Trigger.ResolveDeparture)
-                .Permit(Trigger.Next, State.ProcessPoint);
-
-            StateMachine.Configure(State.LaunchMethodElimination)
+            StateMachine.Configure(State.TrackLaunchMethod)
                 .OnEntry(this.DetermineLaunchMethod)
                 .PermitReentry(Trigger.ResolveLaunchMethod)
-                .Permit(Trigger.Next, State.ProcessPoint);
-
-            StateMachine.Configure(State.FindArrivalHeading)
-                .OnEntry(this.FindArrivalHeading)
-                .PermitReentry(Trigger.ResolveArrival)
+                .InternalTransition(Trigger.TrackAerotow, this.ResolveAerotowStatus)
+                .InternalTransition(Trigger.TrackWinchLaunch, this.ResolveWinchLaunchStatus)
+                .InternalTransition(Trigger.TrackSelfLaunch, this.ResolveSelfLaunchStatus)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
             StateMachine.Configure(State.WaitingForData)
