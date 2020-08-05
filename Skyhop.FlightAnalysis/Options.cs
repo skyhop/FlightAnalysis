@@ -1,13 +1,13 @@
 ﻿using NetTopologySuite.Geometries;
-using Skyhop.FlightAnalysis.Models;
 using System;
+using System.Collections.Generic;
 
 namespace Skyhop.FlightAnalysis
 {
     public abstract class Options
     {
-        public Func<Point, double, PositionUpdate> NearbyAircraftAccessor { get; set; }
-        public Func<Point, double, Point[]> NearbyRunwayAccessor { get; set; }
+        public Func<(Point coordinate, double distance), IEnumerable<FlightContext>> NearbyAircraftAccessor { get; set; }
+        public Func<(Point coordinate, double distance), Point[]> NearbyRunwayAccessor { get; set; }
 
         public bool MinifyMemoryPressure { get; set; }
 
