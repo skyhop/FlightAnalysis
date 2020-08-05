@@ -1,13 +1,12 @@
-﻿using System;
+﻿using NetTopologySuite.Geometries;
+using Skyhop.FlightAnalysis.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Timers;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Index.Quadtree;
-using Skyhop.FlightAnalysis.Models;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -31,9 +30,9 @@ namespace Skyhop.FlightAnalysis
         /// The constructor for the FlightContextFactory.
         /// </summary>
         /// <param name="options"></param>
-        public FlightContextFactory(FlightContextFactoryOptions options)
+        public FlightContextFactory(Action<FlightContextFactoryOptions> options = default)
         {
-            Options = options ?? new FlightContextFactoryOptions();
+            options?.Invoke(Options);
 
             // Start a timer to remove outtimed context instances.
             new Timer
@@ -43,16 +42,14 @@ namespace Skyhop.FlightAnalysis
             }.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
-        public FlightContextFactory() : this(new FlightContextFactoryOptions()) { }
-
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, FlightContextFactoryOptions options)
+        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Action<FlightContextFactoryOptions> options = default)
         {
             foreach (var flight in metadata)
             {
                 EnsureContextAvailable(flight);
             }
 
-            Options = options ?? new FlightContextFactoryOptions();
+            options?.Invoke(Options);
 
             // Start a timer to remove outtimed context instances.
             new Timer
@@ -61,8 +58,6 @@ namespace Skyhop.FlightAnalysis
                 Interval = 10000
             }.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
-
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata) : this(metadata, new FlightContextFactoryOptions()) { }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
 
@@ -249,7 +244,14 @@ namespace Skyhop.FlightAnalysis
         {
             if (metadata?.Aircraft == null || _flightContextDictionary.ContainsKey(metadata.Aircraft)) return;
 
-            var context = new FlightContext(metadata.Flight);
+            var context = new FlightContext(metadata, options =>
+            {
+                options.AircraftId = metadata.Aircraft;
+                options.MinifyMemoryPressure = Options.MinifyMemoryPressure;
+                options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
+                options.NearbyAircraftAccessor = Options.NearbyAircraftAccessor;
+                options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
+            });
             SubscribeContextEventHandlers(context);
 
             _flightContextDictionary.TryAdd(metadata.Aircraft, context);

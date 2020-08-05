@@ -45,21 +45,16 @@ namespace Skyhop.FlightAnalysis
 
         public Flight Flight { get; internal set; }
         
-        internal FlightContextOptions Options = new FlightContextOptions();
+        internal readonly FlightContextOptions Options = new FlightContextOptions();
         internal SimplePriorityQueue<PositionUpdate> PriorityQueue = new SimplePriorityQueue<PositionUpdate>();
         internal DateTime LatestTimeStamp;
         
         public DateTime LastActive { get; private set; }
         public CancellationTokenSource CancellationTokenSource { get; private set; }
 
-
-        public static FlightContext CreateContext(Action<FlightContextOptions> options)
+        public FlightContext(FlightContextOptions options)
         {
-            var instance = new FlightContext("");
-
-            options?.Invoke(instance.Options);
-
-            return instance;
+            Options = options;
         }
 
         /// <summary>
@@ -67,7 +62,7 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(FlightMetadata flightMetadata, bool minifyMemoryPressure)
+        public FlightContext(FlightMetadata flightMetadata, Action<FlightContextOptions> options)
         {
             StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
 
@@ -113,7 +108,7 @@ namespace Skyhop.FlightAnalysis
                 .PermitReentry(Trigger.Standby)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
-            Options.MinifyMemoryPressure = minifyMemoryPressure;
+            options?.Invoke(Options);
 
             Options.AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flightMetadata.Flight;
@@ -125,29 +120,14 @@ namespace Skyhop.FlightAnalysis
         /// FlightContext Constructor
         /// </summary>
         /// <param name="aircraftId">Optional string used to identify this context.</param>
-        public FlightContext(string aircraftId, bool minifyMemoryPressure = false) : this(
+        public FlightContext(string aircraftId, Action<FlightContextOptions> options = default) : this(
             new FlightMetadata
             {
                 Aircraft = aircraftId
             },
-            minifyMemoryPressure) { }
+            options) { }
 
-        public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, false) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FlightContext"/> class.
-        /// </summary>
-        /// <param name="flight">When provided the flight parameter will set the flight information assuming previous 
-        /// processing has been done.</param>
-        public FlightContext(Flight flight, bool minifyMemoryPressure)
-        {
-            if (string.IsNullOrWhiteSpace(flight.Aircraft)) throw new ArgumentException($"{nameof(flight.Aircraft)} cannot be null or empty");
-
-            Options.AircraftId = flight.Aircraft;
-            Flight = flight;
-        }
-
-        public FlightContext(Flight flight) : this(flight, false) { }
+        public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, default) { }
 
         /// <summary>
         /// Queue a positionupdate for this specific context to process.
