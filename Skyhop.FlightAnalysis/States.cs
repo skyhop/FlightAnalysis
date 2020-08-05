@@ -39,12 +39,22 @@ namespace Skyhop.FlightAnalysis
 
             if (context.Flight.PositionUpdates
                 .TakeLast(5)
-                .Any(q => q.Speed > 30
+                .Any(q => q.Speed > 10
                     && q.Latitude == position.Latitude
                     && q.Longitude == position.Longitude))
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Next);
                 return;
+            }
+
+            if (context.Flight.PositionUpdates.Any())
+            {
+                var deltaTime = position.TimeStamp - context.Flight.PositionUpdates.Last().TimeStamp;
+                if (deltaTime.TotalSeconds < 0.1)
+                {
+                    context.StateMachine.Fire(FlightContext.Trigger.Next);
+                    return;
+                }
             }
 
             // ToDo: Put this part in a state step
@@ -225,9 +235,6 @@ namespace Skyhop.FlightAnalysis
             for (var i = 1; i < context.Flight.PositionUpdates.Count; i++)
             {
                 var deltaTime = context.Flight.PositionUpdates[i].TimeStamp - context.Flight.PositionUpdates[i - 1].TimeStamp;
-
-                if (deltaTime.TotalSeconds < 0.1) continue;
-
                 var deltaAltitude = context.Flight.PositionUpdates[i].Altitude - context.Flight.PositionUpdates[i - 1].Altitude;
 
                 climbrate.Add(deltaAltitude / deltaTime.TotalMinutes);
@@ -235,10 +242,29 @@ namespace Skyhop.FlightAnalysis
 
             if (climbrate.Count < 21) return;
 
-            var result = ZScore.StartAlgo(climbrate, 20, 2, 1);
+            var result = ZScore.StartAlgo(climbrate, 20, 2, 0.7);
 
-            if (result.Signals.Any(q => q == -1))
+            if (result.Signals.Last() == -1)
             {
+                // ToDo: Determine the launchMethod
+
+                // Check the average heading and any deviation
+                // Check the length
+
+                var averageHeading = context.Flight.PositionUpdates.Average(q => q.Heading);
+
+                // Skip the first element because heading is 0 when in rest
+                var headingError = context.Flight.PositionUpdates
+                    .Skip(1)
+                    .Select(q => Helpers.GetHeadingError(averageHeading, q.Heading))
+                    .ToList();
+
+                // Just assume we're screwing this winch launch over.
+                if (headingError.Any(q => q > 20)) {
+                    context.Flight.LaunchMethod = LaunchMethod.Self;
+                    context.InvokeOnLaunchCompletedEvent();
+                }
+
                 context.Flight.LaunchMethod = LaunchMethod.Winch;
                 context.InvokeOnLaunchCompletedEvent();
             }

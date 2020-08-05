@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Skyhop.FlightAnalysis.Tests
 {
@@ -125,11 +126,14 @@ namespace Skyhop.FlightAnalysis.Tests
                         Convert.ToDouble(line.heading as string)));
                 }
 
+                var countdownEvent = new CountdownEvent(100);
+
                 var departureCounter = 0;
                 var arrivalCounter = 0;
 
                 ff.OnTakeoff += (sender, args) =>
                 {
+                    countdownEvent.Signal();
                     Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime}");
 
                     departureCounter++;
@@ -137,11 +141,16 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 ff.OnLanding += (sender, args) =>
                 {
+                    countdownEvent.Signal();
                     Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime} - {args.Flight.EndTime}");
                     arrivalCounter++;
                 };
 
                 ff.Enqueue(positionUpdates.OrderBy(q => q.TimeStamp));
+
+                countdownEvent.Wait(5000);
+
+                Assert.IsTrue(countdownEvent.CurrentCount == 0);
 
                 Assert.AreEqual(50, departureCounter);
                 Assert.AreEqual(50, arrivalCounter);
