@@ -55,7 +55,10 @@ namespace Skyhop.FlightAnalysis
                     .ToList();
 
                 // Just assume we're screwing this winch launch over.
-                if (headingError.Any(q => q > 20))
+                if (headingError.Any(q => q > 20) 
+                    && Geo.DistanceTo(
+                        context.Flight.PositionUpdates.First().Location,
+                        context.Flight.PositionUpdates.Last().Location) < 3000)
                 {
                     context.Flight.LaunchMethod = LaunchMethod.Self;
                     context.InvokeOnLaunchCompletedEvent();
