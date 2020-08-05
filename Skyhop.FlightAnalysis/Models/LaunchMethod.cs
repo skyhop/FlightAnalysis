@@ -1,10 +1,13 @@
-﻿namespace Skyhop.FlightAnalysis.Models
+﻿using System;
+
+namespace Skyhop.FlightAnalysis.Models
 {
-    public enum LaunchMethod
+    [Flags]
+    public enum LaunchMethods
     {
-        Unknown,
-        Winch,
-        Aerotow,
-        Self
+        Unknown = 1,
+        Winch = 2,
+        Aerotow = 4,
+        Self = 8
     }
 }

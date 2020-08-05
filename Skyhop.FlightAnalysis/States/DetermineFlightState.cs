@@ -74,7 +74,7 @@ namespace Skyhop.FlightAnalysis
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
             }
             else if (context.Flight.DepartureInfoFound == true
-                && context.Flight.LaunchMethod == LaunchMethod.Unknown)
+                && context.Flight.LaunchMethod == LaunchMethods.Unknown)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
             }

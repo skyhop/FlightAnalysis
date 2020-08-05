@@ -26,6 +26,21 @@ namespace Skyhop.FlightAnalysis
              * - Winch distance per meter altitude between 0.2 and 0.8?
              */
 
+            if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.TrackAerotow);
+            }
+            else if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Winch))
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.TrackWinchLaunch);
+            }
+            else if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Self))
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.TrackSelfLaunch);
+            }
+
+
+
             var climbrate = new List<double>(context.Flight.PositionUpdates.Count);
 
             for (var i = 1; i < context.Flight.PositionUpdates.Count; i++)
@@ -44,33 +59,7 @@ namespace Skyhop.FlightAnalysis
             {
                 // ToDo: Determine the launchMethod
 
-                // Check if there's another aircraft nearby (towing, or being towed)
-                var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke((
-                    coordinate: context.Flight.PositionUpdates.Last().Location, 
-                    distance: 200));
-
-                if (nearbyAircraft != null && nearbyAircraft.Any())
-                {
-                    var towStatus = Geo.AircraftRelation.None;
-                    FlightContext otherContext = null;
-
-                    foreach (var aircraft in nearbyAircraft)
-                    {
-                        var status = context.DetermineTowStatus(aircraft);
-
-                        if (status != Geo.AircraftRelation.None)
-                        {
-                            otherContext = aircraft;
-                            towStatus = status;
-                            break;
-                        }
-                    }
-
-                    if (towStatus != Geo.AircraftRelation.None && otherContext != null)
-                    {
-                        // ToDo: Update the status, and continue tracking the tow, point for point
-                    }
-                }
+                
 
                 // ToDo: Go check whether we're dealing with a winch launch
                 // ToDo: Continue checking the tow status
@@ -91,11 +80,11 @@ namespace Skyhop.FlightAnalysis
                         context.Flight.PositionUpdates.First().Location,
                         context.Flight.PositionUpdates.Last().Location) < 3000)
                 {
-                    context.Flight.LaunchMethod = LaunchMethod.Self;
+                    context.Flight.LaunchMethod = LaunchMethods.Self;
                     context.InvokeOnLaunchCompletedEvent();
                 }
 
-                context.Flight.LaunchMethod = LaunchMethod.Winch;
+                context.Flight.LaunchMethod = LaunchMethods.Winch;
                 context.InvokeOnLaunchCompletedEvent();
             }
         }

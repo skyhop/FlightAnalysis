@@ -53,7 +53,7 @@ namespace Skyhop.FlightAnalysis.Models
         public Point DepartureLocation { get; internal set; }
         public bool? DepartureInfoFound { get; internal set; }
 
-        public LaunchMethod LaunchMethod { get; internal set; }
+        public LaunchMethods LaunchMethod { get; internal set; }
 
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }

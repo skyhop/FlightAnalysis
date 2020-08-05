@@ -55,7 +55,7 @@ namespace Skyhop.FlightAnalysis.Models
 
         public bool? DepartureInfoFound { get; set; }
 
-        public LaunchMethod LaunchMethod { get; set; }
+        public LaunchMethods LaunchMethod { get; set; }
 
         public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
