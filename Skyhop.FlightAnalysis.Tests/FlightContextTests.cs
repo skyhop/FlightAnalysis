@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Skyhop.FlightAnalysis.Models;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             FlightContext fc = new FlightContext("6770");
 
-            var countdownEvent = new CountdownEvent(2);
+            var countdownEvent = new CountdownEvent(3);
 
             fc.OnTakeoff += (sender, args) =>
             {
@@ -36,6 +37,14 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 Assert.AreEqual(636272590876740641, ((FlightContext)sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
+            };
+
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                countdownEvent.Signal();
+
+                Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
+                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished);
             };
 
             fc.OnLanding += (sender, args) =>
@@ -87,10 +96,8 @@ namespace Skyhop.FlightAnalysis.Tests
          * 
          */
         [TestMethod]
-        public static async Task Flight_D1908_20170408_Subset()
+        public async Task Flight_D1908_20170408_Subset()
         {
-
-
             FlightContext fc = new FlightContext("6770");
 
             int callbacks = 0;
@@ -99,6 +106,13 @@ namespace Skyhop.FlightAnalysis.Tests
             {
                 Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(249, ((FlightContext)sender).Flight.DepartureHeading);
+                callbacks++;
+            };
+
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
+                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished);
                 callbacks++;
             };
 
@@ -116,7 +130,7 @@ namespace Skyhop.FlightAnalysis.Tests
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
 
-            Assert.AreEqual(2, callbacks);
+            Assert.AreEqual(3, callbacks);
         }
 
         [TestMethod]
@@ -174,6 +188,15 @@ namespace Skyhop.FlightAnalysis.Tests
                     Assert.AreEqual(636283906924363860, ((FlightContext)sender).Flight.StartTime?.Ticks);
                     Assert.AreEqual(21, ((FlightContext)sender).Flight.DepartureHeading);
                 }
+
+                pass++;
+            };
+
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                // If the tow would have been known, or it would have been known this aircraft is an engineless glider, it would have been obvious this self launch was a tow.
+                Assert.AreEqual(LaunchMethods.Self, ((FlightContext)sender).Flight.LaunchMethod);
+                Assert.AreEqual(636283689536727050, ((FlightContext)sender).Flight.LaunchFinished);
 
                 pass++;
             };

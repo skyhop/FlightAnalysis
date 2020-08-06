@@ -1,6 +1,5 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,8 +16,10 @@ namespace Skyhop.FlightAnalysis
              * If not, wait until the launch is completed.
              */
 
-            // ToDo: Check whether we already know what to track
-
+            if (context.Flight.LaunchMethod == LaunchMethods.None)
+            {
+                context.Flight.LaunchMethod = LaunchMethods.Unknown | LaunchMethods.Aerotow | LaunchMethods.Winch | LaunchMethods.Self;
+            }
             
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))
             {
@@ -61,7 +62,7 @@ namespace Skyhop.FlightAnalysis
 
                     // Just assume we're screwing this winch launch over.
                     if (headingError.Any(q => q > 20)
-                        && Geo.DistanceTo(
+                        || Geo.DistanceTo(
                             context.Flight.PositionUpdates.First().Location,
                             context.Flight.PositionUpdates.Last().Location) < 3000)
                     {
@@ -73,10 +74,6 @@ namespace Skyhop.FlightAnalysis
 
                 }
             }
-
-
         }
-
-        
     }
 }
