@@ -69,9 +69,11 @@ namespace Skyhop.FlightAnalysis
                         context.Flight.LaunchMethod = LaunchMethods.Self;
                         context.InvokeOnLaunchCompletedEvent();
                     }
-                    context.Flight.LaunchMethod = LaunchMethods.Winch;
-                    context.InvokeOnLaunchCompletedEvent();
-
+                    else
+                    {
+                        context.Flight.LaunchMethod = LaunchMethods.Winch;
+                        context.InvokeOnLaunchCompletedEvent();
+                    }
                 }
             }
         }

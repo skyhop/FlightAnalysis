@@ -190,6 +190,7 @@ namespace Skyhop.FlightAnalysis
             catch (Exception ex)
             {
                 Trace.Write(ex);
+                throw;
             }
         }
 
@@ -201,6 +202,7 @@ namespace Skyhop.FlightAnalysis
             } catch (Exception ex)
             {
                 Trace.Write(ex);
+                throw;
             }
         }
 
@@ -213,6 +215,7 @@ namespace Skyhop.FlightAnalysis
             catch (Exception ex)
             {
                 Trace.Write(ex);
+                throw;
             }
         }
 
@@ -225,6 +228,7 @@ namespace Skyhop.FlightAnalysis
             catch (Exception ex)
             {
                 Trace.Write(ex);
+                throw;
             }
         }
 
@@ -237,6 +241,7 @@ namespace Skyhop.FlightAnalysis
             catch (Exception ex)
             {
                 Trace.Write(ex);
+                throw;
             }
         }
 
