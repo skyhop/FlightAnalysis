@@ -6,7 +6,7 @@ namespace Skyhop.FlightAnalysis
 {
     internal static partial class MachineStates
     {
-        internal static void ResolveWinchLaunchStatus(this FlightContext context)
+        internal static void IsSelfLaunch(this FlightContext context)
         {
 
         }

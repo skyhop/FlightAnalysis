@@ -1,5 +1,4 @@
-﻿using Skyhop.FlightAnalysis.Models;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -33,7 +32,6 @@ namespace Skyhop.FlightAnalysis
                 }
 
                 context.StateMachine.Fire(FlightContext.Trigger.Next);
-
                 return;
             }
 
@@ -73,8 +71,10 @@ namespace Skyhop.FlightAnalysis
             {
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveDeparture);
             }
-            else if (context.Flight.DepartureInfoFound == true
-                && context.Flight.LaunchMethod == LaunchMethods.Unknown)
+
+
+            if (context.Flight.DepartureInfoFound == true
+                && context.Flight.LaunchFinished == null)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.ResolveLaunchMethod);
             }

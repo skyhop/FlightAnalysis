@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using Skyhop.FlightAnalysis.Models;
 using Stateless;
 using Stateless.Graph;
+using Skyhop.FlightAnalysis.States;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -22,6 +23,7 @@ namespace Skyhop.FlightAnalysis
         {
             None,
             DetermineFlightState,
+            DetermineLaunchMethod,
             TrackLaunchMethod,
             ProcessPoint,
             WaitingForData
@@ -34,9 +36,11 @@ namespace Skyhop.FlightAnalysis
             ResolveState,
             ResolveDeparture,
             ResolveLaunchMethod,
+            CheckIfAerotow,
+            CheckIfWinchLaunch,
+            CheckIfSelfLaunch,
             TrackAerotow,
-            TrackWinchLaunch,
-            TrackSelfLaunch,
+            TrackLaunch,
             ResolveArrival,
             Initialize
         }
@@ -82,15 +86,19 @@ namespace Skyhop.FlightAnalysis
                 .InternalTransition(Trigger.ResolveDeparture, this.FindDepartureHeading)
                 .InternalTransition(Trigger.ResolveArrival, this.FindArrivalHeading)
                 .Permit(Trigger.Next, State.ProcessPoint)
-                .Permit(Trigger.ResolveLaunchMethod, State.TrackLaunchMethod);
+                .Permit(Trigger.ResolveLaunchMethod, State.DetermineLaunchMethod);
 
-            StateMachine.Configure(State.TrackLaunchMethod)
+            StateMachine.Configure(State.DetermineLaunchMethod)
                 .OnEntry(this.DetermineLaunchMethod)
                 .PermitReentry(Trigger.ResolveLaunchMethod)
-                .InternalTransition(Trigger.TrackAerotow, this.ResolveAerotowStatus)
-                .InternalTransition(Trigger.TrackWinchLaunch, this.ResolveWinchLaunchStatus)
-                .InternalTransition(Trigger.TrackSelfLaunch, this.ResolveSelfLaunchStatus)
+                .InternalTransition(Trigger.CheckIfAerotow, this.IsAerotow)
+                .InternalTransition(Trigger.CheckIfWinchLaunch, this.IsWinchLaunch)
+                .InternalTransition(Trigger.CheckIfSelfLaunch, this.IsSelfLaunch)
                 .Permit(Trigger.Next, State.ProcessPoint);
+
+            StateMachine.Configure(State.TrackLaunchMethod)
+                .OnEntry(this.TrackLaunch)
+                .PermitReentry(Trigger.TrackLaunch);
 
             StateMachine.Configure(State.WaitingForData)
                 .PermitReentry(Trigger.Standby)
