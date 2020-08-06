@@ -75,22 +75,6 @@ namespace Skyhop.FlightAnalysis
             }
 
 
-
-            
-
-            if (result.Signals.Last() == -1)
-            {
-                // ToDo: Determine the launchMethod
-
-                
-
-                // ToDo: Go check whether we're dealing with a winch launch
-                // ToDo: Continue checking the tow status
-                // We're individually tracking the tow status for both aircraft. Consolidate this for more efficient tracking
-
-                // Check the average heading and any deviation
-                
-            }
         }
 
         

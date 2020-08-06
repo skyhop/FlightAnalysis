@@ -91,9 +91,6 @@ namespace Skyhop.FlightAnalysis
             StateMachine.Configure(State.DetermineLaunchMethod)
                 .OnEntry(this.DetermineLaunchMethod)
                 .PermitReentry(Trigger.ResolveLaunchMethod)
-                .InternalTransition(Trigger.CheckIfAerotow, this.IsAerotow)
-                .InternalTransition(Trigger.CheckIfWinchLaunch, this.IsWinchLaunch)
-                .InternalTransition(Trigger.CheckIfSelfLaunch, this.IsSelfLaunch)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
             StateMachine.Configure(State.TrackLaunchMethod)

@@ -1,4 +1,5 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
+using Skyhop.FlightAnalysis.States;
 using System.Linq;
 
 namespace Skyhop.FlightAnalysis
