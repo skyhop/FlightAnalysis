@@ -112,7 +112,7 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnLaunchCompleted += (sender, args) =>
             {
                 Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
-                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished);
+                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
                 callbacks++;
             };
 
@@ -208,7 +208,6 @@ namespace Skyhop.FlightAnalysis.Tests
             };
 
             fc.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
-
         }
 
         [TestMethod]
@@ -230,28 +229,47 @@ namespace Skyhop.FlightAnalysis.Tests
                         Assert.AreEqual(636283687551363359, ((FlightContext)sender).Flight.StartTime?.Ticks);
                         Assert.AreEqual(355, ((FlightContext)sender).Flight.DepartureHeading);
                         break;
-                    case 2:
-                        Assert.AreEqual(636283906924363860, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(21, ((FlightContext)sender).Flight.DepartureHeading);
+                    default:
+                        Assert.Fail();
+                        break;
+                }
+            };
+
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                switch (pass)
+                {
+                    case 0:
+                        Assert.AreEqual(LaunchMethods.Self, ((FlightContext)sender).Flight.LaunchMethod);
+                        Assert.AreEqual(636281993021809484, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
+                        break;
+                    case 1:
+                        Assert.AreEqual(LaunchMethods.Self, ((FlightContext)sender).Flight.LaunchMethod);
+                        Assert.AreEqual(636283689536727050, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
                         break;
                     default:
+                        Assert.Fail();
                         break;
                 }
             };
 
             fc.OnLanding += (sender, args) =>
             {
-                if (pass == 0)
+                switch (pass)
                 {
-                    Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                    Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                    case 0:
+                        Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                        Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                        break;
+                    case 1:
+                        Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                        Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
+                        break;
+                    default:
+                        Assert.Fail();
+                        break;
                 }
-                if (pass == 1)
-                {
-                    Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                    Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
-                }
-
+                
                 pass++;
             };
 
