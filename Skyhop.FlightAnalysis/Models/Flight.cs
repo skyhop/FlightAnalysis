@@ -33,6 +33,7 @@ namespace Skyhop.FlightAnalysis.Models
             DepartureLocation = metadata.DepartureLocation;
             DepartureInfoFound = metadata.DepartureInfoFound;
             LaunchMethod = metadata.LaunchMethod;
+            LaunchFinished = metadata.LaunchFinished;
             EndTime = metadata.ArrivalTime;
             ArrivalHeading = metadata.ArrivalHeading;
             ArrivalInfoFound = metadata.ArrivalInfoFound;
@@ -54,6 +55,7 @@ namespace Skyhop.FlightAnalysis.Models
         public bool? DepartureInfoFound { get; internal set; }
 
         public LaunchMethods LaunchMethod { get; internal set; }
+        public DateTime? LaunchFinished { get; internal set; }
 
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }
