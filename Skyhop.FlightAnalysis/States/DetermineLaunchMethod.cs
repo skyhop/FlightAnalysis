@@ -64,7 +64,7 @@ namespace Skyhop.FlightAnalysis
                     if (headingError.Any(q => q > 20)
                         || Geo.DistanceTo(
                             context.Flight.PositionUpdates.First().Location,
-                            context.Flight.PositionUpdates.Last().Location) < 3000)
+                            context.Flight.PositionUpdates.Last().Location) > 3000)
                     {
                         context.Flight.LaunchMethod = LaunchMethods.Self;
                         context.InvokeOnLaunchCompletedEvent();

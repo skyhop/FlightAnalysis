@@ -35,7 +35,7 @@ namespace Skyhop.FlightAnalysis.Tests
             {
                 countdownEvent.Signal();
 
-                Assert.AreEqual(636272590876740641, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
                 Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
             };
 
@@ -44,7 +44,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 countdownEvent.Signal();
 
                 Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
-                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished);
+                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
             };
 
             fc.OnLanding += (sender, args) =>
@@ -196,7 +196,7 @@ namespace Skyhop.FlightAnalysis.Tests
             {
                 // If the tow would have been known, or it would have been known this aircraft is an engineless glider, it would have been obvious this self launch was a tow.
                 Assert.AreEqual(LaunchMethods.Self, ((FlightContext)sender).Flight.LaunchMethod);
-                Assert.AreEqual(636283689536727050, ((FlightContext)sender).Flight.LaunchFinished);
+                Assert.AreEqual(636283689536727050, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
 
                 pass++;
             };
