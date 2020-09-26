@@ -16,7 +16,7 @@ namespace Skyhop.FlightAnalysis
                 return;
             }
 
-            if (!context.PriorityQueue.Any())
+            if (context.PriorityQueue.Count == 0)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Standby);
                 return;
