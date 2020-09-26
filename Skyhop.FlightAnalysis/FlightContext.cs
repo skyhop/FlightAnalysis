@@ -150,7 +150,9 @@ namespace Skyhop.FlightAnalysis
         {
             if (!positionUpdates.Any()) return;
 
-            foreach (var update in positionUpdates)
+            foreach (var update in positionUpdates
+                .OrderBy(q => q.TimeStamp)
+                .ToList())
             {
                 PriorityQueue.Enqueue(update, update.TimeStamp.Ticks);
             }

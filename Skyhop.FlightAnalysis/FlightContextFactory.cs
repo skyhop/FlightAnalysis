@@ -112,7 +112,8 @@ namespace Skyhop.FlightAnalysis
             var updatesByAircraft = positionUpdates
                 .Where(q => !string.IsNullOrWhiteSpace(q?.Aircraft))
                 .OrderBy(q => q.TimeStamp)
-                .GroupBy(q => q.Aircraft);
+                .GroupBy(q => q.Aircraft)
+                .ToList();
 
             // Group the data by aircraft
             foreach (var updates in updatesByAircraft)
