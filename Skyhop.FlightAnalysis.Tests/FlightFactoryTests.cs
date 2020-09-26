@@ -119,21 +119,18 @@ namespace Skyhop.FlightAnalysis.Tests
                     positionUpdates.Add(new PositionUpdate(
                         line.transponderCode as string,
                         DateTime.ParseExact(line.timestamp as string, "MMM d, yyyy @ H:mm:ss.FFF", CultureInfo.InvariantCulture),
-                        Convert.ToDouble(position.lat as string),
-                        Convert.ToDouble(position.lon as string),
+                        (double)position.lat,
+                        (double)position.lon,
                         Convert.ToDouble(line.altitude as string),
                         Convert.ToDouble(line.speed as string),
                         Convert.ToDouble(line.heading as string)));
                 }
-
-                var countdownEvent = new CountdownEvent(100);
 
                 var departureCounter = 0;
                 var arrivalCounter = 0;
 
                 ff.OnTakeoff += (sender, args) =>
                 {
-                    countdownEvent.Signal();
                     Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime}");
 
                     departureCounter++;
@@ -141,16 +138,11 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 ff.OnLanding += (sender, args) =>
                 {
-                    countdownEvent.Signal();
                     Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime} - {args.Flight.EndTime}");
                     arrivalCounter++;
                 };
 
-                ff.Enqueue(positionUpdates.OrderBy(q => q.TimeStamp));
-
-                countdownEvent.Wait(5000);
-
-                Assert.IsTrue(countdownEvent.CurrentCount == 0);
+                ff.Enqueue(positionUpdates);
 
                 Assert.AreEqual(50, departureCounter);
                 Assert.AreEqual(50, arrivalCounter);

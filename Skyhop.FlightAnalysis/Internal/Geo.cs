@@ -102,10 +102,9 @@ namespace Skyhop.FlightAnalysis.Internal
         // ToDo: Add information about the aircrafts climbrate and so on, if possible
         internal static PositionUpdate NormalizeData(FlightContext context, PositionUpdate position)
         {
-            if (position == null) return position;
-
-            if (context.Flight.PositionUpdates.Count < 2
-                || !double.IsNaN(position.Heading) && !double.IsNaN(position.Speed)) return position;
+            if (position == null 
+                || context.Flight.PositionUpdates.Count < 2
+                || (!double.IsNaN(position.Heading) && !double.IsNaN(position.Speed))) return position;
 
             var previousPosition =
                 context.Flight.PositionUpdates.LastOrDefault();
@@ -123,11 +122,12 @@ namespace Skyhop.FlightAnalysis.Internal
                 // 2. Calculate the time difference (seconds)
                 // 3. Convert to knots (1.94384449 is a constant)
                 var distance = previousPosition.Location.DistanceTo(position.Location);
-                var timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Milliseconds;
+                double timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Milliseconds;
 
-                if (timeDifference == 0) return null;
+                if (timeDifference < 50) return null;
 
                 if (distance != 0) speed = distance / (timeDifference / 1000) * 1.94384449;
+                else speed = 0;
             }
 
             position.Speed = speed ?? position.Speed;

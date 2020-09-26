@@ -24,11 +24,12 @@ namespace Skyhop.FlightAnalysis
 
             var position = context.PriorityQueue.Dequeue();
 
-            if (context.Flight.PositionUpdates
-                .TakeLast(5)
-                .Any(q => q.Speed > 10
-                    && q.Latitude == position.Latitude
-                    && q.Longitude == position.Longitude))
+            if (position == null
+                || context.Flight.PositionUpdates
+                    .TakeLast(5)
+                    .Any(q => q?.Speed > 10
+                        && q?.Latitude == position.Latitude
+                        && q?.Longitude == position.Longitude))
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Next);
                 return;
@@ -46,19 +47,21 @@ namespace Skyhop.FlightAnalysis
 
             // ToDo: Put this part in a state step
             position = Geo.NormalizeData(context, position);
+            
+            if (position == null)
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.Next);
+                return;
+            }
 
-            if (position == null
-                || double.IsNaN(position.Heading)
+            context.Flight.PositionUpdates.Add(position);
+            context.CleanupDataPoints();
+
+            if (double.IsNaN(position.Heading)
                 || double.IsNaN(position.Speed))
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Next);
-
                 return;
-            }
-            else
-            {
-                context.Flight.PositionUpdates.Add(position);
-                context.CleanupDataPoints();
             }
 
             if (context.LatestTimeStamp == DateTime.MinValue) context.LatestTimeStamp = position.TimeStamp;
