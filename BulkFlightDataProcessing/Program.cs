@@ -42,11 +42,29 @@ namespace BulkFlightDataProcessing
                 {
                     arrivalCounter++;
 
-                    csvWriter.WriteRecord(args.Flight);
+                    var data = new
+                    {
+                        args.Flight.Aircraft,
+                        args.Flight.DepartureHeading,
+                        DepartureX = args.Flight.DepartureLocation?.X,
+                        DepartureY = args.Flight.DepartureLocation?.Y,
+                        args.Flight.StartTime,
+                        args.Flight.LaunchMethod,
+                        args.Flight.ArrivalHeading,
+                        ArrivalX = args.Flight.ArrivalLocation?.X,
+                        ArrivalY = args.Flight.ArrivalLocation?.Y,
+                        args.Flight.EndTime
+                    };
+
+                    csvWriter.WriteRecord(data);
+                    csvWriter.NextRecord();
                     csvWriter.Flush();
                 };
 
                 ff.Enqueue(positionUpdates);
+
+                Console.WriteLine(departureCounter);
+                Console.WriteLine(arrivalCounter);
             }
         }
     }
