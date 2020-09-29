@@ -97,7 +97,26 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// <param name="positionUpdate">The position update to queue</param>
         public void Enqueue(PositionUpdate positionUpdate)
         {
-            Enqueue(new[] { positionUpdate });
+            if (positionUpdate == null) return;
+
+            EnsureContextAvailable(positionUpdate.Aircraft);
+
+            if (_flightContextDictionary.TryGetValue(positionUpdate.Aircraft, out var flightContext))
+            {
+                // Grab the most recent position available
+                var previousPoint = flightContext.Flight.PositionUpdates.LastOrDefault();
+
+                flightContext.Enqueue(positionUpdate);
+
+                _map.Add(positionUpdate);
+
+                Debug.WriteLine($"{positionUpdate.Aircraft}: {positionUpdate.Longitude}, {positionUpdate.Latitude}");
+
+                if (previousPoint != null)
+                {
+                    _map.Remove(previousPoint);
+                }
+            }
         }
 
         /// <summary>
@@ -109,37 +128,12 @@ namespace Skyhop.FlightAnalysis.Experimental
         {
             if (positionUpdates == null) return;
 
-            var updates = positionUpdates
+            foreach (var update in positionUpdates
                 .Where(q => !string.IsNullOrWhiteSpace(q?.Aircraft))
                 .OrderBy(q => q.TimeStamp)
-                .ToList();
-
-            foreach (var update in updates)
+                .ToList())
             {
-                EnsureContextAvailable(update.Aircraft);
-
-                if (_flightContextDictionary.TryGetValue(update.Aircraft, out var flightContext))
-                {
-                    // Grab the most recent position available
-                    var previousPoint = flightContext.Flight.PositionUpdates.LastOrDefault();
-
-                    flightContext.Enqueue(updates);
-
-                    var latest = updates.LastOrDefault();
-
-                    _map.Add(latest);
-
-                    Debug.WriteLine($"{latest.Aircraft}: {latest.Longitude}, {latest.Latitude}");
-
-                    if (previousPoint != null)
-                    {
-                        _map.Remove(previousPoint);
-                    }
-
-                    // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
-                    // data, is not the moment this data is also available on the FlightContext's Flight
-                    // property. We should find a way to make sure the data in the bush stays clean!
-                }
+                Enqueue(update);
             }
         }
 
