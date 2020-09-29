@@ -1,5 +1,5 @@
 ﻿using CsvHelper;
-using Skyhop.FlightAnalysis;
+using Skyhop.FlightAnalysis.Experimental;
 using Skyhop.FlightAnalysis.Models;
 using System;
 using System.Globalization;
@@ -19,9 +19,9 @@ namespace BulkFlightDataProcessing
 
             });
 
-            using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-August.csv"))
+            using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-Sept.csv"))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            using (var writer = new StreamWriter("./logs.csv"))
+            using (var writer = new StreamWriter("./experimental-logs-sept.csv"))
             using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 var lines = csv.GetRecords<CsvData>();
@@ -49,11 +49,13 @@ namespace BulkFlightDataProcessing
                         DepartureX = args.Flight.DepartureLocation?.X,
                         DepartureY = args.Flight.DepartureLocation?.Y,
                         args.Flight.StartTime,
+                        args.Flight.DepartureInfoFound,
                         args.Flight.LaunchMethod,
                         args.Flight.ArrivalHeading,
                         ArrivalX = args.Flight.ArrivalLocation?.X,
                         ArrivalY = args.Flight.ArrivalLocation?.Y,
-                        args.Flight.EndTime
+                        args.Flight.EndTime,
+                        args.Flight.ArrivalInfoFound,
                     };
 
                     csvWriter.WriteRecord(data);

@@ -60,6 +60,10 @@ namespace Skyhop.FlightAnalysis.Models
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }
         public Point ArrivalLocation { get; internal set; }
+
+        /// <summary>
+        /// Indicate whether the information depicted is calculated (true) or theorized (false)
+        /// </summary>
         public bool? ArrivalInfoFound { get; internal set; }
 
         public List<PositionUpdate> PositionUpdates { get; internal set; }

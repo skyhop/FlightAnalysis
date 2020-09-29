@@ -15,13 +15,26 @@ namespace Skyhop.FlightAnalysis.Experimental
                     .OrderByDescending(q => q.TimeStamp)
                     .FirstOrDefault();
 
-                if (start == null)
+                if (start == null && context.CurrentPosition.Altitude > 1000)
                 {
                     // The flight was already in progress, or we could not find the starting point (trees in line of sight?)
 
                     // Create an estimation about the departure time. Unless contact happens high in the sky
+                    context.Flight.DepartureInfoFound = false;
                 }
-                if (start != null)
+                else if (start == null && context.CurrentPosition.Altitude <= 1000)
+                {
+                    // Try to estimate the departure time
+                    context.Flight.StartTime = context.CurrentPosition.TimeStamp;
+
+                    context.Flight.PositionUpdates
+                        .Where(q => q.TimeStamp < context.Flight.StartTime.Value)
+                        .ToList()
+                        .ForEach(q => context.Flight.PositionUpdates.Remove(q));
+
+                    context.Flight.DepartureInfoFound = false;
+                }
+                else if (start != null)
                 {
                     context.Flight.StartTime = start.TimeStamp;
 
@@ -30,6 +43,8 @@ namespace Skyhop.FlightAnalysis.Experimental
                         .Where(q => q.TimeStamp < context.Flight.StartTime.Value)
                         .ToList()
                         .ForEach(q => context.Flight.PositionUpdates.Remove(q));
+
+                    context.Flight.DepartureInfoFound = false;
                 }
 
                 context.InvokeOnTakeoffEvent();

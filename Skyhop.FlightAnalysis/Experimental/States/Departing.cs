@@ -1,5 +1,6 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,6 +19,23 @@ namespace Skyhop.FlightAnalysis.Experimental
             if (context.Flight.LaunchMethod == LaunchMethods.None)
             {
                 context.Flight.LaunchMethod = LaunchMethods.Unknown | LaunchMethods.Aerotow | LaunchMethods.Winch | LaunchMethods.Self;
+            }
+
+            if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown) && context.Flight.DepartureHeading == 0)
+            {
+                var departure = context.Flight.PositionUpdates
+                    .Where(q => q.Heading != 0 && !double.IsNaN(q.Heading))
+                    .OrderBy(q => q.TimeStamp)
+                    .Take(5)
+                    .ToList();
+
+                if (departure.Count > 4)
+                {
+                    context.Flight.DepartureHeading = Convert.ToInt16(departure.Average(q => q.Heading));
+                    context.Flight.DepartureLocation = departure.First().Location;
+
+                    if (context.Flight.DepartureHeading == 0) context.Flight.DepartureHeading = 360;
+                }
             }
 
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))

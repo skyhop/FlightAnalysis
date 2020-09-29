@@ -111,8 +111,6 @@ namespace Skyhop.FlightAnalysis.Experimental
 
                 _map.Add(positionUpdate);
 
-                Debug.WriteLine($"{positionUpdate.Aircraft}: {positionUpdate.Longitude}, {positionUpdate.Latitude}");
-
                 if (previousPoint != null)
                 {
                     _map.Remove(previousPoint);

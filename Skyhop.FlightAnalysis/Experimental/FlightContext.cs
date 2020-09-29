@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Skyhop.FlightAnalysis.Models;
 using Stateless;
 using Stateless.Graph;
@@ -35,8 +36,11 @@ namespace Skyhop.FlightAnalysis.Experimental
             Depart,
             LaunchCompleted,
             Landing,
+            LandingAborted,
             Arrived
         }
+
+        internal CancellationTokenSource ArrivalTheory = null;
 
         public readonly StateMachine<State, Trigger> StateMachine;
 
@@ -90,7 +94,8 @@ namespace Skyhop.FlightAnalysis.Experimental
             StateMachine.Configure(State.Arriving)
                 .OnEntry(this.Arriving)
                 .PermitReentry(Trigger.Next)
-                .Permit(Trigger.Arrived, State.Initialization);
+                .Permit(Trigger.Arrived, State.Initialization)
+                .Permit(Trigger.LandingAborted, State.Airborne);
                 //.OnExit(InvokeOnLandingEvent);
 
 
