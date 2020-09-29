@@ -93,9 +93,9 @@ namespace Skyhop.FlightAnalysis
                 .PermitReentry(Trigger.ResolveLaunchMethod)
                 .Permit(Trigger.Next, State.ProcessPoint);
 
-            StateMachine.Configure(State.TrackLaunchMethod)
-                .OnEntry(this.TrackLaunch)
-                .PermitReentry(Trigger.TrackLaunch);
+            //StateMachine.Configure(State.TrackLaunchMethod)
+            //    .OnEntry(this.TrackLaunch)
+            //    .PermitReentry(Trigger.TrackLaunch);
 
             StateMachine.Configure(State.WaitingForData)
                 .PermitReentry(Trigger.Standby)

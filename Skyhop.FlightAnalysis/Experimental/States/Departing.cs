@@ -1,11 +1,9 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace Skyhop.FlightAnalysis.Experimental.States
+namespace Skyhop.FlightAnalysis.Experimental
 {
     internal static partial class MachineStates
     {
@@ -22,13 +20,17 @@ namespace Skyhop.FlightAnalysis.Experimental.States
                 context.Flight.LaunchMethod = LaunchMethods.Unknown | LaunchMethods.Aerotow | LaunchMethods.Winch | LaunchMethods.Self;
             }
 
-            //if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))
-            //{
-            //    var isTow = context.IsAerotow();
+            if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))
+            {
+                var isTow = context.IsAerotow();
 
-            //    if (isTow == null) context.Flight.LaunchMethod &= ~LaunchMethods.Aerotow;
-            //    else context.Flight.LaunchMethod = LaunchMethods.Aerotow;
-            //}
+                if (isTow == null) context.Flight.LaunchMethod &= ~LaunchMethods.Aerotow;
+                else
+                {
+                    context.Flight.LaunchMethod = LaunchMethods.Aerotow;
+                    // ToDo: Transition into a state where the aerotow is tracked
+                }
+            }
 
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown))
             {
@@ -48,6 +50,7 @@ namespace Skyhop.FlightAnalysis.Experimental.States
 
                 var result = ZScore.StartAlgo(climbrate, 20, 2, 0.7);
 
+                // When the initial climb has completed
                 if (result.Signals.Last() == -1)
                 {
                     context.Flight.LaunchFinished = context.Flight.PositionUpdates.Last().TimeStamp;
@@ -69,13 +72,19 @@ namespace Skyhop.FlightAnalysis.Experimental.States
                     {
                         context.Flight.LaunchMethod = LaunchMethods.Self;
                         context.InvokeOnLaunchCompletedEvent();
+                        context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
                     }
                     else
                     {
                         context.Flight.LaunchMethod = LaunchMethods.Winch;
                         context.InvokeOnLaunchCompletedEvent();
+                        context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
                     }
                 }
+            } else
+            {
+                // If we're still in this state, move to airborne
+                context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
             }
         }
     }

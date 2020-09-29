@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
-namespace Skyhop.FlightAnalysis.Experimental.States
+namespace Skyhop.FlightAnalysis.Experimental
 {
     internal static partial class MachineStates
     {
@@ -21,6 +18,8 @@ namespace Skyhop.FlightAnalysis.Experimental.States
                 if (start == null)
                 {
                     // The flight was already in progress, or we could not find the starting point (trees in line of sight?)
+
+                    // Create an estimation about the departure time. Unless contact happens high in the sky
                 }
                 if (start != null)
                 {

@@ -81,7 +81,8 @@ namespace Skyhop.FlightAnalysis.Experimental
 
                 try
                 {
-                    OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
+# warning fix before release
+                    //OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
                 }
                 catch (Exception ex)
                 {

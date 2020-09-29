@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using Skyhop.FlightAnalysis.Models;
 using Stateless;
 using Stateless.Graph;
-using Skyhop.FlightAnalysis.Experimental.States;
 
 namespace Skyhop.FlightAnalysis.Experimental
 {
@@ -21,6 +20,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         public enum State
         {
             None,
+            Initialization,
             Stationary,
             Departing,
             Airborne,
@@ -29,6 +29,7 @@ namespace Skyhop.FlightAnalysis.Experimental
 
         public enum Trigger
         {
+            Initialize,
             Next,
             TrackMovements,
             Depart,
@@ -62,20 +63,24 @@ namespace Skyhop.FlightAnalysis.Experimental
             StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
 
             StateMachine.Configure(State.None)
+                .Permit(Trigger.Next, State.Initialization);
+
+            StateMachine.Configure(State.Initialization)
+                .OnEntry(this.Initialize)
                 .Permit(Trigger.Next, State.Stationary);
 
             StateMachine.Configure(State.Stationary)
                 .OnEntry(this.Stationary)
                 .PermitReentry(Trigger.Next)
-                .Permit(Trigger.Depart, State.Departing)
-                .OnExit(InvokeOnTakeoffEvent);
+                .Permit(Trigger.Depart, State.Departing);
+                //.OnExit(InvokeOnTakeoffEvent);
 
             StateMachine.Configure(State.Departing)
                 .OnEntry(this.Departing)
                 .PermitReentry(Trigger.Next)
                 .Permit(Trigger.LaunchCompleted, State.Airborne)
-                .Permit(Trigger.Landing, State.Arriving)
-                .OnExit(InvokeOnLaunchCompletedEvent);
+                .Permit(Trigger.Landing, State.Arriving);
+                //.OnExit(InvokeOnLaunchCompletedEvent);
 
             StateMachine.Configure(State.Airborne)
                 .OnEntry(this.Airborne)
@@ -85,8 +90,8 @@ namespace Skyhop.FlightAnalysis.Experimental
             StateMachine.Configure(State.Arriving)
                 .OnEntry(this.Arriving)
                 .PermitReentry(Trigger.Next)
-                .Permit(Trigger.Arrived, State.Stationary)
-                .OnExit(InvokeOnLandingEvent);
+                .Permit(Trigger.Arrived, State.Initialization);
+                //.OnExit(InvokeOnLandingEvent);
 
 
             //StateMachine.Configure(State.ProcessPoint)

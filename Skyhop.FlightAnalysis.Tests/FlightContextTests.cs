@@ -44,7 +44,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 countdownEvent.Signal();
 
                 Assert.AreEqual(LaunchMethods.Winch, ((Experimental.FlightContext)sender).Flight.LaunchMethod);
-                Assert.AreEqual(636272591994430449, ((Experimental.FlightContext)sender).Flight.LaunchFinished?.Ticks);
+                Assert.AreEqual(636272591974670004, ((Experimental.FlightContext)sender).Flight.LaunchFinished?.Ticks);
             };
 
             fc.OnLanding += (sender, args) =>
