@@ -11,7 +11,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         internal static (FlightContext context, AircraftRelation status)? IsAerotow(this FlightContext context)
         {
             var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke((
-                coordinate: context.Flight.PositionUpdates.Last().Location,
+                coordinate: context.CurrentPosition.Location,
                 distance: 200));
 
             if (nearbyAircraft != null && nearbyAircraft.Any())

@@ -143,7 +143,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// <param name="distance"></param>
         /// <returns></returns>
         // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
-        public IEnumerable<PositionUpdate> FindNearby(Coordinate coordinate, double distance = 0.2)
+        public IEnumerable<FlightContext> FindNearby(Point coordinate, double distance = 0.2)
         {
             if (coordinate == null) throw new ArgumentException($"{nameof(coordinate)} should not be null");
 
@@ -151,11 +151,7 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             foreach (var position in nearbyPositions)
             {
-                var positionUpdate = _flightContextDictionary[position.Aircraft].Flight.PositionUpdates.LastOrDefault();
-
-                if (positionUpdate == null) continue;
-
-                yield return positionUpdate;
+                yield return _flightContextDictionary[position.Aircraft];
             }
         }
 
@@ -241,8 +237,13 @@ namespace Skyhop.FlightAnalysis.Experimental
                 options.AircraftId = metadata.Aircraft;
                 options.MinifyMemoryPressure = Options.MinifyMemoryPressure;
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
-                options.NearbyAircraftAccessor = Options.NearbyAircraftAccessor;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
+
+                //options.NearbyAircraftAccessor = Options.NearbyAircraftAccessor;
+                options.NearbyAircraftAccessor = ((Point location, double distance) search) =>
+                {
+                    return this.FindNearby(search.location, search.distance);
+                };
             });
             SubscribeContextEventHandlers(context);
 

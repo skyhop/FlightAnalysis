@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Experimental;
 using Skyhop.FlightAnalysis.Models;
 using System;
@@ -16,7 +17,7 @@ namespace BulkFlightDataProcessing
 
             var ff = new FlightContextFactory(options =>
             {
-
+                
             });
 
             using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-Sept.csv"))
