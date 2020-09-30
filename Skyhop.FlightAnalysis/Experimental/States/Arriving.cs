@@ -63,7 +63,8 @@ namespace Skyhop.FlightAnalysis.Experimental
                 context.StateMachine.Fire(FlightContext.Trigger.Arrived);
             }
             else if (!(context.Flight.ArrivalInfoFound ?? true)
-                && context.CurrentPosition.TimeStamp > context.Flight.EndTime.Value.AddSeconds(10))
+                && context.CurrentPosition.TimeStamp > context.Flight.EndTime.Value.AddSeconds(30)
+                && context.CurrentPosition.Altitude > context.Flight.PositionUpdates.Last().Altitude)   // While landing, prefer raw position updates.
             {
                 // Our theory needs to be finalized
                 context.InvokeOnLandingEvent();
@@ -97,7 +98,7 @@ namespace Skyhop.FlightAnalysis.Experimental
 
                 double ETUA = context.CurrentPosition.Altitude / Math.Abs(average);
 
-                if (double.IsInfinity(ETUA) || ETUA > (60 * 10)) return;
+                if (double.IsInfinity(ETUA) || ETUA > (60 * 10) || ETUA < 0) return;
 
                 context.Flight.EndTime = context.CurrentPosition.TimeStamp.AddSeconds(ETUA);
                 context.Flight.ArrivalInfoFound = false;

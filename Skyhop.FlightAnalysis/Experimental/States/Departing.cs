@@ -43,11 +43,15 @@ namespace Skyhop.FlightAnalysis.Experimental
                 var isTow = context.IsAerotow();
 
                 if (isTow == null) context.Flight.LaunchMethod &= ~LaunchMethods.Aerotow;
-                else
+                else if (isTow.Value.status == Geo.AircraftRelation.OnTow)
                 {
-                    context.Flight.LaunchMethod = LaunchMethods.Aerotow;
-                    // ToDo: Transition into a state where the aerotow is tracked
+                    context.Flight.LaunchMethod = LaunchMethods.Aerotow | LaunchMethods.OnTow;
                 }
+                else if (isTow.Value.status == Geo.AircraftRelation.Towplane)
+                {
+                    context.Flight.LaunchMethod = LaunchMethods.Aerotow | LaunchMethods.TowPlane;
+                }
+                // ToDo: Transition into a state where the aerotow is tracked
             }
 
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown))

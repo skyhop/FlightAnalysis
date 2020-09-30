@@ -9,6 +9,8 @@ namespace Skyhop.FlightAnalysis.Models
         Unknown = 1,
         Winch = 2,
         Aerotow = 4,
-        Self = 8
+        TowPlane = 8,
+        OnTow = 16,
+        Self = 32
     }
 }

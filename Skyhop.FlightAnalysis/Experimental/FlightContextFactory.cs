@@ -140,7 +140,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// Retrieves all objects which are (roughly) nearby
         /// </summary>
         /// <param name="coordinate"></param>
-        /// <param name="distance"></param>
+        /// <param name="distance">Distance in kilometers</param>
         /// <returns></returns>
         // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
         public IEnumerable<FlightContext> FindNearby(Point coordinate, double distance = 0.2)
@@ -152,6 +152,21 @@ namespace Skyhop.FlightAnalysis.Experimental
             foreach (var position in nearbyPositions)
             {
                 yield return _flightContextDictionary[position.Aircraft];
+            }
+        }
+
+        public IEnumerable<FlightContext> FindNearby(FlightContext context, double distance = 0.2)
+        {
+            if (context == null) throw new ArgumentException($"{nameof(context)} should not be null");
+
+            var nearbyPositions = _map.Nearby(new PositionUpdate(null, DateTime.MinValue, context.CurrentPosition.Location.Y, context.CurrentPosition.Location.X), distance);
+
+            foreach (var position in nearbyPositions)
+            {
+                if (position.Aircraft != context.Options.AircraftId)
+                {
+                    yield return _flightContextDictionary[position.Aircraft];
+                }
             }
         }
 
@@ -233,7 +248,9 @@ namespace Skyhop.FlightAnalysis.Experimental
 
                 options.NearbyAircraftAccessor = ((Point location, double distance) search) =>
                 {
-                    return FindNearby(search.location, search.distance);
+                    return FindNearby(search.location, search.distance)
+                        .Where(q => q.Options.AircraftId != metadata.Aircraft)
+                        .ToList();
                 };
             });
             SubscribeContextEventHandlers(context);

@@ -10,11 +10,14 @@ namespace Skyhop.FlightAnalysis.Experimental
     {
         internal static (FlightContext context, AircraftRelation status)? IsAerotow(this FlightContext context)
         {
+            if (context.Flight.PositionUpdates.Count < 3) return null;
+
             var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke((
                 coordinate: context.CurrentPosition.Location,
-                distance: 200));
+                distance: 0.2))
+                .ToList();
 
-            if (nearbyAircraft != null && nearbyAircraft.Any())
+            if (nearbyAircraft != null && nearbyAircraft.Count > 0)
             {
                 foreach (var aircraft in nearbyAircraft)
                 {
@@ -32,6 +35,8 @@ namespace Skyhop.FlightAnalysis.Experimental
 
         internal static AircraftRelation DetermineTowStatus(this FlightContext context1, FlightContext context2)
         {
+            if (context1.Flight.PositionUpdates.Count < 3 || context2.Flight.PositionUpdates.Count < 3) return AircraftRelation.None;
+
             var interpolation = Interpolation.Interpolate(
                 context1.Flight.PositionUpdates,
                 context2.Flight.PositionUpdates,
