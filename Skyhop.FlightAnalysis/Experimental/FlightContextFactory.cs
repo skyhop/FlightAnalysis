@@ -161,20 +161,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// tracked by this FlightContextFactory.
         /// </summary>
         /// <param name="context"></param>
-        public void Attach(FlightContext context)
-        {
-            if (Options.MinifyMemoryPressure)
-            {
-                context.Options.MinifyMemoryPressure = true;
-                context.CleanupDataPoints();
-            }
-
-            _flightContextDictionary.TryRemove(context.Options.AircraftId, out _);
-
-            SubscribeContextEventHandlers(context);
-
-            _flightContextDictionary.TryAdd(context.Options.AircraftId, context);
-        }
+        public void Attach(FlightContext context) => Attach(context?.Flight.Metadata);
 
         /// <summary>
         /// This method creates a new FlightContext instance from the metadata and adds it to this factory.
@@ -182,7 +169,14 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// tracked by this FlightContextFactory.
         /// </summary>
         /// <param name="metadata"></param>
-        public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
+        public void Attach(FlightMetadata metadata)
+        {
+            if (metadata == null) return;
+
+            _flightContextDictionary.TryRemove(metadata.Aircraft, out _);
+
+            EnsureContextAvailable(metadata);
+        }
 
         /// <summary>
         /// Retrieves the <seealso cref="FlightContext"/> from the factory. Please note that the <seealso cref="FlightContext"/> will still be attached to the factory.
@@ -216,12 +210,10 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// <param name="aircraft"></param>
         private void EnsureContextAvailable(string aircraft)
         {
-            if (_flightContextDictionary.ContainsKey(aircraft)) return;
-
-            var context = new FlightContext(aircraft);
-            SubscribeContextEventHandlers(context);
-
-            _flightContextDictionary.TryAdd(aircraft, context);
+            EnsureContextAvailable(new FlightMetadata
+            {
+                Aircraft = aircraft
+            });
         }
 
         /// <summary>
@@ -239,10 +231,9 @@ namespace Skyhop.FlightAnalysis.Experimental
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
 
-                //options.NearbyAircraftAccessor = Options.NearbyAircraftAccessor;
                 options.NearbyAircraftAccessor = ((Point location, double distance) search) =>
                 {
-                    return this.FindNearby(search.location, search.distance);
+                    return FindNearby(search.location, search.distance);
                 };
             });
             SubscribeContextEventHandlers(context);

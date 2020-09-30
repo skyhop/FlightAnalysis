@@ -77,14 +77,12 @@ namespace Skyhop.FlightAnalysis.Experimental
                 .OnEntry(this.Stationary)
                 .PermitReentry(Trigger.Next)
                 .Permit(Trigger.Depart, State.Departing);
-                //.OnExit(InvokeOnTakeoffEvent);
 
             StateMachine.Configure(State.Departing)
                 .OnEntry(this.Departing)
                 .PermitReentry(Trigger.Next)
                 .Permit(Trigger.LaunchCompleted, State.Airborne)
                 .Permit(Trigger.Landing, State.Arriving);
-                //.OnExit(InvokeOnLaunchCompletedEvent);
 
             StateMachine.Configure(State.Airborne)
                 .OnEntry(this.Airborne)
@@ -96,36 +94,6 @@ namespace Skyhop.FlightAnalysis.Experimental
                 .PermitReentry(Trigger.Next)
                 .Permit(Trigger.Arrived, State.Initialization)
                 .Permit(Trigger.LandingAborted, State.Airborne);
-                //.OnExit(InvokeOnLandingEvent);
-
-
-            //StateMachine.Configure(State.ProcessPoint)
-            //    .OnEntry(this.ProcessNextPoint)
-            //    .PermitReentry(Trigger.Next)
-            //    .InternalTransition(Trigger.Initialize, this.Initialize)
-            //    .Permit(Trigger.Standby, State.WaitingForData)
-            //    .Permit(Trigger.ResolveState, State.DetermineFlightState);
-
-            //StateMachine.Configure(State.DetermineFlightState)
-            //    .OnEntry(this.DetermineFlightState)
-            //    .PermitReentry(Trigger.ResolveState)
-            //    .InternalTransition(Trigger.ResolveDeparture, this.FindDepartureHeading)
-            //    .InternalTransition(Trigger.ResolveArrival, this.FindArrivalHeading)
-            //    .Permit(Trigger.Next, State.ProcessPoint)
-            //    .Permit(Trigger.ResolveLaunchMethod, State.DetermineLaunchMethod);
-
-            //StateMachine.Configure(State.DetermineLaunchMethod)
-            //    .OnEntry(this.DetermineLaunchMethod)
-            //    .PermitReentry(Trigger.ResolveLaunchMethod)
-            //    .Permit(Trigger.Next, State.ProcessPoint);
-
-            //StateMachine.Configure(State.TrackLaunchMethod)
-            //    .OnEntry(this.TrackLaunch)
-            //    .PermitReentry(Trigger.TrackLaunch);
-
-            //StateMachine.Configure(State.WaitingForData)
-            //    .PermitReentry(Trigger.Standby)
-            //    .Permit(Trigger.Next, State.ProcessPoint);
 
             options?.Invoke(Options);
 
