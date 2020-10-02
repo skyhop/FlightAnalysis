@@ -30,6 +30,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FlightState.cs" />
+    <Compile Remove="SpatialMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FlightState.cs" />
@@ -42,6 +43,7 @@
     </PackageReference>
     <PackageReference Include="NetTopologySuite" Version="2.0.0" />
     <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+    <PackageReference Include="Skyhop.SpatialMap" Version="1.0.0" />
     <PackageReference Include="Stateless" Version="5.1.2" />
     <PackageReference Include="System.Reactive" Version="4.2.0" />
   </ItemGroup>
