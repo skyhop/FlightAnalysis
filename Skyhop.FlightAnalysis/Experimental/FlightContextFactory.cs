@@ -1,5 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
+using Skyhop.SpatialMap;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,11 +36,11 @@ namespace Skyhop.FlightAnalysis.Experimental
             options?.Invoke(Options);
 
             // Start a timer to remove outtimed context instances.
-            new Timer
-            {
-                Enabled = true,
-                Interval = 10000
-            }.Elapsed += (sender, args) => TimerOnElapsed();
+            //new Timer
+            //{
+            //    Enabled = true,
+            //    Interval = 10000
+            //}.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
         public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Action<FlightContextFactoryOptions> options = default)
@@ -52,11 +53,11 @@ namespace Skyhop.FlightAnalysis.Experimental
             options?.Invoke(Options);
 
             // Start a timer to remove outtimed context instances.
-            new Timer
-            {
-                Enabled = true,
-                Interval = 10000
-            }.Elapsed += (sender, arguments) => TimerOnElapsed();
+            //new Timer
+            //{
+            //    Enabled = true,
+            //    Interval = 10000
+            //}.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
@@ -72,7 +73,7 @@ namespace Skyhop.FlightAnalysis.Experimental
             {
                 _flightContextDictionary.TryRemove(contextId, out FlightContext context);
 
-                var latest = context.Flight.PositionUpdates.LastOrDefault();
+                var latest = context.CurrentPosition ?? context.Flight.PositionUpdates.LastOrDefault();
 
                 if (latest != null)
                 {
@@ -96,7 +97,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// processing of this position update.
         /// </summary>
         /// <param name="positionUpdate">The position update to queue</param>
-        public void Enqueue(PositionUpdate positionUpdate)
+        public void Process(PositionUpdate positionUpdate)
         {
             if (positionUpdate == null) return;
 
@@ -104,15 +105,11 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             if (_flightContextDictionary.TryGetValue(positionUpdate.Aircraft, out var flightContext))
             {
-                // Grab the most recent position available
-                var previousPoint = flightContext.Flight.PositionUpdates.LastOrDefault();
+                var previousPoint = flightContext.CurrentPosition;
 
-                flightContext.Enqueue(positionUpdate);
-
-                _map.Add(positionUpdate);
-
-                if (previousPoint != null)
+                if (flightContext.Process(positionUpdate))
                 {
+                    _map.Add(positionUpdate);
                     _map.Remove(previousPoint);
                 }
             }
@@ -123,7 +120,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// further processing of these position updates.
         /// </summary>
         /// <param name="positionUpdates">The position updates to queue</param>
-        public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
+        public void Process(IEnumerable<PositionUpdate> positionUpdates)
         {
             if (positionUpdates == null) return;
 
@@ -132,7 +129,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                 .OrderBy(q => q.TimeStamp)
                 .ToList())
             {
-                Enqueue(update);
+                Process(update);
             }
         }
 
@@ -141,6 +138,7 @@ namespace Skyhop.FlightAnalysis.Experimental
         /// </summary>
         /// <param name="coordinate"></param>
         /// <param name="distance">Distance in kilometers</param>
+        /// 
         /// <returns></returns>
         // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
         public IEnumerable<FlightContext> FindNearby(Point coordinate, double distance = 0.2)

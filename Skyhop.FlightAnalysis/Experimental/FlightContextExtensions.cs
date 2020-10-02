@@ -10,8 +10,6 @@ namespace Skyhop.FlightAnalysis.Experimental
     {
         internal static (FlightContext context, AircraftRelation status)? IsAerotow(this FlightContext context)
         {
-            if (context.Flight.PositionUpdates.Count < 3) return null;
-
             var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke((
                 coordinate: context.CurrentPosition.Location,
                 distance: 0.2))
@@ -19,6 +17,12 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             if (nearbyAircraft != null && nearbyAircraft.Count > 0)
             {
+                if (nearbyAircraft.Any(q => q.Flight.StartTime == null))
+                {
+                    // We'll have to wait until those are departed.
+                    return (null, AircraftRelation.None);
+                }
+
                 foreach (var aircraft in nearbyAircraft)
                 {
                     var status = context.DetermineTowStatus(aircraft);
@@ -35,7 +39,21 @@ namespace Skyhop.FlightAnalysis.Experimental
 
         internal static AircraftRelation DetermineTowStatus(this FlightContext context1, FlightContext context2)
         {
-            if (context1.Flight.PositionUpdates.Count < 3 || context2.Flight.PositionUpdates.Count < 3) return AircraftRelation.None;
+            if (context1.CurrentPosition.Location.DistanceTo(context2.CurrentPosition.Location) > 200)
+            {
+                return AircraftRelation.None;
+            }
+            
+            var bearing = context1.CurrentPosition.Location.DegreeBearing(context2.CurrentPosition.Location);
+
+            return 90 < bearing && bearing < 270
+                ? AircraftRelation.OnTow
+                : AircraftRelation.Towplane;
+        }
+
+        internal static AircraftRelation TrackTow(this FlightContext context1, FlightContext context2)
+        {
+            if (context1.Flight.PositionUpdates.Count < 5 || context2.Flight.PositionUpdates.Count < 5) return AircraftRelation.None;
 
             var interpolation = Interpolation.Interpolate(
                 context1.Flight.PositionUpdates,

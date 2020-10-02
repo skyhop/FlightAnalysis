@@ -1,5 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
+using Skyhop.SpatialMap;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -130,8 +131,6 @@ namespace Skyhop.FlightAnalysis
                     var latest = updates.LastOrDefault();
 
                     _map.Add(latest);
-
-                    Debug.WriteLine($"{latest.Aircraft}: {latest.Longitude}, {latest.Latitude}");
 
                     if (previousPoint != null)
                     {

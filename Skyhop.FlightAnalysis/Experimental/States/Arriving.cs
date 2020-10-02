@@ -81,7 +81,7 @@ namespace Skyhop.FlightAnalysis.Experimental
 
                 var climbrates = new List<double>();
 
-                for (var i = context.Flight.PositionUpdates.Count - 1; i > Math.Max(context.Flight.PositionUpdates.Count - 10, 0); i--)
+                for (var i = context.Flight.PositionUpdates.Count - 1; i > Math.Max(context.Flight.PositionUpdates.Count - 15, 0); i--)
                 {
                     var p1 = context.Flight.PositionUpdates[i];
                     var p2 = context.Flight.PositionUpdates[i - 1];
@@ -92,9 +92,9 @@ namespace Skyhop.FlightAnalysis.Experimental
                     climbrates.Add(deltaAltitude / deltaTime.TotalSeconds);
                 }
 
-                var average = climbrates.Average();
+                if (!climbrates.Any()) return;
 
-                if (average == 0) return;
+                var average = climbrates.Average();
 
                 double ETUA = context.CurrentPosition.Altitude / Math.Abs(average);
 

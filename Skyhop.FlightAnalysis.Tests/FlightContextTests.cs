@@ -60,7 +60,7 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
             var points = Common.ReadFlightPoints("2017-04-08_D-1908.csv");
-            fc.Enqueue(points);
+            fc.Process(points);
 
             countdownEvent.Wait(1000);
 
