@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Skyhop.FlightAnalysis.Models;
+using Stateless;
+using Stateless.Graph;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Skyhop.FlightAnalysis.Models;
-using Stateless;
-using Stateless.Graph;
 
 namespace Skyhop.FlightAnalysis.Experimental
 {
@@ -134,30 +133,6 @@ namespace Skyhop.FlightAnalysis.Experimental
                     CurrentPosition.Longitude == positionUpdate.Longitude
                     && CurrentPosition.Latitude == positionUpdate.Latitude) return false;
             }
-
-            /*
-             * In order to prevent issues inserting the flight data into a spatial map we'll add a degree of randomness 
-             * to the reported position updates to prevent this from becoming a big issue.
-             * 
-             * Given a double supports about 16 digits, and there are about 5 required to represent the distance from the mean line
-             * We are left with 11 digits after the decimal.
-             * 
-             * 0    1               -   kilometer
-             * 1    0.1             -   100 meter
-             * 2    0.01            -   10 meter
-             * 3    0.001           -   1 meter
-             * 4    0.0001          -   10 centimeter
-             * 5    0.00001         -   1 centimeter
-             * 6    0.000001        -   1 mm
-             * 7    0.0000001       -   0.1 mm
-             * 8    0.00000001      -   0.01 mm
-             * 9    0.000000001     -   0.001 mm
-             * 10   0.0000000001    -   0.0001 mm
-             * 11   0.00000000001   -   0.00001 mm
-             * 
-             * As an accuracy of 10 centimeters is close enough for our application, we still have 7 digits left.
-             */
-
 
             CurrentPosition = positionUpdate;
 
