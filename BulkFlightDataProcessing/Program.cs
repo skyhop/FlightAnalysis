@@ -21,7 +21,7 @@ namespace BulkFlightDataProcessing
 
             using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-Sept.csv"))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            using (var writer = new StreamWriter("./experimental-logs-sept-3.csv"))
+            using (var writer = new StreamWriter("./experimental-logs-sept-4.csv"))
             using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 var lines = csv.GetRecords<CsvData>();
@@ -59,7 +59,10 @@ namespace BulkFlightDataProcessing
                     csvWriter.Flush();
                 };
 
+                var timestamp = DateTime.Parse("2020-09-05T00:00:01");
+
                 ff.Process(lines
+                    .Where(q => q.Timestamp > timestamp)
                     .Select(q => new PositionUpdate(q.Aircraft, q.Timestamp, q.Longitude, q.Latitude, q.Altitude, q.Speed, q.Heading))
                     .ToList());
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Skyhop.FlightAnalysis.Experimental
 {
@@ -22,7 +20,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                 context.ArrivalTheory = null;
             }
 
-            if (context.CurrentPosition.Altitude > 1000)
+            if (context.CurrentPosition.Altitude > Constants.ArrivalHeight)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.LandingAborted);
                 return;
@@ -63,8 +61,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                 context.StateMachine.Fire(FlightContext.Trigger.Arrived);
             }
             else if (!(context.Flight.ArrivalInfoFound ?? true)
-                && context.CurrentPosition.TimeStamp > context.Flight.EndTime.Value.AddSeconds(30)
-                && context.CurrentPosition.Altitude > context.Flight.PositionUpdates.Last().Altitude)   // While landing, prefer raw position updates.
+                && context.CurrentPosition.TimeStamp > context.Flight.EndTime.Value.AddSeconds(Constants.ArrivalTimeout))
             {
                 // Our theory needs to be finalized
                 context.InvokeOnLandingEvent();
@@ -92,13 +89,25 @@ namespace Skyhop.FlightAnalysis.Experimental
                     climbrates.Add(deltaAltitude / deltaTime.TotalSeconds);
                 }
 
-                if (!climbrates.Any()) return;
+                if (!climbrates.Any())
+                {
+                    context.Flight.EndTime = null;
+                    context.Flight.ArrivalInfoFound = null;
+                    context.Flight.ArrivalHeading = 0;
+                    return;
+                }
 
                 var average = climbrates.Average();
 
-                double ETUA = context.CurrentPosition.Altitude / Math.Abs(average);
+                double ETUA = context.CurrentPosition.Altitude / -average;
 
-                if (double.IsInfinity(ETUA) || ETUA > (60 * 10) || ETUA < 0) return;
+                if (double.IsInfinity(ETUA) || ETUA > (60 * 10) || ETUA < 0)
+                {
+                    context.Flight.EndTime = null;
+                    context.Flight.ArrivalInfoFound = null;
+                    context.Flight.ArrivalHeading = 0;
+                    return;
+                }
 
                 context.Flight.EndTime = context.CurrentPosition.TimeStamp.AddSeconds(ETUA);
                 context.Flight.ArrivalInfoFound = false;

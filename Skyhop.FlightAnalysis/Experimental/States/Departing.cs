@@ -37,8 +37,6 @@ namespace Skyhop.FlightAnalysis.Experimental
                 else return;
             }
 
-
-
             if (context.Flight.StartTime != null &&
                 (context.CurrentPosition.TimeStamp - (context.Flight.PositionUpdates.FirstOrDefault(q => q.Speed > 30)?.TimeStamp ?? context.CurrentPosition.TimeStamp)).TotalSeconds < 20) return;
 
@@ -66,6 +64,14 @@ namespace Skyhop.FlightAnalysis.Experimental
                 else return; // Defer launch method determination until we have conclusive evidence
             }
 
+            // Hardwire a check to see if we're sinking again to abort the departure, but only if we're not behind a tow.
+            if (!context.Flight.LaunchMethod.HasFlag(LaunchMethods.Aerotow)
+                && context.Flight.PositionUpdates.Last().Altitude - context.CurrentPosition.Altitude < 0)
+            {
+                context.StateMachine.Fire(FlightContext.Trigger.Landing);
+                return;
+            }
+
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Winch))
             {
                 // ToDo: Check whether the launch has been completed
@@ -80,12 +86,12 @@ namespace Skyhop.FlightAnalysis.Experimental
                     climbrate.Add(deltaAltitude / deltaTime.TotalMinutes);
                 }
 
-                if (climbrate.Count < 21) return;
+                //if (climbrate.Count < 21) return;
 
-                var result = ZScore.StartAlgo(climbrate, 20, 2, 0.7);
+                var result = ZScore.StartAlgo(climbrate, context.Flight.PositionUpdates.Count / 3, 2, 0.7);
 
                 // When the initial climb has completed
-                if (result.Signals.Last() == -1)
+                if (result.Signals.Any(q => q == -1))
                 {
                     var averageHeading = context.Flight.PositionUpdates.Average(q => q.Heading);
 

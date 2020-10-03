@@ -4,7 +4,7 @@
     {
         internal static void Airborne(this FlightContext context)
         {
-            if (context.CurrentPosition.Altitude < 1000)
+            if (context.CurrentPosition.Altitude < Constants.ArrivalHeight)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Landing);
             }

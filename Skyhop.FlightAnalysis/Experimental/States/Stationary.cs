@@ -17,7 +17,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                     .OrderByDescending(q => q.TimeStamp)
                     .FirstOrDefault();
 
-                if (start == null && context.CurrentPosition.Altitude > 1000)
+                if (start == null && context.CurrentPosition.Altitude > Constants.ArrivalHeight)
                 {
                     // The flight was already in progress, or we could not find the starting point (trees in line of sight?)
 
@@ -29,7 +29,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                     context.StateMachine.Fire(FlightContext.Trigger.TrackMovements);
                     return;
                 }
-                else if (start == null && context.CurrentPosition.Altitude <= 1000)
+                else if (start == null && context.CurrentPosition.Altitude <= Constants.ArrivalHeight)
                 {
                     // Try to estimate the departure time
                     context.Flight.StartTime = context.CurrentPosition.TimeStamp;
