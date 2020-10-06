@@ -1,7 +1,9 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using static Skyhop.FlightAnalysis.Internal.Geo;
 
 namespace Skyhop.FlightAnalysis.Experimental

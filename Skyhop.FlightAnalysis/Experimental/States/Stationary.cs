@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design.Serialization;
+﻿using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 
 namespace Skyhop.FlightAnalysis.Experimental
@@ -11,9 +12,15 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             if (context.CurrentPosition.Speed > 30)
             {
+                
+
+                // ----
+
+
                 // Walk back to when the speed was 0
                 var start = context.Flight.PositionUpdates
-                    .Where(q => q.Speed == 0 || double.IsNaN(q.Speed))
+                    .Where(q => (q.Speed == 0 || double.IsNaN(q.Speed)) 
+                        && (context.CurrentPosition.TimeStamp - q.TimeStamp).TotalSeconds < 30)
                     .OrderByDescending(q => q.TimeStamp)
                     .FirstOrDefault();
 
@@ -31,7 +38,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                 }
                 else if (start == null && context.CurrentPosition.Altitude <= Constants.ArrivalHeight)
                 {
-                    // Try to estimate the departure time
+                    // ToDo: Try to estimate the departure time
                     context.Flight.StartTime = context.CurrentPosition.TimeStamp;
 
                     context.Flight.PositionUpdates
