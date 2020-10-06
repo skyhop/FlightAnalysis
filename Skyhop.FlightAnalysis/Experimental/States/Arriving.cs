@@ -22,6 +22,9 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             if (context.CurrentPosition.Altitude > Constants.ArrivalHeight)
             {
+                context.Flight.EndTime = null;
+                context.Flight.ArrivalInfoFound = null;
+                context.Flight.ArrivalHeading = 0;
                 context.StateMachine.Fire(FlightContext.Trigger.LandingAborted);
                 return;
             }
