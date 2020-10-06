@@ -12,11 +12,6 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             if (context.CurrentPosition.Speed > 30)
             {
-                
-
-                // ----
-
-
                 // Walk back to when the speed was 0
                 var start = context.Flight.PositionUpdates
                     .Where(q => (q.Speed == 0 || double.IsNaN(q.Speed)) 
@@ -61,6 +56,7 @@ namespace Skyhop.FlightAnalysis.Experimental
                     context.Flight.DepartureInfoFound = false;
                 }
 
+                context.Flight.DepartureHeading = (short)context.CurrentPosition.Heading;
                 context.InvokeOnTakeoffEvent();
 
                 context.StateMachine.Fire(FlightContext.Trigger.Depart);
