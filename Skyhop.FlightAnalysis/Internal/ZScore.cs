@@ -8,7 +8,7 @@ namespace Skyhop.FlightAnalysis
      * Source of this implementation is grabbed from: https://stackoverflow.com/a/53614452/1720761
      */
 
-    public class ZScoreOutput
+    internal class ZScoreOutput
     {
         public List<double> Input { get; set; }
         public List<int> Signals { get; set; }
@@ -16,7 +16,7 @@ namespace Skyhop.FlightAnalysis
         public List<double> Filtered_stddev { get; set; }
     }
 
-    public static class ZScore
+    internal static class ZScore
     {
         public static ZScoreOutput StartAlgo(List<double> input, int lag, double threshold, double influence)
         {

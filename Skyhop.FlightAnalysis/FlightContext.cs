@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Skyhop.FlightAnalysis.Models;
+using Stateless;
+using Stateless.Graph;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using Priority_Queue;
 using System.Reactive.Linq;
-using Skyhop.FlightAnalysis.Models;
-using Stateless;
-using Stateless.Graph;
-using Skyhop.FlightAnalysis.States;
+using System.Threading;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -22,39 +20,36 @@ namespace Skyhop.FlightAnalysis
         public enum State
         {
             None,
-            DetermineFlightState,
-            DetermineLaunchMethod,
-            TrackLaunchMethod,
-            ProcessPoint,
-            WaitingForData
+            Initialization,
+            Stationary,
+            Departing,
+            Airborne,
+            Arriving
         }
 
         public enum Trigger
         {
+            Initialize,
             Next,
-            Standby,
-            ResolveState,
-            ResolveDeparture,
-            ResolveLaunchMethod,
-            CheckIfAerotow,
-            CheckIfWinchLaunch,
-            CheckIfSelfLaunch,
-            TrackAerotow,
-            TrackLaunch,
-            ResolveArrival,
-            Initialize
+            TrackMovements,
+            Depart,
+            LaunchCompleted,
+            Landing,
+            LandingAborted,
+            Arrived
         }
+
+        internal CancellationTokenSource ArrivalTheory = null;
 
         public readonly StateMachine<State, Trigger> StateMachine;
 
         public Flight Flight { get; internal set; }
-        
+
         internal readonly FlightContextOptions Options = new FlightContextOptions();
-        internal SimplePriorityQueue<PositionUpdate> PriorityQueue = new SimplePriorityQueue<PositionUpdate>();
+        internal PositionUpdate CurrentPosition;
         internal DateTime LatestTimeStamp;
-        
+
         public DateTime LastActive { get; private set; }
-        public CancellationTokenSource CancellationTokenSource { get; private set; }
 
         public FlightContext(FlightContextOptions options)
         {
@@ -71,35 +66,34 @@ namespace Skyhop.FlightAnalysis
             StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
 
             StateMachine.Configure(State.None)
-                .Permit(Trigger.Next, State.ProcessPoint);
+                .Permit(Trigger.Next, State.Initialization);
 
-            StateMachine.Configure(State.ProcessPoint)
-                .OnEntry(this.ProcessNextPoint)
+            StateMachine.Configure(State.Initialization)
+                .OnEntry(this.Initialize)
+                .Permit(Trigger.Next, State.Stationary);
+
+            StateMachine.Configure(State.Stationary)
+                .OnEntry(this.Stationary)
                 .PermitReentry(Trigger.Next)
-                .InternalTransition(Trigger.Initialize, this.Initialize)
-                .Permit(Trigger.Standby, State.WaitingForData)
-                .Permit(Trigger.ResolveState, State.DetermineFlightState);
+                .Permit(Trigger.TrackMovements, State.Airborne)
+                .Permit(Trigger.Depart, State.Departing);
 
-            StateMachine.Configure(State.DetermineFlightState)
-                .OnEntry(this.DetermineFlightState)
-                .PermitReentry(Trigger.ResolveState)
-                .InternalTransition(Trigger.ResolveDeparture, this.FindDepartureHeading)
-                .InternalTransition(Trigger.ResolveArrival, this.FindArrivalHeading)
-                .Permit(Trigger.Next, State.ProcessPoint)
-                .Permit(Trigger.ResolveLaunchMethod, State.DetermineLaunchMethod);
+            StateMachine.Configure(State.Departing)
+                .OnEntry(this.Departing)
+                .PermitReentry(Trigger.Next)
+                .Permit(Trigger.LaunchCompleted, State.Airborne)
+                .Permit(Trigger.Landing, State.Arriving);
 
-            StateMachine.Configure(State.DetermineLaunchMethod)
-                .OnEntry(this.DetermineLaunchMethod)
-                .PermitReentry(Trigger.ResolveLaunchMethod)
-                .Permit(Trigger.Next, State.ProcessPoint);
+            StateMachine.Configure(State.Airborne)
+                .OnEntry(this.Airborne)
+                .PermitReentry(Trigger.Next)
+                .Permit(Trigger.Landing, State.Arriving);
 
-            //StateMachine.Configure(State.TrackLaunchMethod)
-            //    .OnEntry(this.TrackLaunch)
-            //    .PermitReentry(Trigger.TrackLaunch);
-
-            StateMachine.Configure(State.WaitingForData)
-                .PermitReentry(Trigger.Standby)
-                .Permit(Trigger.Next, State.ProcessPoint);
+            StateMachine.Configure(State.Arriving)
+                .OnEntry(this.Arriving)
+                .PermitReentry(Trigger.Next)
+                .Permit(Trigger.Arrived, State.Initialization)
+                .Permit(Trigger.LandingAborted, State.Airborne);
 
             options?.Invoke(Options);
 
@@ -118,7 +112,8 @@ namespace Skyhop.FlightAnalysis
             {
                 Aircraft = aircraftId
             },
-            options) { }
+            options)
+        { }
 
         public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, default) { }
 
@@ -127,18 +122,34 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="positionUpdate">The positionupdate to queue</param>
         /// <param name="startOrContinueProcessing">Whether or not to start/continue processing</param>
-        public void Enqueue(PositionUpdate positionUpdate)
+        public bool Process(PositionUpdate positionUpdate)
         {
-            if (positionUpdate == null) return;
+            if (positionUpdate == null) return false;
 
-            PriorityQueue.Enqueue(positionUpdate, positionUpdate.TimeStamp.Ticks);
-
-            if (StateMachine.IsInState(State.WaitingForData) || StateMachine.IsInState(State.None))
+            if (CurrentPosition != null)
             {
-                StateMachine.Fire(Trigger.Next);
+                if ((positionUpdate.TimeStamp - CurrentPosition.TimeStamp).TotalMilliseconds < 100) return false;
+                if (positionUpdate.Speed > 0 &&
+                    CurrentPosition.Longitude == positionUpdate.Longitude
+                    && CurrentPosition.Latitude == positionUpdate.Latitude) return false;
             }
 
+            CurrentPosition = positionUpdate;
+
+            StateMachine.Fire(Trigger.Next);
+
+            if (Flight.StartTime == null &&
+                CurrentPosition?.Speed == 0)
+            {
+                // We generally do not need to analyse ground based movements, hence discard this point.
+                Flight.PositionUpdates.Clear();
+            }
+
+            Flight.PositionUpdates.Add(positionUpdate);
+
             LastActive = DateTime.UtcNow;
+
+            return true;
         }
 
         /// <summary>
@@ -146,20 +157,13 @@ namespace Skyhop.FlightAnalysis
         /// directly or continue in case it is still running.
         /// </summary>
         /// <param name="positionUpdates">The position updates to queue</param>
-        public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
+        public void Process(IEnumerable<PositionUpdate> positionUpdates)
         {
-            if (!positionUpdates.Any()) return;
-
             foreach (var update in positionUpdates
                 .OrderBy(q => q.TimeStamp)
                 .ToList())
             {
-                PriorityQueue.Enqueue(update, update.TimeStamp.Ticks);
-            }
-
-            if (StateMachine.IsInState(State.WaitingForData) || StateMachine.IsInState(State.None))
-            {
-                StateMachine.Fire(Trigger.Next);
+                Process(update);
             }
 
             LastActive = DateTime.UtcNow;
@@ -202,7 +206,8 @@ namespace Skyhop.FlightAnalysis
             try
             {
                 OnLaunchCompleted?.Invoke(this, new OnLaunchCompletedEventArgs(Flight));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Trace.Write(ex);
                 throw;

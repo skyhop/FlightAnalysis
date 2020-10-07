@@ -26,7 +26,7 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             try
             {
-                var ff = new Experimental.FlightContextFactory();
+                var ff = new FlightContextFactory();
 
                 var flightMetadata = new FlightMetadata
                 {
@@ -47,7 +47,7 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             try
             {
-                var ff = new Experimental.FlightContextFactory();
+                var ff = new FlightContextFactory();
 
                 var metadata = new FlightMetadata
                 {
@@ -67,9 +67,9 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             try
             {
-                var ff = new Experimental.FlightContextFactory();
+                var ff = new FlightContextFactory();
 
-                var context = new Experimental.FlightContext(new FlightMetadata
+                var context = new FlightContext(new FlightMetadata
                 {
                     Aircraft = "FLRDD056A"
                 });
@@ -99,7 +99,7 @@ namespace Skyhop.FlightAnalysis.Tests
         [TestMethod]
         public void ProcessOneDayOfData()
         {
-            var ff = new Experimental.FlightContextFactory();
+            var ff = new FlightContextFactory();
 
             using (var reader = new StreamReader(Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
@@ -148,11 +148,11 @@ namespace Skyhop.FlightAnalysis.Tests
             }
         }
 
-        public Experimental.FlightContextFactory InitializeFlightContextWithData()
+        public FlightContextFactory InitializeFlightContextWithData()
         {
             try
             {
-                var ff = new Experimental.FlightContextFactory();
+                var ff = new FlightContextFactory();
 
                 // ToDo: Verify that all the data is being processed correctly.
 

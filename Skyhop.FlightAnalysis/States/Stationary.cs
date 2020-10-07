@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using System.Linq;
+﻿using System.Linq;
 
-namespace Skyhop.FlightAnalysis.Experimental
+namespace Skyhop.FlightAnalysis
 {
     internal static partial class MachineStates
     {

@@ -1,12 +1,10 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using static Skyhop.FlightAnalysis.Internal.Geo;
 
-namespace Skyhop.FlightAnalysis.Experimental
+namespace Skyhop.FlightAnalysis
 {
     public static class FlightContextExtensions
     {
@@ -45,7 +43,7 @@ namespace Skyhop.FlightAnalysis.Experimental
             {
                 return AircraftRelation.None;
             }
-            
+
             var bearing = context1.CurrentPosition.Location.DegreeBearing(context2.CurrentPosition.Location);
 
             return 90 < bearing && bearing < 270
@@ -74,8 +72,8 @@ namespace Skyhop.FlightAnalysis.Experimental
                     return new PositionUpdate(
                         "",
                         new DateTime((long)(object1.TimeStamp.Ticks + dT * factor)),
-                        object1.Location.Y + (factor * dY),
-                        object1.Location.X + (factor * dX));
+                        object1.Location.Y + factor * dY,
+                        object1.Location.X + factor * dX);
                 });
 
             /*

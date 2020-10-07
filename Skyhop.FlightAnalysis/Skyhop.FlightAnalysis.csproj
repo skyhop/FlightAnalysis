@@ -29,11 +29,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="FlightState.cs" />
     <Compile Remove="SpatialMap.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="FlightState.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Boerman.Core" Version="2.1.1" />

@@ -1,4 +1,4 @@
-﻿namespace Skyhop.FlightAnalysis.Experimental
+﻿namespace Skyhop.FlightAnalysis
 {
     internal static partial class MachineStates
     {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Skyhop.FlightAnalysis.Experimental
+﻿namespace Skyhop.FlightAnalysis
 {
     public static class Constants
     {

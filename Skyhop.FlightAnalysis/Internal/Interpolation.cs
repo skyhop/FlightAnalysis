@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Skyhop.FlightAnalysis
 {
-    public static class Interpolation
+    internal static class Interpolation
     {
         public static List<InterpolationContainer<T>> Interpolate<T>(
             IEnumerable<T> t1,

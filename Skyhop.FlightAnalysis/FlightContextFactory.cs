@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Timers;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -36,11 +35,11 @@ namespace Skyhop.FlightAnalysis
             options?.Invoke(Options);
 
             // Start a timer to remove outtimed context instances.
-            new Timer
-            {
-                Enabled = true,
-                Interval = 10000
-            }.Elapsed += (sender, args) => TimerOnElapsed();
+            //new Timer
+            //{
+            //    Enabled = true,
+            //    Interval = 10000
+            //}.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
         public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Action<FlightContextFactoryOptions> options = default)
@@ -53,11 +52,11 @@ namespace Skyhop.FlightAnalysis
             options?.Invoke(Options);
 
             // Start a timer to remove outtimed context instances.
-            new Timer
-            {
-                Enabled = true,
-                Interval = 10000
-            }.Elapsed += (sender, arguments) => TimerOnElapsed();
+            //new Timer
+            //{
+            //    Enabled = true,
+            //    Interval = 10000
+            //}.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
@@ -73,7 +72,7 @@ namespace Skyhop.FlightAnalysis
             {
                 _flightContextDictionary.TryRemove(contextId, out FlightContext context);
 
-                var latest = context.Flight.PositionUpdates.LastOrDefault();
+                var latest = context.CurrentPosition ?? context.Flight.PositionUpdates.LastOrDefault();
 
                 if (latest != null)
                 {
@@ -82,7 +81,8 @@ namespace Skyhop.FlightAnalysis
 
                 try
                 {
-                    OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
+# warning fix before release
+                    //OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
                 }
                 catch (Exception ex)
                 {
@@ -96,9 +96,22 @@ namespace Skyhop.FlightAnalysis
         /// processing of this position update.
         /// </summary>
         /// <param name="positionUpdate">The position update to queue</param>
-        public void Enqueue(PositionUpdate positionUpdate)
+        public void Process(PositionUpdate positionUpdate)
         {
-            Enqueue(new[] { positionUpdate });
+            if (positionUpdate == null) return;
+
+            EnsureContextAvailable(positionUpdate.Aircraft);
+
+            if (_flightContextDictionary.TryGetValue(positionUpdate.Aircraft, out var flightContext))
+            {
+                var previousPoint = flightContext.CurrentPosition;
+
+                if (flightContext.Process(positionUpdate))
+                {
+                    _map.Add(positionUpdate);
+                    _map.Remove(previousPoint);
+                }
+            }
         }
 
         /// <summary>
@@ -106,41 +119,16 @@ namespace Skyhop.FlightAnalysis
         /// further processing of these position updates.
         /// </summary>
         /// <param name="positionUpdates">The position updates to queue</param>
-        public void Enqueue(IEnumerable<PositionUpdate> positionUpdates)
+        public void Process(IEnumerable<PositionUpdate> positionUpdates)
         {
             if (positionUpdates == null) return;
 
-            var updatesByAircraft = positionUpdates
+            foreach (var update in positionUpdates
                 .Where(q => !string.IsNullOrWhiteSpace(q?.Aircraft))
                 .OrderBy(q => q.TimeStamp)
-                .GroupBy(q => q.Aircraft)
-                .ToList();
-
-            // Group the data by aircraft
-            foreach (var updates in updatesByAircraft)
+                .ToList())
             {
-                EnsureContextAvailable(updates.Key);
-
-                if (_flightContextDictionary.TryGetValue(updates.Key, out var flightContext))
-                {
-                    // Grab the most recent position available
-                    var previousPoint = flightContext.Flight.PositionUpdates.LastOrDefault();
-
-                    flightContext.Enqueue(updates);
-
-                    var latest = updates.LastOrDefault();
-
-                    _map.Add(latest);
-
-                    if (previousPoint != null)
-                    {
-                        _map.Remove(previousPoint);
-                    }
-
-                    // ToDo/Bug: Due to the asynchronous nature of the program, the moment we enqueue new
-                    // data, is not the moment this data is also available on the FlightContext's Flight
-                    // property. We should find a way to make sure the data in the bush stays clean!
-                }
+                Process(update);
             }
         }
 
@@ -148,10 +136,11 @@ namespace Skyhop.FlightAnalysis
         /// Retrieves all objects which are (roughly) nearby
         /// </summary>
         /// <param name="coordinate"></param>
-        /// <param name="distance"></param>
+        /// <param name="distance">Distance in kilometers</param>
+        /// 
         /// <returns></returns>
         // See https://stackoverflow.com/a/13579921/1720761 for more information about the clusterfuck that is coordinate notation
-        public IEnumerable<PositionUpdate> FindNearby(Coordinate coordinate, double distance = 0.2)
+        public IEnumerable<FlightContext> FindNearby(Point coordinate, double distance = 0.2)
         {
             if (coordinate == null) throw new ArgumentException($"{nameof(coordinate)} should not be null");
 
@@ -159,11 +148,22 @@ namespace Skyhop.FlightAnalysis
 
             foreach (var position in nearbyPositions)
             {
-                var positionUpdate = _flightContextDictionary[position.Aircraft].Flight.PositionUpdates.LastOrDefault();
+                yield return _flightContextDictionary[position.Aircraft];
+            }
+        }
 
-                if (positionUpdate == null) continue;
+        public IEnumerable<FlightContext> FindNearby(FlightContext context, double distance = 0.2)
+        {
+            if (context == null) throw new ArgumentException($"{nameof(context)} should not be null");
 
-                yield return positionUpdate;
+            var nearbyPositions = _map.Nearby(new PositionUpdate(null, DateTime.MinValue, context.CurrentPosition.Location.Y, context.CurrentPosition.Location.X), distance);
+
+            foreach (var position in nearbyPositions)
+            {
+                if (position.Aircraft != context.Options.AircraftId)
+                {
+                    yield return _flightContextDictionary[position.Aircraft];
+                }
             }
         }
 
@@ -173,20 +173,7 @@ namespace Skyhop.FlightAnalysis
         /// tracked by this FlightContextFactory.
         /// </summary>
         /// <param name="context"></param>
-        public void Attach(FlightContext context)
-        {
-            if (Options.MinifyMemoryPressure)
-            {
-                context.Options.MinifyMemoryPressure = true;
-                context.CleanupDataPoints();
-            }
-
-            _flightContextDictionary.TryRemove(context.Options.AircraftId, out _);
-
-            SubscribeContextEventHandlers(context);
-
-            _flightContextDictionary.TryAdd(context.Options.AircraftId, context);
-        }
+        public void Attach(FlightContext context) => Attach(context?.Flight.Metadata);
 
         /// <summary>
         /// This method creates a new FlightContext instance from the metadata and adds it to this factory.
@@ -194,7 +181,14 @@ namespace Skyhop.FlightAnalysis
         /// tracked by this FlightContextFactory.
         /// </summary>
         /// <param name="metadata"></param>
-        public void Attach(FlightMetadata metadata) => Attach(new FlightContext(metadata));
+        public void Attach(FlightMetadata metadata)
+        {
+            if (metadata == null) return;
+
+            _flightContextDictionary.TryRemove(metadata.Aircraft, out _);
+
+            EnsureContextAvailable(metadata);
+        }
 
         /// <summary>
         /// Retrieves the <seealso cref="FlightContext"/> from the factory. Please note that the <seealso cref="FlightContext"/> will still be attached to the factory.
@@ -228,12 +222,10 @@ namespace Skyhop.FlightAnalysis
         /// <param name="aircraft"></param>
         private void EnsureContextAvailable(string aircraft)
         {
-            if (_flightContextDictionary.ContainsKey(aircraft)) return;
-
-            var context = new FlightContext(aircraft);
-            SubscribeContextEventHandlers(context);
-
-            _flightContextDictionary.TryAdd(aircraft, context);
+            EnsureContextAvailable(new FlightMetadata
+            {
+                Aircraft = aircraft
+            });
         }
 
         /// <summary>
@@ -249,8 +241,14 @@ namespace Skyhop.FlightAnalysis
                 options.AircraftId = metadata.Aircraft;
                 options.MinifyMemoryPressure = Options.MinifyMemoryPressure;
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
-                options.NearbyAircraftAccessor = Options.NearbyAircraftAccessor;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
+
+                options.NearbyAircraftAccessor = ((Point location, double distance) search) =>
+                {
+                    return FindNearby(search.location, search.distance)
+                        .Where(q => q.Options.AircraftId != metadata.Aircraft)
+                        .ToList();
+                };
             });
             SubscribeContextEventHandlers(context);
 
