@@ -66,7 +66,7 @@ namespace Skyhop.FlightAnalysis.Experimental
 
             // Hardwire a check to see if we're sinking again to abort the departure, but only if we're not behind a tow.
             if (!context.Flight.LaunchMethod.HasFlag(LaunchMethods.Aerotow)
-                && context.Flight.PositionUpdates.Last().Altitude - context.CurrentPosition.Altitude < 0)
+                && context.Flight.PositionUpdates.Last().Altitude - context.CurrentPosition.Altitude > 3)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Landing);
                 return;

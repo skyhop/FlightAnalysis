@@ -9,7 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 
 namespace Skyhop.FlightAnalysis.Tests
 {
@@ -27,7 +26,7 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             try
             {
-                var ff = new FlightContextFactory();
+                var ff = new Experimental.FlightContextFactory();
 
                 var flightMetadata = new FlightMetadata
                 {
@@ -48,7 +47,7 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             try
             {
-                var ff = new FlightContextFactory();
+                var ff = new Experimental.FlightContextFactory();
 
                 var metadata = new FlightMetadata
                 {
@@ -68,9 +67,9 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             try
             {
-                var ff = new FlightContextFactory();
+                var ff = new Experimental.FlightContextFactory();
 
-                var context = new FlightContext(new FlightMetadata
+                var context = new Experimental.FlightContext(new FlightMetadata
                 {
                     Aircraft = "FLRDD056A"
                 });
@@ -90,17 +89,17 @@ namespace Skyhop.FlightAnalysis.Tests
 
             // X, Y, Z: Longiutde, Latitude, Altitude
             var nearby = flightContext
-                .FindNearby(new Coordinate(4.356565, 51.452385), 2.2)
+                .FindNearby(new Point(4.356565, 51.452385), 2.2)
                 .ToList();
 
-            Assert.AreEqual(1, nearby.Count());
-            Assert.AreEqual("5657", nearby.First().Aircraft);
+            Assert.AreEqual(6, nearby.Count());
+            Assert.AreEqual("5657", nearby.First().Flight.Aircraft);
         }
 
         [TestMethod]
         public void ProcessOneDayOfData()
         {
-            var ff = new FlightContextFactory();
+            var ff = new Experimental.FlightContextFactory();
 
             using (var reader = new StreamReader(Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
@@ -142,18 +141,18 @@ namespace Skyhop.FlightAnalysis.Tests
                     arrivalCounter++;
                 };
 
-                ff.Enqueue(positionUpdates);
+                ff.Process(positionUpdates);
 
                 Assert.AreEqual(50, departureCounter);
                 Assert.AreEqual(50, arrivalCounter);
             }
         }
 
-        public FlightContextFactory InitializeFlightContextWithData()
+        public Experimental.FlightContextFactory InitializeFlightContextWithData()
         {
             try
             {
-                var ff = new FlightContextFactory();
+                var ff = new Experimental.FlightContextFactory();
 
                 // ToDo: Verify that all the data is being processed correctly.
 
@@ -173,10 +172,10 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 };
 
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
 
                 return ff;
             }
