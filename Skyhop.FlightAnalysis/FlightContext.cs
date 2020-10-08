@@ -39,8 +39,6 @@ namespace Skyhop.FlightAnalysis
             Arrived
         }
 
-        internal CancellationTokenSource ArrivalTheory = null;
-
         public readonly StateMachine<State, Trigger> StateMachine;
 
         public Flight Flight { get; internal set; }

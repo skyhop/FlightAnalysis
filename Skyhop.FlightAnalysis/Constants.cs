@@ -4,6 +4,7 @@
     {
         public const int ArrivalHeight = 350;
         public const int ArrivalTimeout = 30;
+        public const int RunwayQueryRadius = 10;
 
 #if DEBUG
 #pragma warning disable CA1707 // Identifiers should not contain underscores

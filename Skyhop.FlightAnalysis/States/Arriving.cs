@@ -14,12 +14,6 @@ namespace Skyhop.FlightAnalysis
              * - When no data is received anymore, use the estimation
              */
 
-            if (context.ArrivalTheory != null)
-            {
-                context.ArrivalTheory.Cancel();
-                context.ArrivalTheory = null;
-            }
-
             if (context.CurrentPosition.Altitude > Constants.ArrivalHeight)
             {
                 context.Flight.EndTime = null;
