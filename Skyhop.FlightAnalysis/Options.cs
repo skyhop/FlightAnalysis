@@ -7,7 +7,7 @@ namespace Skyhop.FlightAnalysis
 {
     public abstract class Options
     {
-        public Func<(Point coordinate, double distance), IEnumerable<Runway>> NearbyRunwayAccessor { get; set; }
+        public Func<Point, double, IEnumerable<Runway>> NearbyRunwayAccessor { get; set; }
 
         public bool MinifyMemoryPressure { get; set; }
 

@@ -1,21 +1,15 @@
-﻿using Boerman.Core.Spatial;
+﻿using NetTopologySuite.Geometries;
 
 namespace Skyhop.FlightAnalysis.Models
 {
     
 
     public class Runway {
-        public class Side
-        {
-            public Point Location { get; set; }
-            public int Elevation { get; set; }
-        }
-
-        public Runway(Side oneEnd, Side otherEnd)
+        public Runway(Point oneEnd, Point otherEnd)
         {
             Sides = new[] { oneEnd, otherEnd };
         }
 
-        internal readonly Side[] Sides;
+        internal readonly Point[] Sides;
     }
 }

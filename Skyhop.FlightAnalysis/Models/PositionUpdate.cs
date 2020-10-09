@@ -1,6 +1,5 @@
 ﻿using System;
 using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 
 namespace Skyhop.FlightAnalysis.Models
 {
@@ -17,7 +16,6 @@ namespace Skyhop.FlightAnalysis.Models
         /// <param name="altitude"></param>
         /// <param name="speed"></param>
         /// <param name="heading"></param>
-        [JsonConstructor]
         public PositionUpdate(string aircraft, DateTime timeStamp, double latitude, double longitude, double altitude, double speed, double heading)
         {
             Aircraft = aircraft;
@@ -55,7 +53,6 @@ namespace Skyhop.FlightAnalysis.Models
 
         public DateTime TimeStamp { get; }
 
-        [JsonIgnore]
         public Point Location => new Point(Longitude, Latitude, Altitude);
 
         public double Latitude { get; }

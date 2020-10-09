@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Skyhop.FlightAnalysis.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,8 +14,21 @@ namespace Skyhop.FlightAnalysis
              * - When data shows a landing, use that data
              * - When no data is received anymore, use the estimation
              */
+            double groundElevation = 0;
+            if (context.Options.NearbyRunwayAccessor != null)
+            {
+                groundElevation = context.Options.NearbyRunwayAccessor(
+                    context.CurrentPosition.Location,
+                    Constants.RunwayQueryRadius)?
+                    .OrderBy(q => q.Sides
+                        .Min(w => Geo.DistanceTo(w, context.CurrentPosition.Location))
+                    ).FirstOrDefault()
+                    ?.Sides
+                    .Average(q => q.Z)
+                    ?? 0;
+            }
 
-            if (context.CurrentPosition.Altitude > Constants.ArrivalHeight)
+            if (context.CurrentPosition.Altitude > (groundElevation + Constants.ArrivalHeight))
             {
                 context.Flight.EndTime = null;
                 context.Flight.ArrivalInfoFound = null;

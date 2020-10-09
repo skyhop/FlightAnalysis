@@ -32,7 +32,6 @@
     <Compile Remove="SpatialMap.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Boerman.Core" Version="2.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

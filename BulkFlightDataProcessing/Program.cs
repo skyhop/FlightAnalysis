@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis;
 using Skyhop.FlightAnalysis.Models;
 using System;
@@ -16,7 +17,19 @@ namespace BulkFlightDataProcessing
 
             var ff = new FlightContextFactory(options =>
             {
-                
+                options.NearbyRunwayAccessor = (Point point, double distance) =>
+                {
+                    return new[]
+                    {
+                        new Runway(
+                            new Point(4.942108, 51.572418, 49),
+                            new Point(4.933319, 51.555660, 49)
+                        ),
+                        new Runway(
+                            new Point(4.950768, 51.565256, 49),
+                            new Point(4.911974, 51.569548, 49))
+                    };
+                };
             });
 
             using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-Sept.csv"))
