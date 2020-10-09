@@ -1,5 +1,4 @@
 ﻿using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 using System;
 
 namespace Skyhop.FlightAnalysis.Models
@@ -23,7 +22,6 @@ namespace Skyhop.FlightAnalysis.Models
 
             Id = flight.Id;
             Aircraft = flight.Aircraft;
-            LastSeen = flight.LastSeen;
             DepartureTime = flight.StartTime;
             DepartureHeading = flight.DepartureHeading;
 
@@ -31,6 +29,10 @@ namespace Skyhop.FlightAnalysis.Models
             DepartureLatitude = flight.DepartureLocation?.Y ?? 0;
 
             DepartureInfoFound = flight.DepartureInfoFound;
+
+            LaunchMethod = flight.LaunchMethod;
+            LaunchFinished = flight.LaunchFinished;
+
             ArrivalTime = flight.EndTime;
             ArrivalHeading = flight.ArrivalHeading;
 
@@ -42,21 +44,22 @@ namespace Skyhop.FlightAnalysis.Models
 
         public Guid? Id { get; set; }
         public string Aircraft { get; set; }
-        public DateTime? LastSeen { get; set; }
         public DateTime? DepartureTime { get; set; }
         public short DepartureHeading { get; set; }
 
-        [JsonIgnore]
         public Point DepartureLocation => new Point(DepartureLongitude, DepartureLatitude);
 
         public double DepartureLatitude { get; set; }
         public double DepartureLongitude { get; set; }
 
         public bool? DepartureInfoFound { get; set; }
+
+        public LaunchMethods LaunchMethod { get; set; }
+        public DateTime? LaunchFinished { get; set; }
+
         public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
 
-        [JsonIgnore]
         public Point ArrivalLocation => new Point(ArrivalLongitude, ArrivalLatitude);
 
         public double ArrivalLatitude { get; set; }

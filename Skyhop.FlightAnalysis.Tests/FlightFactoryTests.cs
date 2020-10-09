@@ -19,8 +19,6 @@ namespace Skyhop.FlightAnalysis.Tests
         public void TestFlightFactory()
         {
             var flightContextFactory = InitializeFlightContextWithData();
-
-            flightContextFactory.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -89,13 +87,13 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             var flightContext = InitializeFlightContextWithData();
 
-            flightContext.WaitForIdleProcess();
-
             // X, Y, Z: Longiutde, Latitude, Altitude
-            var nearby = flightContext.FindNearby(new Coordinate(5.930606, 44.282189), 0.00002);
+            var nearby = flightContext
+                .FindNearby(new Point(4.356565, 51.452385), 2.2)
+                .ToList();
 
-            Assert.AreEqual(1, nearby.Count());
-            Assert.AreEqual("2842", nearby.First().Aircraft);
+            Assert.AreEqual(6, nearby.Count());
+            Assert.AreEqual("5657", nearby.First().Flight.Aircraft);
         }
 
         [TestMethod]
@@ -120,8 +118,8 @@ namespace Skyhop.FlightAnalysis.Tests
                     positionUpdates.Add(new PositionUpdate(
                         line.transponderCode as string,
                         DateTime.ParseExact(line.timestamp as string, "MMM d, yyyy @ H:mm:ss.FFF", CultureInfo.InvariantCulture),
-                        Convert.ToDouble(position.lat as string),
-                        Convert.ToDouble(position.lon as string),
+                        (double)position.lat,
+                        (double)position.lon,
                         Convert.ToDouble(line.altitude as string),
                         Convert.ToDouble(line.speed as string),
                         Convert.ToDouble(line.heading as string)));
@@ -143,9 +141,7 @@ namespace Skyhop.FlightAnalysis.Tests
                     arrivalCounter++;
                 };
 
-                ff.Enqueue(positionUpdates.OrderBy(q => q.TimeStamp));
-
-                ff.WaitForIdleProcess();
+                ff.Process(positionUpdates);
 
                 Assert.AreEqual(50, departureCounter);
                 Assert.AreEqual(50, arrivalCounter);
@@ -176,10 +172,10 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 };
 
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
-                ff.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+                ff.Process(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
 
                 return ff;
             }

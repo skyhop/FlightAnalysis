@@ -28,11 +28,12 @@ namespace Skyhop.FlightAnalysis.Models
         {
             Id = metadata.Id ?? Guid.NewGuid();
             Aircraft = metadata.Aircraft;
-            LastSeen = metadata.LastSeen;
             StartTime = metadata.DepartureTime;
             DepartureHeading = metadata.DepartureHeading;
             DepartureLocation = metadata.DepartureLocation;
             DepartureInfoFound = metadata.DepartureInfoFound;
+            LaunchMethod = metadata.LaunchMethod;
+            LaunchFinished = metadata.LaunchFinished;
             EndTime = metadata.ArrivalTime;
             ArrivalHeading = metadata.ArrivalHeading;
             ArrivalInfoFound = metadata.ArrivalInfoFound;
@@ -48,16 +49,21 @@ namespace Skyhop.FlightAnalysis.Models
 
         public string Aircraft { get; internal set; }
 
-        public DateTime? LastSeen { get; internal set; }
-
         public DateTime? StartTime { get; internal set; }
         public short DepartureHeading { get; internal set; }
         public Point DepartureLocation { get; internal set; }
         public bool? DepartureInfoFound { get; internal set; }
 
+        public LaunchMethods LaunchMethod { get; internal set; }
+        public DateTime? LaunchFinished { get; internal set; }
+
         public DateTime? EndTime { get; internal set; }
         public short ArrivalHeading { get; internal set; }
         public Point ArrivalLocation { get; internal set; }
+
+        /// <summary>
+        /// Indicate whether the information depicted is calculated (true) or theorized (false)
+        /// </summary>
         public bool? ArrivalInfoFound { get; internal set; }
 
         public List<PositionUpdate> PositionUpdates { get; internal set; }

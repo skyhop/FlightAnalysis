@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Boerman.Core.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
 
 namespace Skyhop.FlightAnalysis.Tests

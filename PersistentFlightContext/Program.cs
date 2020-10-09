@@ -73,7 +73,7 @@ namespace PersistentFlightContext
                 if (e.AprsMessage.DataType == Boerman.AprsClient.Enums.DataType.Status) return;
                 if (String.IsNullOrEmpty(e.AprsMessage.Callsign)) return;
 
-                FlightContextFactory.Enqueue(new PositionUpdate(
+                FlightContextFactory.Process(new PositionUpdate(
                     e.AprsMessage.Callsign,
                     e.AprsMessage.ReceivedDate,
                     e.AprsMessage.Latitude.AbsoluteValue,

@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Skyhop.FlightAnalysis.Models;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Skyhop.FlightAnalysis.Tests
 {
@@ -24,36 +25,46 @@ namespace Skyhop.FlightAnalysis.Tests
     public class FlightContextTests
     {
         [TestMethod]
-        public void Flight_D1908_20170408()
+        public async Task Flight_D1908_20170408()
         {
-            FlightContext fc = new FlightContext("6770");
+            var fc = new FlightContext("6770");
 
-            int callbacks = 0;
+            var countdownEvent = new CountdownEvent(2);
 
             fc.OnTakeoff += (sender, args) =>
             {
+                countdownEvent.Signal();
+
                 Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
-                callbacks++;
             };
+
+            //fc.OnLaunchCompleted += (sender, args) =>
+            //{
+            //    countdownEvent.Signal();
+
+            //    Assert.AreEqual(LaunchMethods.Winch, ((Experimental.FlightContext)sender).Flight.LaunchMethod);
+            //    Assert.AreEqual(636272591974670004, ((Experimental.FlightContext)sender).Flight.LaunchFinished?.Ticks);
+            //    Assert.AreEqual(244, ((Experimental.FlightContext)sender).Flight.DepartureHeading);
+            //};
 
             fc.OnLanding += (sender, args) =>
             {
+                countdownEvent.Signal();
+
                 Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(250, ((FlightContext)sender).Flight.ArrivalHeading);
-
-                callbacks++;
             };
 
             // These events should NOT be fired
             fc.OnRadarContact += (sender, e) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv"));
+            var points = Common.ReadFlightPoints("2017-04-08_D-1908.csv");
+            fc.Process(points);
 
-            fc.WaitForIdleProcess();
+            countdownEvent.Wait(1000);
 
-            Assert.AreEqual(2, callbacks);
+            Assert.IsTrue(countdownEvent.CurrentCount == 0);
         }
 
         /*
@@ -84,19 +95,24 @@ namespace Skyhop.FlightAnalysis.Tests
          * So long as this hasn't been solved we're disabling this test method.
          * 
          */
-        [TestMethod]
-        public static async Task Flight_D1908_20170408_Subset()
+        //[TestMethod]
+        public async Task Flight_D1908_20170408_Subset()
         {
-
-
             FlightContext fc = new FlightContext("6770");
 
             int callbacks = 0;
 
             fc.OnTakeoff += (sender, args) =>
             {
-                Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                Assert.AreEqual(249, ((FlightContext)sender).Flight.DepartureHeading);
+                Assert.AreEqual(636272591485655057, ((FlightContext)sender).Flight.StartTime?.Ticks);
+                Assert.AreEqual(195, ((FlightContext)sender).Flight.DepartureHeading);
+                callbacks++;
+            };
+
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
+                Assert.AreEqual(636272591994430449, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
                 callbacks++;
             };
 
@@ -112,11 +128,9 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnRadarContact += (sender, e) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
+            fc.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
 
-            fc.WaitForIdleProcess();
-
-            Assert.AreEqual(2, callbacks);
+            Assert.AreEqual(3, callbacks);
         }
 
         [TestMethod]
@@ -145,9 +159,7 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnTakeoff += (sender, args) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
-
-            fc.WaitForIdleProcess();
+            fc.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
 
             Assert.AreEqual(2, callbacks);
         }
@@ -180,15 +192,22 @@ namespace Skyhop.FlightAnalysis.Tests
                 pass++;
             };
 
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                // If the tow would have been known, or it would have been known this aircraft is an engineless glider, it would have been obvious this self launch was a tow.
+                Assert.AreEqual(LaunchMethods.Self, ((FlightContext)sender).Flight.LaunchMethod);
+                Assert.AreEqual(636283689536727050, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
+
+                pass++;
+            };
+
             fc.OnLanding += (sender, args) =>
             {
                 Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
                 Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
             };
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
-
-            fc.WaitForIdleProcess();
+            fc.Process(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
         }
 
         [TestMethod]
@@ -210,40 +229,61 @@ namespace Skyhop.FlightAnalysis.Tests
                         Assert.AreEqual(636283687551363359, ((FlightContext)sender).Flight.StartTime?.Ticks);
                         Assert.AreEqual(355, ((FlightContext)sender).Flight.DepartureHeading);
                         break;
-                    case 2:
-                        Assert.AreEqual(636283906924363860, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(21, ((FlightContext)sender).Flight.DepartureHeading);
-                        break;
                     default:
+                        Assert.Fail();
                         break;
                 }
             };
+
+            //fc.OnLaunchCompleted += (sender, args) =>
+            //{
+            //    switch (pass)
+            //    {
+            //        case 0:
+            //            Assert.AreEqual(LaunchMethods.Self, ((Experimental.FlightContext)sender).Flight.LaunchMethod);
+            //            Assert.AreEqual(636281993021809484, ((Experimental.FlightContext)sender).Flight.LaunchFinished?.Ticks);
+            //            break;
+            //        case 1:
+            //            Assert.AreEqual(LaunchMethods.Self, ((Experimental.FlightContext)sender).Flight.LaunchMethod);
+            //            Assert.AreEqual(636283689536727050, ((Experimental.FlightContext)sender).Flight.LaunchFinished?.Ticks);
+            //            break;
+            //        default:
+            //            Assert.Fail();
+            //            break;
+            //    }
+            //};
 
             fc.OnLanding += (sender, args) =>
             {
-                if (pass == 0)
+                switch (pass)
                 {
-                    Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                    Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                    case 0:
+                        Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                        Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                        break;
+                    case 1:
+                        Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
+                        Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
+                        break;
+                    default:
+                        Assert.Fail();
+                        break;
                 }
-                if (pass == 1)
-                {
-                    Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                    Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
-                }
-
+                
                 pass++;
             };
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+            fc.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
         public async Task MinimalMemory_Flights_PH1387_20170419_20170421()
         {
-            FlightContext fc = new FlightContext("2842", true);
+            FlightContext fc = new FlightContext("2842", options =>
+            {
+                options.MinifyMemoryPressure = true;
+            });
 
             int pass = 0;
 
@@ -273,20 +313,19 @@ namespace Skyhop.FlightAnalysis.Tests
                 if (pass == 0)
                 {
                     Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                    Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
+                    Assert.AreEqual(336, ((FlightContext)sender).Flight.ArrivalHeading);
                 }
                 if (pass == 1)
                 {
                     Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.EndTime?.Ticks);
-                    Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
+                    Assert.AreEqual(333, ((FlightContext)sender).Flight.ArrivalHeading);
                 }
 
                 pass++;
             };
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+            fc.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
 
-            fc.WaitForIdleProcess();
         }
 
         [TestMethod]
@@ -303,7 +342,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 {
                     case 0:
                         Assert.AreEqual(636287344501749071, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(248, ((FlightContext)sender).Flight.DepartureHeading);
+                        Assert.AreEqual(246, ((FlightContext)sender).Flight.DepartureHeading);
                         break;
                     case 1:
                         Assert.AreEqual(636287368213105015, ((FlightContext)sender).Flight.StartTime?.Ticks);
@@ -311,11 +350,11 @@ namespace Skyhop.FlightAnalysis.Tests
                         break;
                     case 2:
                         Assert.AreEqual(636287382263573133, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(247, ((FlightContext)sender).Flight.DepartureHeading);
+                        Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
                         break;
                     case 3:
                         Assert.AreEqual(636287407314361125, ((FlightContext)sender).Flight.StartTime?.Ticks);
-                        Assert.AreEqual(248, ((FlightContext)sender).Flight.DepartureHeading);
+                        Assert.AreEqual(245, ((FlightContext)sender).Flight.DepartureHeading);
                         break;
                     default:
                         break;
@@ -352,9 +391,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 callbacks++;
             };
 
-            fc.Enqueue(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
-
-            fc.WaitForIdleProcess();
+            fc.Process(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
 
             Assert.AreEqual(4, pass);
             Assert.AreEqual(8, callbacks);
