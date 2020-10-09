@@ -23,11 +23,11 @@ namespace Skyhop.FlightAnalysis.Tests
 
     [TestClass]
     public class FlightContextTests
-    {
+    {          
         [TestMethod]
         public async Task Flight_D1908_20170408()
         {
-            var fc = new FlightContext("6770");
+            var fc = new FlightContext("6770");  
 
             var countdownEvent = new CountdownEvent(2);
 
@@ -282,7 +282,6 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             FlightContext fc = new FlightContext("2842", options =>
             {
-                options.MinifyMemoryPressure = true;
             });
 
             int pass = 0;

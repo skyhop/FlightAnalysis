@@ -9,8 +9,6 @@ namespace Skyhop.FlightAnalysis
     {
         public Func<Point, double, IEnumerable<Runway>> NearbyRunwayAccessor { get; set; }
 
-        public bool MinifyMemoryPressure { get; set; }
-
         public int MinimumRequiredPositionUpdateCount { get; set; } = 5;
     }
 }

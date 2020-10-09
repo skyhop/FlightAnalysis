@@ -167,15 +167,6 @@ namespace Skyhop.FlightAnalysis
             LastActive = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// This method casually removes some position updates.
-        /// </summary>
-        internal void CleanupDataPoints()
-        {
-            if (Options.MinifyMemoryPressure && Flight.PositionUpdates.Count > Options.MinimumRequiredPositionUpdateCount)
-                Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - Options.MinimumRequiredPositionUpdateCount);
-        }
-
 #warning REMOVE BEFORE PUBLISH
         public string ToDotGraph()
         {

@@ -240,7 +240,6 @@ namespace Skyhop.FlightAnalysis
             var context = new FlightContext(metadata, options =>
             {
                 options.AircraftId = metadata.Aircraft;
-                options.MinifyMemoryPressure = Options.MinifyMemoryPressure;
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
 
