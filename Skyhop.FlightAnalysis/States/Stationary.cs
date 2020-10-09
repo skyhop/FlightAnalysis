@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Skyhop.FlightAnalysis.Internal;
+using System.Linq;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -10,6 +11,20 @@ namespace Skyhop.FlightAnalysis
 
             if (context.CurrentPosition.Speed > 30)
             {
+                double groundElevation = 0;
+                if (context.Options.NearbyRunwayAccessor != null)
+                {
+                    groundElevation = context.Options.NearbyRunwayAccessor(
+                        context.CurrentPosition.Location,
+                        Constants.RunwayQueryRadius)?
+                        .OrderBy(q => q.Sides
+                            .Min(w => Geo.DistanceTo(w, context.CurrentPosition.Location))
+                        ).FirstOrDefault()
+                        ?.Sides
+                        .Average(q => q.Z)
+                        ?? 0;
+                }
+
                 // Walk back to when the speed was 0
                 var start = context.Flight.PositionUpdates
                     .Where(q => (q.Speed == 0 || double.IsNaN(q.Speed)) 
@@ -17,7 +32,7 @@ namespace Skyhop.FlightAnalysis
                     .OrderByDescending(q => q.TimeStamp)
                     .FirstOrDefault();
 
-                if (start == null && context.CurrentPosition.Altitude > Constants.ArrivalHeight)
+                if (start == null && context.CurrentPosition.Altitude > (groundElevation + Constants.ArrivalHeight))
                 {
                     // The flight was already in progress, or we could not find the starting point (trees in line of sight?)
 
@@ -29,7 +44,7 @@ namespace Skyhop.FlightAnalysis
                     context.StateMachine.Fire(FlightContext.Trigger.TrackMovements);
                     return;
                 }
-                else if (start == null && context.CurrentPosition.Altitude <= Constants.ArrivalHeight)
+                else if (start == null && context.CurrentPosition.Altitude <= (groundElevation + Constants.ArrivalHeight))
                 {
                     // ToDo: Try to estimate the departure time
                     context.Flight.StartTime = context.CurrentPosition.TimeStamp;
