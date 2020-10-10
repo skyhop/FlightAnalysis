@@ -177,6 +177,47 @@ namespace Skyhop.FlightAnalysis
             LastActive = DateTime.UtcNow;
         }
 
+        public PositionUpdate GetPositionAt(DateTime timestamp)
+        {
+            if (Flight.PositionUpdates.Count < 2) return null;
+
+            var first = Flight.PositionUpdates[0].TimeStamp;
+            var last = Flight.PositionUpdates[Flight.PositionUpdates.Count - 1].TimeStamp;
+
+            PositionUpdate p1 = null;
+            PositionUpdate p2 = null;
+
+            if (timestamp < first)
+            {
+                p1 = Flight.PositionUpdates[0];
+                p2 = Flight.PositionUpdates[1];
+            } else if (timestamp > last)
+            {
+                p1 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 2];
+                p2 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 1];
+            } else
+            {
+                var index = Flight.PositionUpdates.FindIndex(q => q.TimeStamp > timestamp);
+
+                p1 = Flight.PositionUpdates[index - 1];
+                p2 = Flight.PositionUpdates[index];
+            }
+
+            var dX = p2.Location.X - p1.Location.X;
+            var dY = p2.Location.Y - p1.Location.Y;
+            var dT = (p2.TimeStamp - p1.TimeStamp).Ticks;
+
+            if (dT == 0) return null;
+
+            double factor = (timestamp.Ticks - p1.TimeStamp.Ticks) / (double)dT;
+
+            return new PositionUpdate(
+                Options.AircraftId,
+                new DateTime((long)(p1.TimeStamp.Ticks + dT * factor)),
+                p1.Location.Y + factor * dY,
+                p1.Location.X + factor * dX);
+        }
+
 #if RELEASE
 #error REMOVE BEFORE PUBLISH
 #endif
