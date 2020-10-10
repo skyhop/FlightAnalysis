@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
+using static Skyhop.FlightAnalysis.FlightContext;
 
 namespace Skyhop.FlightAnalysis.Models
 {
@@ -33,6 +34,7 @@ namespace Skyhop.FlightAnalysis.Models
         public DateTime? ArrivalTime { get; set; }
         public short ArrivalHeading { get; set; }
         public Point ArrivalLocation { get; set; }
+        public State State { get; set; }
 
         /// <summary>
         /// Indicate whether the information depicted is calculated (true) or theorized (false)

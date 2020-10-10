@@ -19,12 +19,12 @@ namespace Skyhop.FlightAnalysis
     {
         public enum State
         {
-            None,
-            Initialization,
-            Stationary,
-            Departing,
-            Airborne,
-            Arriving
+            None = 0,
+            Initialization = 1,
+            Stationary = 2,
+            Departing = 3,
+            Airborne = 4,
+            Arriving = 5
         }
 
         public enum Trigger
@@ -61,7 +61,10 @@ namespace Skyhop.FlightAnalysis
         /// processing has been done.</param>
         public FlightContext(Flight flight, Action<FlightContextOptions> options)
         {
-            StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
+            StateMachine = new StateMachine<State, Trigger>(
+                () => Flight.State,
+                state => Flight.State = state,
+                FiringMode.Queued);
 
             StateMachine.Configure(State.None)
                 .Permit(Trigger.Next, State.Initialization);
