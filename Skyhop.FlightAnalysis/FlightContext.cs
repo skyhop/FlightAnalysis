@@ -167,7 +167,9 @@ namespace Skyhop.FlightAnalysis
             LastActive = DateTime.UtcNow;
         }
 
-#warning REMOVE BEFORE PUBLISH
+#if RELEASE
+#error REMOVE BEFORE PUBLISH
+#endif
         public string ToDotGraph()
         {
             return UmlDotGraph.Format(StateMachine.GetInfo());
