@@ -243,9 +243,9 @@ namespace Skyhop.FlightAnalysis
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
 
-                options.NearbyAircraftAccessor = ((Point location, double distance) search) =>
+                options.NearbyAircraftAccessor = (Point location, double distance) =>
                 {
-                    return FindNearby(search.location, search.distance)
+                    return FindNearby(location, distance)
                         .Where(q => q.Options.AircraftId != flight.Aircraft)
                         .ToList();
                 };

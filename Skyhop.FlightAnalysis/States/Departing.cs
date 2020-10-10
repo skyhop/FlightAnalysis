@@ -100,7 +100,7 @@ namespace Skyhop.FlightAnalysis
                             .Skip(1)        // Skip the first element because heading is 0 when in rest
                             .Select(q => Geo.GetHeadingError(averageHeading, q.Heading))
                             .Any(q => q > 20)
-                        || (context.Options.NearbyAircraftAccessor?.Invoke((context.CurrentPosition.Location, 0.2)).Any() ?? false)
+                        || (context.Options.NearbyAircraftAccessor?.Invoke(context.CurrentPosition.Location, 0.2).Any() ?? false)
                         || Geo.DistanceTo(
                             context.Flight.PositionUpdates.First().Location,
                             context.CurrentPosition.Location) > 3000)

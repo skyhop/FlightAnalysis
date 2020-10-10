@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -23,23 +22,25 @@ namespace Skyhop.FlightAnalysis
             Initialization = 1,
             Stationary = 2,
             Departing = 3,
-            Airborne = 4,
-            Arriving = 5
+            TrackAerotow = 4,
+            Airborne = 5,
+            Arriving = 6
         }
 
-        public enum Trigger
+        internal enum Trigger
         {
             Initialize,
             Next,
             TrackMovements,
             Depart,
+            TrackAerotow,
             LaunchCompleted,
             Landing,
             LandingAborted,
             Arrived
         }
 
-        public readonly StateMachine<State, Trigger> StateMachine;
+        internal readonly StateMachine<State, Trigger> StateMachine;
 
         public Flight Flight { get; internal set; }
 
@@ -83,7 +84,13 @@ namespace Skyhop.FlightAnalysis
                 .OnEntry(this.Departing)
                 .PermitReentry(Trigger.Next)
                 .Permit(Trigger.LaunchCompleted, State.Airborne)
-                .Permit(Trigger.Landing, State.Arriving);
+                .Permit(Trigger.Landing, State.Arriving)
+                .Permit(Trigger.TrackAerotow, State.TrackAerotow);
+
+            StateMachine.Configure(State.TrackAerotow)
+                .OnEntry(this.TrackAerotow)
+                .PermitReentry(Trigger.Next)
+                .Permit(Trigger.LaunchCompleted, State.Airborne);
 
             StateMachine.Configure(State.Airborne)
                 .OnEntry(this.Airborne)

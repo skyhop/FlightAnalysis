@@ -10,9 +10,9 @@ namespace Skyhop.FlightAnalysis
     {
         internal static (FlightContext context, AircraftRelation status)? IsAerotow(this FlightContext context)
         {
-            var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke((
-                coordinate: context.CurrentPosition.Location,
-                distance: 0.2))
+            var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke(
+                context.CurrentPosition.Location,
+                0.2)
                 .ToList();
 
             if (nearbyAircraft != null && nearbyAircraft.Count > 0)
