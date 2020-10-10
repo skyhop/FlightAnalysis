@@ -57,9 +57,9 @@ namespace Skyhop.FlightAnalysis
         /// <summary>
         /// Initializes a new instance of the <see cref="FlightContext"/> class.
         /// </summary>
-        /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
+        /// <param name="flight">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(FlightMetadata flightMetadata, Action<FlightContextOptions> options)
+        public FlightContext(Flight flight, Action<FlightContextOptions> options)
         {
             StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
 
@@ -95,8 +95,8 @@ namespace Skyhop.FlightAnalysis
 
             options?.Invoke(Options);
 
-            Options.AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
-            Flight = flightMetadata.Flight;
+            Options.AircraftId = flight.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
+            Flight = flight;
 
             LastActive = DateTime.UtcNow;
         }
@@ -106,14 +106,14 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="aircraftId">Optional string used to identify this context.</param>
         public FlightContext(string aircraftId, Action<FlightContextOptions> options = default) : this(
-            new FlightMetadata
+            new Flight
             {
                 Aircraft = aircraftId
             },
             options)
         { }
 
-        public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, default) { }
+        public FlightContext(Flight flight) : this(flight, default) { }
 
         /// <summary>
         /// Queue a positionupdate for this specific context to process.
@@ -136,7 +136,7 @@ namespace Skyhop.FlightAnalysis
 
             StateMachine.Fire(Trigger.Next);
 
-            if (Flight.StartTime == null &&
+            if (Flight.DepartureTime == null &&
                 CurrentPosition?.Speed == 0)
             {
                 // We generally do not need to analyse ground based movements, hence discard this point.

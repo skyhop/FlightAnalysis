@@ -30,7 +30,7 @@ namespace Skyhop.FlightAnalysis
 
             if (context.CurrentPosition.Altitude > (groundElevation + Constants.ArrivalHeight))
             {
-                context.Flight.EndTime = null;
+                context.Flight.ArrivalTime = null;
                 context.Flight.ArrivalInfoFound = null;
                 context.Flight.ArrivalHeading = 0;
                 context.StateMachine.Fire(FlightContext.Trigger.LandingAborted);
@@ -60,7 +60,7 @@ namespace Skyhop.FlightAnalysis
                  * that the flight is still in progress! (Aerobatic stuff and so)
                  */
 
-                context.Flight.EndTime = context.CurrentPosition.TimeStamp;
+                context.Flight.ArrivalTime = context.CurrentPosition.TimeStamp;
                 context.Flight.ArrivalInfoFound = true;
                 context.Flight.ArrivalHeading = Convert.ToInt16(arrival.Average(q => q.Heading));
                 context.Flight.ArrivalLocation = arrival.First().Location;
@@ -78,7 +78,7 @@ namespace Skyhop.FlightAnalysis
                 context.StateMachine.Fire(FlightContext.Trigger.Arrived);
             }
             else if (!(context.Flight.ArrivalInfoFound ?? true)
-                && context.CurrentPosition.TimeStamp > context.Flight.EndTime.Value.AddSeconds(Constants.ArrivalTimeout))
+                && context.CurrentPosition.TimeStamp > context.Flight.ArrivalTime.Value.AddSeconds(Constants.ArrivalTimeout))
             {
                 // Our theory needs to be finalized
                 context.InvokeOnLandingEvent();
@@ -108,7 +108,7 @@ namespace Skyhop.FlightAnalysis
 
                 if (!climbrates.Any())
                 {
-                    context.Flight.EndTime = null;
+                    context.Flight.ArrivalTime = null;
                     context.Flight.ArrivalInfoFound = null;
                     context.Flight.ArrivalHeading = 0;
                     return;
@@ -120,13 +120,13 @@ namespace Skyhop.FlightAnalysis
 
                 if (double.IsInfinity(ETUA) || ETUA > (60 * 10) || ETUA < 0)
                 {
-                    context.Flight.EndTime = null;
+                    context.Flight.ArrivalTime = null;
                     context.Flight.ArrivalInfoFound = null;
                     context.Flight.ArrivalHeading = 0;
                     return;
                 }
 
-                context.Flight.EndTime = context.CurrentPosition.TimeStamp.AddSeconds(ETUA);
+                context.Flight.ArrivalTime = context.CurrentPosition.TimeStamp.AddSeconds(ETUA);
                 context.Flight.ArrivalInfoFound = false;
                 context.Flight.ArrivalHeading = Convert.ToInt16(arrival.Average(q => q.Heading));
             }

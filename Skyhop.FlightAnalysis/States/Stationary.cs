@@ -47,10 +47,10 @@ namespace Skyhop.FlightAnalysis
                 else if (start == null && context.CurrentPosition.Altitude <= (groundElevation + Constants.ArrivalHeight))
                 {
                     // ToDo: Try to estimate the departure time
-                    context.Flight.StartTime = context.CurrentPosition.TimeStamp;
+                    context.Flight.DepartureTime = context.CurrentPosition.TimeStamp;
 
                     context.Flight.PositionUpdates
-                        .Where(q => q.TimeStamp < context.Flight.StartTime.Value)
+                        .Where(q => q.TimeStamp < context.Flight.DepartureTime.Value)
                         .ToList()
                         .ForEach(q => context.Flight.PositionUpdates.Remove(q));
 
@@ -58,11 +58,11 @@ namespace Skyhop.FlightAnalysis
                 }
                 else if (start != null)
                 {
-                    context.Flight.StartTime = start.TimeStamp;
+                    context.Flight.DepartureTime = start.TimeStamp;
 
                     // Remove points not related to this flight
                     context.Flight.PositionUpdates
-                        .Where(q => q.TimeStamp < context.Flight.StartTime.Value)
+                        .Where(q => q.TimeStamp < context.Flight.DepartureTime.Value)
                         .ToList()
                         .ForEach(q => context.Flight.PositionUpdates.Remove(q));
 

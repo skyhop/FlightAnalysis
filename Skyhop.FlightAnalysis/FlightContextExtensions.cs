@@ -17,7 +17,7 @@ namespace Skyhop.FlightAnalysis
 
             if (nearbyAircraft != null && nearbyAircraft.Count > 0)
             {
-                if (nearbyAircraft.Any(q => q.Flight.StartTime == null))
+                if (nearbyAircraft.Any(q => q.Flight.DepartureTime == null))
                 {
                     // We'll have to wait until those are departed.
                     return (null, AircraftRelation.None);

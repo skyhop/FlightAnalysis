@@ -43,9 +43,9 @@ namespace Skyhop.FlightAnalysis
             //}.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
-        public FlightContextFactory(IEnumerable<FlightMetadata> metadata, Action<FlightContextFactoryOptions> options = default)
+        public FlightContextFactory(IEnumerable<Flight> flights, Action<FlightContextFactoryOptions> options = default)
         {
-            foreach (var flight in metadata)
+            foreach (var flight in flights)
             {
                 EnsureContextAvailable(flight);
             }
@@ -174,21 +174,21 @@ namespace Skyhop.FlightAnalysis
         /// tracked by this FlightContextFactory.
         /// </summary>
         /// <param name="context"></param>
-        public void Attach(FlightContext context) => Attach(context?.Flight.Metadata);
+        public void Attach(FlightContext context) => Attach(context?.Flight);
 
         /// <summary>
         /// This method creates a new FlightContext instance from the metadata and adds it to this factory.
         /// This method will overwrite any FlightContext instance with the same aircraft identifier already
         /// tracked by this FlightContextFactory.
         /// </summary>
-        /// <param name="metadata"></param>
-        public void Attach(FlightMetadata metadata)
+        /// <param name="flight"></param>
+        public void Attach(Flight flight)
         {
-            if (metadata == null) return;
+            if (flight == null) return;
 
-            _flightContextDictionary.TryRemove(metadata.Aircraft, out _);
+            _flightContextDictionary.TryRemove(flight.Aircraft, out _);
 
-            EnsureContextAvailable(metadata);
+            EnsureContextAvailable(flight);
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Skyhop.FlightAnalysis
         /// <param name="aircraft"></param>
         private void EnsureContextAvailable(string aircraft)
         {
-            EnsureContextAvailable(new FlightMetadata
+            EnsureContextAvailable(new Flight
             {
                 Aircraft = aircraft
             });
@@ -232,27 +232,27 @@ namespace Skyhop.FlightAnalysis
         /// <summary>
         /// Checks whether there's a context available based on the metadata provided.
         /// </summary>
-        /// <param name="metadata"></param>
-        private void EnsureContextAvailable(FlightMetadata metadata)
+        /// <param name="flight"></param>
+        private void EnsureContextAvailable(Flight flight)
         {
-            if (metadata?.Aircraft == null || _flightContextDictionary.ContainsKey(metadata.Aircraft)) return;
+            if (flight?.Aircraft == null || _flightContextDictionary.ContainsKey(flight.Aircraft)) return;
 
-            var context = new FlightContext(metadata, options =>
+            var context = new FlightContext(flight, options =>
             {
-                options.AircraftId = metadata.Aircraft;
+                options.AircraftId = flight.Aircraft;
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
 
                 options.NearbyAircraftAccessor = ((Point location, double distance) search) =>
                 {
                     return FindNearby(search.location, search.distance)
-                        .Where(q => q.Options.AircraftId != metadata.Aircraft)
+                        .Where(q => q.Options.AircraftId != flight.Aircraft)
                         .ToList();
                 };
             });
             SubscribeContextEventHandlers(context);
 
-            _flightContextDictionary.TryAdd(metadata.Aircraft, context);
+            _flightContextDictionary.TryAdd(flight.Aircraft, context);
         }
 
         private void SubscribeContextEventHandlers(FlightContext context)

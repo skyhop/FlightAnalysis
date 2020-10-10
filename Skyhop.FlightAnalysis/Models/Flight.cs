@@ -18,57 +18,29 @@ namespace Skyhop.FlightAnalysis.Models
     /// </summary>
     public class Flight
     {
-        public Flight()
-        {
-            Id = Guid.NewGuid();
-            PositionUpdates = new List<PositionUpdate>();
-        }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public Flight(FlightMetadata metadata)
-        {
-            Id = metadata.Id ?? Guid.NewGuid();
-            Aircraft = metadata.Aircraft;
-            StartTime = metadata.DepartureTime;
-            DepartureHeading = metadata.DepartureHeading;
-            DepartureLocation = metadata.DepartureLocation;
-            DepartureInfoFound = metadata.DepartureInfoFound;
-            LaunchMethod = metadata.LaunchMethod;
-            LaunchFinished = metadata.LaunchFinished;
-            EndTime = metadata.ArrivalTime;
-            ArrivalHeading = metadata.ArrivalHeading;
-            ArrivalInfoFound = metadata.ArrivalInfoFound;
-            ArrivalLocation = metadata.ArrivalLocation;
+        public string Aircraft { get; set; }
 
-            if (metadata is FlightViewModel)
-                PositionUpdates = ((FlightViewModel)metadata).PositionUpdates ?? new List<PositionUpdate>();
-            else
-                PositionUpdates = new List<PositionUpdate>();
-        }
+        public DateTime? DepartureTime { get; set; }
+        public short DepartureHeading { get; set; }
+        public Point DepartureLocation { get; set; }
+        public bool? DepartureInfoFound { get; set; }
 
-        public Guid Id { get; internal set; }
+        public LaunchMethods LaunchMethod { get; set; }
+        public DateTime? LaunchFinished { get; set; }
 
-        public string Aircraft { get; internal set; }
-
-        public DateTime? StartTime { get; internal set; }
-        public short DepartureHeading { get; internal set; }
-        public Point DepartureLocation { get; internal set; }
-        public bool? DepartureInfoFound { get; internal set; }
-
-        public LaunchMethods LaunchMethod { get; internal set; }
-        public DateTime? LaunchFinished { get; internal set; }
-
-        public DateTime? EndTime { get; internal set; }
-        public short ArrivalHeading { get; internal set; }
-        public Point ArrivalLocation { get; internal set; }
+        public DateTime? ArrivalTime { get; set; }
+        public short ArrivalHeading { get; set; }
+        public Point ArrivalLocation { get; set; }
 
         /// <summary>
         /// Indicate whether the information depicted is calculated (true) or theorized (false)
         /// </summary>
-        public bool? ArrivalInfoFound { get; internal set; }
+        public bool? ArrivalInfoFound { get; set; }
 
-        public List<PositionUpdate> PositionUpdates { get; internal set; }
+        public List<PositionUpdate> PositionUpdates { get; } = new List<PositionUpdate>();
 
-        public FlightViewModel ViewModel => new FlightViewModel(this);
-        public FlightMetadata Metadata => new FlightMetadata(this);
+        public bool Completed => (DepartureInfoFound != null || DepartureTime != null) && (ArrivalInfoFound != null || ArrivalTime != null);
     }
 }

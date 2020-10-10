@@ -57,13 +57,13 @@ namespace BulkFlightDataProcessing
                         args.Flight.DepartureHeading,
                         DepartureX = args.Flight.DepartureLocation?.X,
                         DepartureY = args.Flight.DepartureLocation?.Y,
-                        args.Flight.StartTime,
+                        args.Flight.DepartureTime,
                         args.Flight.DepartureInfoFound,
                         args.Flight.LaunchMethod,
                         args.Flight.ArrivalHeading,
                         ArrivalX = args.Flight.ArrivalLocation?.X,
                         ArrivalY = args.Flight.ArrivalLocation?.Y,
-                        args.Flight.EndTime,
+                        args.Flight.ArrivalTime,
                         args.Flight.ArrivalInfoFound,
                     };
 

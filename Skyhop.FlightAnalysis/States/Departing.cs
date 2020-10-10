@@ -37,7 +37,7 @@ namespace Skyhop.FlightAnalysis
                 else return;
             }
 
-            if (context.Flight.StartTime != null &&
+            if (context.Flight.DepartureTime != null &&
                 (context.CurrentPosition.TimeStamp - (context.Flight.PositionUpdates.FirstOrDefault(q => q.Speed > 30)?.TimeStamp ?? context.CurrentPosition.TimeStamp)).TotalSeconds < 20) return;
 
             // We can safely try to extract the correct path
