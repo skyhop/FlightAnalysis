@@ -51,17 +51,32 @@ namespace Skyhop.FlightAnalysis
                 {
                     context.Flight.LaunchMethod &= ~LaunchMethods.Aerotow;
                 }
-                else if (isTow.Value.status == Geo.AircraftRelation.OnTow)
+                else 
                 {
-                    context.Flight.LaunchMethod = LaunchMethods.Aerotow | LaunchMethods.OnTow;
-                    context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
+                    if (isTow.Value.status == Geo.AircraftRelation.OnTow)
+                    {
+                        context.Flight.LaunchMethod = LaunchMethods.Aerotow | LaunchMethods.OnTow;
+                        context.Flight.Encounters.Add(new Encounter
+                        {
+                            Aircraft = isTow.Value.context.Options.AircraftId,
+                            Start = isTow.Value.context.Flight.DepartureTime,
+                            Type = EncounterType.Tug
+                        });
+                    }
+                    else if (isTow.Value.status == Geo.AircraftRelation.Towplane)
+                    {
+                        context.Flight.LaunchMethod = LaunchMethods.Aerotow | LaunchMethods.TowPlane;
+                        context.Flight.Encounters.Add(new Encounter
+                        {
+                            Aircraft = isTow.Value.context.Options.AircraftId,
+                            Start = isTow.Value.context.Flight.DepartureTime,
+                            Type = EncounterType.Tow
+                        });
+                    }
+
+                    context.StateMachine.Fire(FlightContext.Trigger.TrackAerotow);
+                    return;
                 }
-                else if (isTow.Value.status == Geo.AircraftRelation.Towplane)
-                {
-                    context.Flight.LaunchMethod = LaunchMethods.Aerotow | LaunchMethods.TowPlane;
-                    context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
-                }
-                else return; // Defer launch method determination until we have conclusive evidence
             }
 
             // Hardwire a check to see if we're sinking again to abort the departure, but only if we're not behind a tow.

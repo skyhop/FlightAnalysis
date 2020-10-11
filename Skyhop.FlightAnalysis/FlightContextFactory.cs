@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Mail;
 using System.Reactive.Linq;
 
 namespace Skyhop.FlightAnalysis
@@ -242,6 +241,11 @@ namespace Skyhop.FlightAnalysis
                 options.AircraftId = flight.Aircraft;
                 options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
+
+                options.AircraftAccessor = 
+                    aircraft => _flightContextDictionary.TryGetValue(aircraft, out var flightContext)
+                        ? flightContext
+                        : null;
 
                 options.NearbyAircraftAccessor = (Point location, double distance) =>
                 {

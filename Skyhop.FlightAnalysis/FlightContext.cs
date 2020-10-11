@@ -187,11 +187,11 @@ namespace Skyhop.FlightAnalysis
             PositionUpdate p1 = null;
             PositionUpdate p2 = null;
 
-            if (timestamp < first)
+            if (timestamp <= first)
             {
                 p1 = Flight.PositionUpdates[0];
                 p2 = Flight.PositionUpdates[1];
-            } else if (timestamp > last)
+            } else if (timestamp >= last)
             {
                 p1 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 2];
                 p2 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 1];

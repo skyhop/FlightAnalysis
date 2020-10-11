@@ -6,7 +6,9 @@ namespace Skyhop.FlightAnalysis
 {
     public class FlightContextOptions : Options
     {
-        public Func<Point, double, IEnumerable<FlightContext>> NearbyAircraftAccessor { get; set; }
+        internal Func<Point, double, IEnumerable<FlightContext>> NearbyAircraftAccessor { get; set; }
+        internal Func<string, FlightContext> AircraftAccessor { get; set; }
+
         public string AircraftId { get; set; }
     }
 }
