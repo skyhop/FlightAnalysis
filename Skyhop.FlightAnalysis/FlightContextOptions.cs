@@ -8,6 +8,5 @@ namespace Skyhop.FlightAnalysis
     {
         public Func<Point, double, IEnumerable<FlightContext>> NearbyAircraftAccessor { get; set; }
         public string AircraftId { get; set; }
-        
     }
 }

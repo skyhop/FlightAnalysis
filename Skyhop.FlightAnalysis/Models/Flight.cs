@@ -42,7 +42,8 @@ namespace Skyhop.FlightAnalysis.Models
         public bool? ArrivalInfoFound { get; set; }
 
         public List<PositionUpdate> PositionUpdates { get; } = new List<PositionUpdate>();
-        
+        public List<Encounter> Encounters { get; } = new List<Encounter>();
+
         public bool Completed => (DepartureInfoFound != null || DepartureTime != null) && (ArrivalInfoFound != null || ArrivalTime != null);
     }
 }
