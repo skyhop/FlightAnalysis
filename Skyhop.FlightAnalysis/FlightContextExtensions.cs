@@ -39,12 +39,14 @@ namespace Skyhop.FlightAnalysis
 
         internal static AircraftRelation DetermineTowStatus(this FlightContext context1, FlightContext context2)
         {
-            if (context1.CurrentPosition.Location.DistanceTo(context2.CurrentPosition.Location) > 200)
+            var c2Position = context2.GetPositionAt(context1.CurrentPosition.TimeStamp);
+
+            if (context1.CurrentPosition.Location.DistanceTo(c2Position.Location) > 200)
             {
                 return AircraftRelation.None;
             }
 
-            var bearing = context1.CurrentPosition.Location.DegreeBearing(context2.CurrentPosition.Location);
+            var bearing = context1.CurrentPosition.Location.DegreeBearing(c2Position.Location);
 
             return 90 < bearing && bearing < 270
                 ? AircraftRelation.OnTow

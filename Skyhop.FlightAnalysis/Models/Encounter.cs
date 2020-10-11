@@ -10,10 +10,22 @@ namespace Skyhop.FlightAnalysis.Models
         public EncounterType Type { get; set; }
     }
 
+    /// <summary>
+    /// The setting in which an encounter happened
+    /// </summary>
     public enum EncounterType
     {
+        /// <summary>
+        /// This aircraft has been nearby
+        /// </summary>
         Nearby,
-        Towing,
+        /// <summary>
+        /// This aircraft is on our tow
+        /// </summary>
+        Tow,
+        /// <summary>
+        /// This encounter is our tug
+        /// </summary>
         Tug
     }
 }
