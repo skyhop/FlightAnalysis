@@ -38,14 +38,14 @@ namespace Skyhop.FlightAnalysis.Tests
                 Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.DepartureTime?.Ticks);
             };
 
-            //fc.OnLaunchCompleted += (sender, args) =>
-            //{
-            //    countdownEvent.Signal();
+            fc.OnLaunchCompleted += (sender, args) =>
+            {
+                countdownEvent.Signal();
 
-            //    Assert.AreEqual(LaunchMethods.Winch, ((Experimental.FlightContext)sender).Flight.LaunchMethod);
-            //    Assert.AreEqual(636272591974670004, ((Experimental.FlightContext)sender).Flight.LaunchFinished?.Ticks);
-            //    Assert.AreEqual(244, ((Experimental.FlightContext)sender).Flight.DepartureHeading);
-            //};
+                Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
+                Assert.AreEqual(636272591974670004, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
+                Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
+            };
 
             fc.OnLanding += (sender, args) =>
             {

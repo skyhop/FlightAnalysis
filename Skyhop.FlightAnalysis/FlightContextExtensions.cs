@@ -1,6 +1,7 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static Skyhop.FlightAnalysis.Internal.Geo;
 
@@ -12,7 +13,7 @@ namespace Skyhop.FlightAnalysis
         {
             var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke(
                 context.CurrentPosition.Location,
-                0.2)
+                0.5)
                 .ToList();
 
             if (nearbyAircraft != null && nearbyAircraft.Count > 0)
@@ -27,9 +28,11 @@ namespace Skyhop.FlightAnalysis
                 {
                     var status = context.DetermineTowStatus(aircraft);
 
+                    if (status == null) return (null, AircraftRelation.None);
+
                     if (status != AircraftRelation.None)
                     {
-                        return (aircraft, status);
+                        return (aircraft, status.Value);
                     }
                 }
             }
@@ -37,16 +40,29 @@ namespace Skyhop.FlightAnalysis
             return null;
         }
 
-        internal static AircraftRelation DetermineTowStatus(this FlightContext context1, FlightContext context2)
+        internal static AircraftRelation? DetermineTowStatus(this FlightContext context1, FlightContext context2)
         {
             var c2Position = context2.GetPositionAt(context1.CurrentPosition.TimeStamp);
+
+            if (c2Position == null) return null;
 
             if (context1.CurrentPosition.Location.DistanceTo(c2Position.Location) > 200)
             {
                 return AircraftRelation.None;
             }
 
-            var bearing = context1.CurrentPosition.Location.DegreeBearing(c2Position.Location);
+            // Calculate the average bearing to remove uncertainty
+            var bearings = new List<double>();
+
+            for (var i = context1.Flight.PositionUpdates.Count - 1; i > 0; i--)
+            {
+                var p1 = context1.Flight.PositionUpdates[i];
+                var p2 = context2.GetPositionAt(p1.TimeStamp);
+
+                bearings.Add(p1.Location.DegreeBearing(p2.Location));
+            }
+
+            var bearing = bearings.Average();
 
             return 90 < bearing && bearing < 270
                 ? AircraftRelation.OnTow

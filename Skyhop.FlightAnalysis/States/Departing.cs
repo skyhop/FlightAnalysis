@@ -62,6 +62,8 @@ namespace Skyhop.FlightAnalysis
                             Start = isTow.Value.context.Flight.DepartureTime,
                             Type = EncounterType.Tug
                         });
+
+                        context.StateMachine.Fire(FlightContext.Trigger.TrackAerotow);
                     }
                     else if (isTow.Value.status == Geo.AircraftRelation.Towplane)
                     {
@@ -72,11 +74,12 @@ namespace Skyhop.FlightAnalysis
                             Start = isTow.Value.context.Flight.DepartureTime,
                             Type = EncounterType.Tow
                         });
-                    }
 
-                    context.StateMachine.Fire(FlightContext.Trigger.TrackAerotow);
-                    return;
+                        context.StateMachine.Fire(FlightContext.Trigger.TrackAerotow);
+                    }
                 }
+
+                return;
             }
 
             // Hardwire a check to see if we're sinking again to abort the departure, but only if we're not behind a tow.

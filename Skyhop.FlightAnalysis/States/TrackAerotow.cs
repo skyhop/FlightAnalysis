@@ -25,6 +25,8 @@ namespace Skyhop.FlightAnalysis
 
             var status = context.DetermineTowStatus(otherContext);
 
+            if (status == null) return; // (Try again next time)
+
             if (status == Internal.Geo.AircraftRelation.None
                 || (target.Type == Models.EncounterType.Tow && status != Internal.Geo.AircraftRelation.Towplane)
                 || (target.Type == Models.EncounterType.Tug && status != Internal.Geo.AircraftRelation.OnTow))
