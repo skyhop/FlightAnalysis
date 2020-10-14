@@ -9,7 +9,7 @@ namespace Skyhop.FlightAnalysis
 {
     public static class FlightContextExtensions
     {
-        internal static IEnumerable<Encounter> IsAerotow(this FlightContext context)
+        internal static IEnumerable<Encounter> TowEncounter(this FlightContext context)
         {
             var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke(
                 context.CurrentPosition.Location,
@@ -20,9 +20,9 @@ namespace Skyhop.FlightAnalysis
 
             foreach (var aircraft in nearbyAircraft)
             {
-                var status = context.DetermineTowStatus(aircraft);
+                var iAm = context.WhatAmI(aircraft);
 
-                if (status == AircraftRelation.OnTow)
+                if (iAm == AircraftRelation.OnTow)
                 {
                     yield return new Encounter
                     {
@@ -31,7 +31,7 @@ namespace Skyhop.FlightAnalysis
                         Type = EncounterType.Tug
                     };
                 }
-                else if (status == AircraftRelation.Towplane)
+                else if (iAm == AircraftRelation.Towplane)
                 {
                     yield return new Encounter
                     {
@@ -43,7 +43,7 @@ namespace Skyhop.FlightAnalysis
             }
         }
 
-        internal static AircraftRelation DetermineTowStatus(this FlightContext context1, FlightContext context2)
+        internal static AircraftRelation WhatAmI(this FlightContext context1, FlightContext context2)
         {
             var c2Position = context2.GetPositionAt(context1.CurrentPosition.TimeStamp);
 
@@ -64,14 +64,18 @@ namespace Skyhop.FlightAnalysis
                 var p1 = context1.Flight.PositionUpdates[i];
                 var p2 = context2.GetPositionAt(p1.TimeStamp);
 
+                if (Math.Abs(p1.Speed - p2.Speed) > 10
+                    || Math.Abs(p1.Altitude - p2.Altitude) > 100
+                    || p1.Location.DistanceTo(p2.Location) > 200) return AircraftRelation.None;
+
                 bearings.Add(p1.Location.DegreeBearing(p2.Location));
             }
 
             var bearing = bearings.Average();
 
             return 90 < bearing && bearing < 270
-                ? AircraftRelation.OnTow
-                : AircraftRelation.Towplane;
+                ? AircraftRelation.Towplane
+                : AircraftRelation.OnTow;
         }
 
         internal static AircraftRelation TrackTow(this FlightContext context1, FlightContext context2)

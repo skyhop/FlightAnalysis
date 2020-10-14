@@ -23,13 +23,13 @@ namespace Skyhop.FlightAnalysis
 
             var otherContext = context.Options.AircraftAccessor(target.Aircraft);
 
-            var status = context.DetermineTowStatus(otherContext);
+            var iAm = context.WhatAmI(otherContext);
 
-            if (status == null) return; // (Try again next time)
+            if (iAm == null) return; // (I'm nothing. Try again next time)
 
-            if (status == Internal.Geo.AircraftRelation.None
-                || (target.Type == Models.EncounterType.Tow && status != Internal.Geo.AircraftRelation.Towplane)
-                || (target.Type == Models.EncounterType.Tug && status != Internal.Geo.AircraftRelation.OnTow))
+            if (iAm == Internal.Geo.AircraftRelation.None
+                || (target.Type == Models.EncounterType.Tow && iAm != Internal.Geo.AircraftRelation.Towplane)
+                || (target.Type == Models.EncounterType.Tug && iAm != Internal.Geo.AircraftRelation.OnTow))
             {
                 target.End = context.CurrentPosition.TimeStamp;
                 context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);

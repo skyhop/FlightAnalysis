@@ -206,6 +206,8 @@ namespace Skyhop.FlightAnalysis
             var dX = p2.Location.X - p1.Location.X;
             var dY = p2.Location.Y - p1.Location.Y;
             var dT = (p2.TimeStamp - p1.TimeStamp).Ticks;
+            var dA = p2.Altitude - p1.Altitude;
+            var dS = p2.Speed - p1.Speed;
 
             if (dT == 0) return null;
 
@@ -215,7 +217,10 @@ namespace Skyhop.FlightAnalysis
                 Options.AircraftId,
                 new DateTime((long)(p1.TimeStamp.Ticks + dT * factor)),
                 p1.Location.Y + factor * dY,
-                p1.Location.X + factor * dX);
+                p1.Location.X + factor * dX,
+                p1.Altitude + dA * factor,
+                p1.Speed + dS * factor,
+                double.NaN);
         }
 
 #if RELEASE

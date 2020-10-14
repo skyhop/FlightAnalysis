@@ -69,12 +69,6 @@ namespace Skyhop.FlightAnalysis
 
                 context.InvokeOnLandingEvent();
 
-                /*
-                 * In order to prevent the machine from reusing a totally irrelevant data point, remove this one 
-                 * to force the machine to collect new data, or to estimate a reasonable departure time.
-                 */
-
-                //context.CurrentPosition = null;
                 context.StateMachine.Fire(FlightContext.Trigger.Arrived);
             }
             else if (!(context.Flight.ArrivalInfoFound ?? true)

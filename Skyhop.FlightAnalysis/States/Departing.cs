@@ -46,17 +46,19 @@ namespace Skyhop.FlightAnalysis
 
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))
             {
-                var encounters = context
-                    .IsAerotow();
-                    
+                var encounters = context.TowEncounter().ToList();
+
+                if (encounters.Count(q => q.Type == EncounterType.Tug || q.Type == EncounterType.Tow) > 1) return;
+
                 var encounter = encounters.SingleOrDefault(q => q.Type == EncounterType.Tug || q.Type == EncounterType.Tow);
 
                 if (encounter != null)
                 {
                     context.Flight.LaunchMethod = LaunchMethods.Aerotow
                         | (encounter.Type == EncounterType.Tug
-                            ? LaunchMethods.OnTow
-                            : LaunchMethods.TowPlane);
+                            ? LaunchMethods.TowPlane
+                            : LaunchMethods.OnTow
+                        );
 
                     context.Flight.Encounters.Add(encounter);
 
@@ -66,15 +68,6 @@ namespace Skyhop.FlightAnalysis
                 }
 
                 context.Flight.LaunchMethod &= ~LaunchMethods.Aerotow;
-            }
-
-            // Hardwire a check to see if we're sinking again to abort the departure, but only if we're not behind a tow.
-            if (!context.Flight.LaunchMethod.HasFlag(LaunchMethods.Aerotow)
-                && context.Flight.PositionUpdates.Last().Altitude - context.CurrentPosition.Altitude > 3)
-            {
-                // ToDo: Create a theory about the used launch method
-                context.StateMachine.Fire(FlightContext.Trigger.Landing);
-                return;
             }
 
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown))
@@ -102,6 +95,7 @@ namespace Skyhop.FlightAnalysis
                     // ToDo: Add check to see whether there is another aircraft nearby
                     if (context.Flight.PositionUpdates
                             .Skip(1)
+                            .Where(q => interpolation.Differentiate((context.CurrentPosition.TimeStamp - context.Flight.DepartureTime.Value).TotalSeconds) > 0)
                             .Select(q => Geo.GetHeadingError(averageHeading, q.Heading))
                             .Any(q => q > 20)
                         || Geo.DistanceTo(
