@@ -68,7 +68,7 @@ namespace Skyhop.FlightAnalysis
                     || Math.Abs(p1.Altitude - p2.Altitude) > 100
                     || p1.Location.DistanceTo(p2.Location) > 200) return AircraftRelation.None;
 
-                bearings.Add(p1.Location.DegreeBearing(p2.Location));
+                bearings.Add((p1.Location.DegreeBearing(p2.Location) - p1.Heading + 360) % 360);
             }
 
             var bearing = bearings.Average();

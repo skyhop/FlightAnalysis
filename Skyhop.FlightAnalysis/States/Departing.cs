@@ -56,8 +56,8 @@ namespace Skyhop.FlightAnalysis
                 {
                     context.Flight.LaunchMethod = LaunchMethods.Aerotow
                         | (encounter.Type == EncounterType.Tug
-                            ? LaunchMethods.TowPlane
-                            : LaunchMethods.OnTow
+                            ? LaunchMethods.OnTow
+                            : LaunchMethods.TowPlane
                         );
 
                     context.Flight.Encounters.Add(encounter);
