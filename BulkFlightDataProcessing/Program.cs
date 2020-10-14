@@ -34,7 +34,7 @@ namespace BulkFlightDataProcessing
 
             using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-Sept.csv"))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            using (var writer = new StreamWriter("./experimental-logs-sept-6.csv"))
+            using (var writer = new StreamWriter("./experimental-logs-sept-7.csv"))
             using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 var lines = csv.GetRecords<CsvData>();

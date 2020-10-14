@@ -46,9 +46,10 @@ namespace Skyhop.FlightAnalysis
 
             if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Aerotow))
             {
-                var encounter = context
-                    .IsAerotow()
-                    .SingleOrDefault(q => q.Type == EncounterType.Tug || q.Type == EncounterType.Tow);
+                var encounters = context
+                    .IsAerotow();
+                    
+                var encounter = encounters.SingleOrDefault(q => q.Type == EncounterType.Tug || q.Type == EncounterType.Tow);
 
                 if (encounter != null)
                 {
@@ -71,11 +72,12 @@ namespace Skyhop.FlightAnalysis
             if (!context.Flight.LaunchMethod.HasFlag(LaunchMethods.Aerotow)
                 && context.Flight.PositionUpdates.Last().Altitude - context.CurrentPosition.Altitude > 3)
             {
+                // ToDo: Create a theory about the used launch method
                 context.StateMachine.Fire(FlightContext.Trigger.Landing);
                 return;
             }
 
-            if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Winch))
+            if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown))
             {
                 var x = new DenseVector(context.Flight.PositionUpdates.Select(w => (w.TimeStamp - context.Flight.DepartureTime.Value).TotalSeconds).ToArray());
                 var y = new DenseVector(context.Flight.PositionUpdates.Select(w => w.Altitude).ToArray());
@@ -94,34 +96,28 @@ namespace Skyhop.FlightAnalysis
                 // When the initial climb has completed
                 if (interpolation.Differentiate((context.CurrentPosition.TimeStamp - context.Flight.DepartureTime.Value).TotalSeconds) < 0)
                 {
-                    var averageHeading = context.Flight.PositionUpdates.Average(q => q.Heading);
+                    // Skip the first element because heading is 0 when in rest
+                    var averageHeading = context.Flight.PositionUpdates.Skip(1).Average(q => q.Heading);
 
                     // ToDo: Add check to see whether there is another aircraft nearby
                     if (context.Flight.PositionUpdates
-                            .Skip(1)        // Skip the first element because heading is 0 when in rest
+                            .Skip(1)
                             .Select(q => Geo.GetHeadingError(averageHeading, q.Heading))
                             .Any(q => q > 20)
                         || Geo.DistanceTo(
                             context.Flight.PositionUpdates.First().Location,
                             context.CurrentPosition.Location) > 3000)
                     {
-                        context.Flight.LaunchMethod &= ~LaunchMethods.Winch;
-                    }
-                    else
+                        context.Flight.LaunchMethod = LaunchMethods.Self;
+                    } else
                     {
-                        context.Flight.LaunchFinished = context.CurrentPosition.TimeStamp;
                         context.Flight.LaunchMethod = LaunchMethods.Winch;
-                        context.InvokeOnLaunchCompletedEvent();
-                        context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
                     }
+
+                    context.Flight.LaunchFinished = context.CurrentPosition.TimeStamp;
+                    context.InvokeOnLaunchCompletedEvent();
+                    context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
                 }
-            }
-            else if (context.Flight.LaunchMethod.HasFlag(LaunchMethods.Unknown | LaunchMethods.Self))
-            {
-                context.Flight.LaunchFinished = context.CurrentPosition.TimeStamp;
-                context.Flight.LaunchMethod = LaunchMethods.Self;
-                context.InvokeOnLaunchCompletedEvent();
-                context.StateMachine.Fire(FlightContext.Trigger.LaunchCompleted);
             }
         }
     }

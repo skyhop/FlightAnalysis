@@ -74,7 +74,7 @@ namespace Skyhop.FlightAnalysis
                  * to force the machine to collect new data, or to estimate a reasonable departure time.
                  */
 
-                context.CurrentPosition = null;
+                //context.CurrentPosition = null;
                 context.StateMachine.Fire(FlightContext.Trigger.Arrived);
             }
             else if (!(context.Flight.ArrivalInfoFound ?? true)

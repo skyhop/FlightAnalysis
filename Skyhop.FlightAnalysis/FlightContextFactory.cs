@@ -18,8 +18,8 @@ namespace Skyhop.FlightAnalysis
     {
         // ToDo: Possible performance improvement over here
         private readonly SpatialMap<PositionUpdate> _map = new SpatialMap<PositionUpdate>(
-            q => Math.Cos(Math.PI / 180 * q.Location.Y) * 111 * q.Location.X,
-            q => q.Location.Y * 111);
+            q => q != null ? Math.Cos(Math.PI / 180 * q.Location.Y) * 111 * q.Location.X : 0,
+            q => q != null ? q.Location.Y * 111 : 0);
 
         private readonly ConcurrentDictionary<string, FlightContext> _flightContextDictionary =
             new ConcurrentDictionary<string, FlightContext>();
@@ -110,6 +110,11 @@ namespace Skyhop.FlightAnalysis
                 {
                     _map.Add(positionUpdate);
                     _map.Remove(previousPoint);
+
+                    if (_map.Nearby(previousPoint, 2).ToList().Count(q => q.Aircraft == positionUpdate.Aircraft) > 1)
+                    {
+                        Debugger.Break();
+                    }
                 }
             }
         }
