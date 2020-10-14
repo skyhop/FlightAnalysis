@@ -9,48 +9,53 @@ namespace Skyhop.FlightAnalysis
 {
     public static class FlightContextExtensions
     {
-        internal static (FlightContext context, AircraftRelation status)? IsAerotow(this FlightContext context)
+        internal static IEnumerable<Encounter> IsAerotow(this FlightContext context)
         {
             var nearbyAircraft = context.Options.NearbyAircraftAccessor?.Invoke(
                 context.CurrentPosition.Location,
                 0.5)
                 .ToList();
 
-            if (nearbyAircraft != null && nearbyAircraft.Count > 0)
+            if (nearbyAircraft == null) yield break;
+
+            foreach (var aircraft in nearbyAircraft)
             {
-                if (nearbyAircraft.Any(q => q.Flight.DepartureTime == null))
+                var status = context.DetermineTowStatus(aircraft);
+
+                if (status == AircraftRelation.OnTow)
                 {
-                    // We'll have to wait until those are departed.
-                    return (null, AircraftRelation.None);
-                }
-
-                foreach (var aircraft in nearbyAircraft)
-                {
-                    var status = context.DetermineTowStatus(aircraft);
-
-                    if (status == null) return (null, AircraftRelation.None);
-
-                    if (status != AircraftRelation.None)
+                    yield return new Encounter
                     {
-                        return (aircraft, status.Value);
-                    }
+                        Aircraft = aircraft.Options.AircraftId,
+                        Start = aircraft.Flight.DepartureTime,
+                        Type = EncounterType.Tug
+                    };
+                }
+                else if (status == AircraftRelation.Towplane)
+                {
+                    yield return new Encounter
+                    {
+                        Aircraft = aircraft.Options.AircraftId,
+                        Start = aircraft.Flight.DepartureTime,
+                        Type = EncounterType.Tow
+                    };
                 }
             }
-
-            return null;
         }
 
-        internal static AircraftRelation? DetermineTowStatus(this FlightContext context1, FlightContext context2)
+        internal static AircraftRelation DetermineTowStatus(this FlightContext context1, FlightContext context2)
         {
             var c2Position = context2.GetPositionAt(context1.CurrentPosition.TimeStamp);
 
-            if (c2Position == null) return null;
-
-            if (context1.CurrentPosition.Location.DistanceTo(c2Position.Location) > 200)
+            // In this case we conclusively know there's nothing to be found
+            if (c2Position == null
+                || context2.CurrentPosition == null
+                || (context1.CurrentPosition.TimeStamp - context2.CurrentPosition.TimeStamp).TotalSeconds > 30
+                || context1.CurrentPosition.Location.DistanceTo(c2Position.Location) > 200)
             {
                 return AircraftRelation.None;
             }
-
+            
             // Calculate the average bearing to remove uncertainty
             var bearings = new List<double>();
 
