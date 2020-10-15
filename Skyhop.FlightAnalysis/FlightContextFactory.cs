@@ -33,13 +33,6 @@ namespace Skyhop.FlightAnalysis
         public FlightContextFactory(Action<FlightContextFactoryOptions> options = default)
         {
             options?.Invoke(Options);
-
-            // Start a timer to remove outtimed context instances.
-            //new Timer
-            //{
-            //    Enabled = true,
-            //    Interval = 10000
-            //}.Elapsed += (sender, args) => TimerOnElapsed();
         }
 
         public FlightContextFactory(IEnumerable<Flight> flights, Action<FlightContextFactoryOptions> options = default)
@@ -50,46 +43,9 @@ namespace Skyhop.FlightAnalysis
             }
 
             options?.Invoke(Options);
-
-            // Start a timer to remove outtimed context instances.
-            //new Timer
-            //{
-            //    Enabled = true,
-            //    Interval = 10000
-            //}.Elapsed += (sender, arguments) => TimerOnElapsed();
         }
 
         public IEnumerable<string> TrackedAircraft => _flightContextDictionary.Select(q => q.Key);
-
-        private void TimerOnElapsed()
-        {
-            var contextsToRemove =
-                _flightContextDictionary
-                    .Where(q => q.Value.LastActive < DateTime.UtcNow.Add(-Options.ContextExpiration))
-                    .Select(q => q.Key);
-
-            foreach (var contextId in contextsToRemove)
-            {
-                _flightContextDictionary.TryRemove(contextId, out FlightContext context);
-
-                var latest = context.CurrentPosition ?? context.Flight.PositionUpdates.LastOrDefault();
-
-                if (latest != null)
-                {
-                    _map.Remove(latest);
-                }
-
-                try
-                {
-# warning fix before release
-                    //OnContextDispose?.Invoke(this, new OnContextDisposedEventArgs(context));
-                }
-                catch (Exception ex)
-                {
-                    Trace.Write(ex);
-                }
-            }
-        }
 
         /// <summary>
         /// Queue a position update on the FlightContextFactory. The FlightContextFactory will handle further 

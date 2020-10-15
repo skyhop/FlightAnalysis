@@ -48,8 +48,6 @@ namespace Skyhop.FlightAnalysis
         internal PositionUpdate CurrentPosition;
         internal DateTime LatestTimeStamp;
 
-        public DateTime LastActive { get; private set; }
-
         public FlightContext(FlightContextOptions options)
         {
             Options = options;
@@ -107,8 +105,6 @@ namespace Skyhop.FlightAnalysis
 
             Options.AircraftId = flight.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
             Flight = flight;
-
-            LastActive = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -155,8 +151,6 @@ namespace Skyhop.FlightAnalysis
 
             Flight.PositionUpdates.Add(positionUpdate);
 
-            LastActive = DateTime.UtcNow;
-
             return true;
         }
 
@@ -173,8 +167,6 @@ namespace Skyhop.FlightAnalysis
             {
                 Process(update);
             }
-
-            LastActive = DateTime.UtcNow;
         }
 
         public PositionUpdate GetPositionAt(DateTime timestamp)
