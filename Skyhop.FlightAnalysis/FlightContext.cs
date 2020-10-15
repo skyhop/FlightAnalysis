@@ -217,13 +217,12 @@ namespace Skyhop.FlightAnalysis
                 double.NaN);
         }
 
-#if RELEASE
-#error REMOVE BEFORE PUBLISH
-#endif
+#if DEBUG
         public string ToDotGraph()
         {
             return UmlDotGraph.Format(StateMachine.GetInfo());
         }
+#endif
 
         /*
          * By wrapping the event invocation in try catch blocks we can prevent that the context abruptly ends because
