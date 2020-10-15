@@ -148,6 +148,7 @@ namespace Skyhop.FlightAnalysis.Internal
         internal enum AircraftRelation
         {
             None,
+            Indeterministic,
             Towplane,
             OnTow
         }

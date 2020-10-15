@@ -41,6 +41,7 @@ namespace Skyhop.FlightAnalysis
                         Type = EncounterType.Tow
                     };
                 }
+                else if (iAm == AircraftRelation.Indeterministic) yield return null;
             }
         }
 
@@ -48,12 +49,17 @@ namespace Skyhop.FlightAnalysis
         {
             var c2Position = context2.GetPositionAt(context1.CurrentPosition.TimeStamp);
 
-            // In this case we conclusively know there's nothing to be found
             if (c2Position == null
+                && Math.Abs((context1.Flight.DepartureTime - context2.Flight.DepartureTime)?.TotalSeconds ?? 21) < 30)
+            {
+                return AircraftRelation.Indeterministic;
+            }
+            else if (c2Position == null
                 || context2.CurrentPosition == null
                 || (context1.CurrentPosition.TimeStamp - context2.CurrentPosition.TimeStamp).TotalSeconds > 30
                 || context1.CurrentPosition.Location.DistanceTo(c2Position.Location) > 200)
             {
+                // In this case we conclusively know there's nothing to be found
                 return AircraftRelation.None;
             }
             

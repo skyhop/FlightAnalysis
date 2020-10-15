@@ -48,9 +48,9 @@ namespace Skyhop.FlightAnalysis
             {
                 var encounters = context.TowEncounter().ToList();
 
-                if (encounters.Count(q => q.Type == EncounterType.Tug || q.Type == EncounterType.Tow) > 1) return;
+                if (encounters.Count(q => q?.Type == EncounterType.Tug || q?.Type == EncounterType.Tow) > 1) return;
 
-                var encounter = encounters.SingleOrDefault(q => q.Type == EncounterType.Tug || q.Type == EncounterType.Tow);
+                var encounter = encounters.SingleOrDefault(q => q?.Type == EncounterType.Tug || q?.Type == EncounterType.Tow);
 
                 if (encounter != null)
                 {
@@ -64,6 +64,10 @@ namespace Skyhop.FlightAnalysis
 
                     context.StateMachine.Fire(FlightContext.Trigger.TrackAerotow);
 
+                    return;
+                } 
+                else if (encounters.Any(q => q == null))
+                {
                     return;
                 }
 
