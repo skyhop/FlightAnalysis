@@ -197,11 +197,13 @@ namespace Skyhop.FlightAnalysis
                 p2 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 1];
             } else
             {
-                var index = Flight.PositionUpdates.FindIndex(q => q.TimeStamp > timestamp);
-
+                var index = Flight.PositionUpdates.FindIndex(q => q.TimeStamp >= timestamp);
                 p1 = Flight.PositionUpdates[index - 1];
                 p2 = Flight.PositionUpdates[index];
             }
+
+            if (p1.TimeStamp.Equals(timestamp)) return p1;
+            else if (p2.TimeStamp.Equals(timestamp)) return p2;
 
             var dX = p2.Location.X - p1.Location.X;
             var dY = p2.Location.Y - p1.Location.Y;

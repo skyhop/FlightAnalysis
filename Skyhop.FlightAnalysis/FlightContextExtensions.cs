@@ -1,4 +1,5 @@
-﻿using Skyhop.FlightAnalysis.Internal;
+﻿using NetTopologySuite.Algorithm;
+using Skyhop.FlightAnalysis.Internal;
 using Skyhop.FlightAnalysis.Models;
 using System;
 using System.Collections.Generic;
@@ -59,19 +60,21 @@ namespace Skyhop.FlightAnalysis
             // Calculate the average bearing to remove uncertainty
             var bearings = new List<double>();
 
-            for (var i = context1.Flight.PositionUpdates.Count - 1; i > 0; i--)
+            for (var i = context1.Flight.PositionUpdates.Count - 1; i >= 0; i--)
             {
                 var p1 = context1.Flight.PositionUpdates[i];
                 var p2 = context2.GetPositionAt(p1.TimeStamp);
 
-                if (Math.Abs(p1.Speed - p2.Speed) > 10
+                if (Math.Abs(p1.Speed - p2.Speed) > 20
                     || Math.Abs(p1.Altitude - p2.Altitude) > 100
                     || p1.Location.DistanceTo(p2.Location) > 200) return AircraftRelation.None;
 
-                bearings.Add((p1.Location.DegreeBearing(p2.Location) - p1.Heading + 360) % 360);
+                var angle = (p1.Location.DegreeBearing(p2.Location) - p1.Heading + 360) % 360;
+                
+                bearings.Add(angle);
             }
 
-            var bearing = bearings.Average();
+            var bearing = Geo.MeanAngle(bearings.ToArray());
 
             return 90 < bearing && bearing < 270
                 ? AircraftRelation.Towplane
