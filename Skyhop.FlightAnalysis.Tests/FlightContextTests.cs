@@ -29,7 +29,7 @@ namespace Skyhop.FlightAnalysis.Tests
         {
             var fc = new FlightContext("6770");  
 
-            var countdownEvent = new CountdownEvent(2);
+            var countdownEvent = new CountdownEvent(3);
 
             fc.OnTakeoff += (sender, args) =>
             {
@@ -43,7 +43,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 countdownEvent.Signal();
 
                 Assert.AreEqual(LaunchMethods.Winch, ((FlightContext)sender).Flight.LaunchMethod);
-                Assert.AreEqual(636272591974670004, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
+                Assert.AreEqual(636272591835295201, ((FlightContext)sender).Flight.LaunchFinished?.Ticks);
                 Assert.AreEqual(244, ((FlightContext)sender).Flight.DepartureHeading);
             };
 

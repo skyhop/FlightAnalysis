@@ -92,8 +92,8 @@ namespace Skyhop.FlightAnalysis.Tests
                 .FindNearby(new Point(4.356565, 51.452385), 2.2)
                 .ToList();
 
-            Assert.AreEqual(6, nearby.Count());
-            Assert.AreEqual("5657", nearby.First().Flight.Aircraft);
+            Assert.AreEqual(2, nearby.Count());
+            Assert.AreEqual("6770", nearby.First().Flight.Aircraft);
         }
 
         [TestMethod]
