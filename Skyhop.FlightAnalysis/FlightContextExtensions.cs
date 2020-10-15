@@ -57,7 +57,6 @@ namespace Skyhop.FlightAnalysis
                 return AircraftRelation.None;
             }
             
-            // Calculate the average bearing to remove uncertainty
             var bearings = new List<double>();
 
             for (var i = context1.Flight.PositionUpdates.Count - 1; i >= 0; i--)
@@ -65,10 +64,13 @@ namespace Skyhop.FlightAnalysis
                 var p1 = context1.Flight.PositionUpdates[i];
                 var p2 = context2.GetPositionAt(p1.TimeStamp);
 
+                // If this statement is true, the changes that our interpolation is right are getting more slim by the tick.
+                if (p1.TimeStamp < context2.Flight.PositionUpdates[0].TimeStamp) break;
+                
                 if (Math.Abs(p1.Speed - p2.Speed) > 20
                     || Math.Abs(p1.Altitude - p2.Altitude) > 100
                     || p1.Location.DistanceTo(p2.Location) > 200) return AircraftRelation.None;
-
+                
                 var angle = (p1.Location.DegreeBearing(p2.Location) - p1.Heading + 360) % 360;
                 
                 bearings.Add(angle);
