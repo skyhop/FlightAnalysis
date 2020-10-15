@@ -200,7 +200,6 @@ namespace Skyhop.FlightAnalysis
             var context = new FlightContext(flight, options =>
             {
                 options.AircraftId = flight.Aircraft;
-                options.MinimumRequiredPositionUpdateCount = Options.MinimumRequiredPositionUpdateCount;
                 options.NearbyRunwayAccessor = Options.NearbyRunwayAccessor;
 
                 options.AircraftAccessor = 
