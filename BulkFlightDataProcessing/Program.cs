@@ -34,7 +34,7 @@ namespace BulkFlightDataProcessing
 
             using (var reader = new StreamReader(@"C:\Users\Corstian\Projects\Whaally\Skyhop\EHGR-Sept.csv"))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            using (var writer = new StreamWriter("./experimental-logs-sept-5.csv"))
+            using (var writer = new StreamWriter("./experimental-logs-sept-92.csv"))
             using (var csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 var lines = csv.GetRecords<CsvData>();
@@ -57,13 +57,13 @@ namespace BulkFlightDataProcessing
                         args.Flight.DepartureHeading,
                         DepartureX = args.Flight.DepartureLocation?.X,
                         DepartureY = args.Flight.DepartureLocation?.Y,
-                        args.Flight.StartTime,
+                        args.Flight.DepartureTime,
                         args.Flight.DepartureInfoFound,
                         args.Flight.LaunchMethod,
                         args.Flight.ArrivalHeading,
                         ArrivalX = args.Flight.ArrivalLocation?.X,
                         ArrivalY = args.Flight.ArrivalLocation?.Y,
-                        args.Flight.EndTime,
+                        args.Flight.ArrivalTime,
                         args.Flight.ArrivalInfoFound,
                     };
 
@@ -72,7 +72,7 @@ namespace BulkFlightDataProcessing
                     csvWriter.Flush();
                 };
 
-                var timestamp = DateTime.Parse("2020-09-12T09:00:01");
+                var timestamp = DateTime.Parse("2020-09-05T15:00:01");
 
                 ff.Process(lines
                     //.Where(q => q.Timestamp > timestamp)

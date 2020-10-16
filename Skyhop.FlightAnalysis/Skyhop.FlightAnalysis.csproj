@@ -9,13 +9,13 @@
     <PackageReleaseNotes>Version 3.0.0 introduces breaking changes, as it is a rewrite of the previous version. Though the principles stayed the same, there are some subtle differences in the way this library is used, and the results it returns.</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
-    <Title>Boerman.FlightAnalysis</Title>
+    <Title>Skyhop.FlightAnalysis</Title>
     <Description>This library extracts flight metadata from the position reports of an aircraft such as the times and locations for departures and arrivals.</Description>
     <PackageId>Skyhop.FlightAnalysis</PackageId>
     <PackageProjectUrl>https://skyhop.org</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Skyhop/FlightAnalysis</RepositoryUrl>
-    <Version>3.0.0</Version>
+    <Version>3.1.0-beta1</Version>
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
@@ -31,6 +31,7 @@
     <Compile Remove="SpatialMap.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

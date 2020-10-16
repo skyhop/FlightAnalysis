@@ -46,13 +46,13 @@ namespace Skyhop.FlightAnalysis.Tests
         internal static void CompareDeparture(this FlightContext context, short heading, long ticks)
         {
             Assert.AreEqual(heading, context.Flight.DepartureHeading);
-            Assert.AreEqual(ticks, context.Flight.StartTime);
+            Assert.AreEqual(ticks, context.Flight.DepartureTime);
         }
 
         internal static void CompareArrival(this FlightContext context, short heading, long ticks)
         {
             Assert.AreEqual(heading, context.Flight.ArrivalHeading);
-            Assert.AreEqual(ticks, context.Flight.EndTime);
+            Assert.AreEqual(ticks, context.Flight.ArrivalTime);
         }
     }
 }

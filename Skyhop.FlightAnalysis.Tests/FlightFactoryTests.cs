@@ -28,7 +28,7 @@ namespace Skyhop.FlightAnalysis.Tests
             {
                 var ff = new FlightContextFactory();
 
-                var flightMetadata = new FlightMetadata
+                var flightMetadata = new Flight
                 {
                     Aircraft = "FLRDD056A",
                     Id = Guid.NewGuid()
@@ -49,7 +49,7 @@ namespace Skyhop.FlightAnalysis.Tests
             {
                 var ff = new FlightContextFactory();
 
-                var metadata = new FlightMetadata
+                var metadata = new Flight
                 {
                     Aircraft = "FLRDD056A"
                 };
@@ -69,7 +69,7 @@ namespace Skyhop.FlightAnalysis.Tests
             {
                 var ff = new FlightContextFactory();
 
-                var context = new FlightContext(new FlightMetadata
+                var context = new FlightContext(new Flight
                 {
                     Aircraft = "FLRDD056A"
                 });
@@ -92,8 +92,8 @@ namespace Skyhop.FlightAnalysis.Tests
                 .FindNearby(new Point(4.356565, 51.452385), 2.2)
                 .ToList();
 
-            Assert.AreEqual(6, nearby.Count());
-            Assert.AreEqual("5657", nearby.First().Flight.Aircraft);
+            Assert.AreEqual(2, nearby.Count());
+            Assert.AreEqual("6770", nearby.First().Flight.Aircraft);
         }
 
         [TestMethod]
@@ -130,14 +130,14 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 ff.OnTakeoff += (sender, args) =>
                 {
-                    Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime}");
+                    Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.DepartureTime}");
 
                     departureCounter++;
                 };
 
                 ff.OnLanding += (sender, args) =>
                 {
-                    Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.StartTime} - {args.Flight.EndTime}");
+                    Console.WriteLine($"{args.Flight.Aircraft}: {args.Flight.DepartureTime} - {args.Flight.ArrivalTime}");
                     arrivalCounter++;
                 };
 

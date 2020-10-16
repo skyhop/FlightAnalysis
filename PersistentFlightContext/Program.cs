@@ -40,12 +40,12 @@ namespace PersistentFlightContext
 
             FlightContextFactory.OnTakeoff += async (sender, e) => {
                 Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Took off from {e.Flight.DepartureLocation.X}, {e.Flight.DepartureLocation.Y}");
-                await StoreModelChange(e.Flight.Metadata);
+                await StoreModelChange(e.Flight);
             };
 
             FlightContextFactory.OnLanding += async (sender, e) => {
                 Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Landed at {e.Flight.ArrivalLocation.X}, {e.Flight.ArrivalLocation.Y}");
-                await StoreModelChange(e.Flight.Metadata);
+                await StoreModelChange(e.Flight);
             };
 
             FlightContextFactory.OnRadarContact += async (sender, e) => {
@@ -53,11 +53,11 @@ namespace PersistentFlightContext
 
                 Console.WriteLine($"{DateTime.UtcNow}: {e.Flight.Aircraft} - Radar contact at {lastPositionUpdate.Latitude}, {lastPositionUpdate.Longitude} @ {lastPositionUpdate.Altitude}ft {lastPositionUpdate.Heading.ToHeadingArrow()}");
 
-                await StoreModelChange(e.Flight.Metadata);
+                await StoreModelChange(e.Flight);
             };
 
             FlightContextFactory.OnCompletedWithErrors += async (sender, e) => {
-                await StoreModelChange(e.Flight.Metadata);
+                await StoreModelChange(e.Flight);
             };
 
             AprsClient = new Listener(new Config
@@ -90,7 +90,7 @@ namespace PersistentFlightContext
             Console.Read();
         }
 
-        static async Task StoreModelChange(FlightMetadata flight) {
+        static async Task StoreModelChange(Flight flight) {
             using (var db = new Database())
             {
                 var entry = await db.Flights.FindAsync(flight.Id);

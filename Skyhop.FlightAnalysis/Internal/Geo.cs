@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
@@ -52,6 +53,14 @@ namespace Skyhop.FlightAnalysis.Internal
         internal static double ToBearing(double radians)
         {
             return (ToDegrees(radians) + 360) % 360;
+        }
+
+        // Source: https://rosettacode.org/wiki/Averages/Mean_angle#C.23
+        internal static double MeanAngle(this double[] angles)
+        {
+            var x = angles.Sum(a => Math.Cos(a * Math.PI / 180)) / angles.Length;
+            var y = angles.Sum(a => Math.Sin(a * Math.PI / 180)) / angles.Length;
+            return Math.Abs(Math.Atan2(y, x) * 180 / Math.PI);
         }
 
         /// <summary>
@@ -139,6 +148,7 @@ namespace Skyhop.FlightAnalysis.Internal
         internal enum AircraftRelation
         {
             None,
+            Indeterministic,
             Towplane,
             OnTow
         }

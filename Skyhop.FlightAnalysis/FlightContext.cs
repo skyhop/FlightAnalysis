@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -19,35 +18,35 @@ namespace Skyhop.FlightAnalysis
     {
         public enum State
         {
-            None,
-            Initialization,
-            Stationary,
-            Departing,
-            Airborne,
-            Arriving
+            None = 0,
+            Initialization = 1,
+            Stationary = 2,
+            Departing = 3,
+            TrackAerotow = 4,
+            Airborne = 5,
+            Arriving = 6
         }
 
-        public enum Trigger
+        internal enum Trigger
         {
             Initialize,
             Next,
             TrackMovements,
             Depart,
+            TrackAerotow,
             LaunchCompleted,
             Landing,
             LandingAborted,
             Arrived
         }
 
-        public readonly StateMachine<State, Trigger> StateMachine;
+        internal readonly StateMachine<State, Trigger> StateMachine;
 
         public Flight Flight { get; internal set; }
 
         internal readonly FlightContextOptions Options = new FlightContextOptions();
         internal PositionUpdate CurrentPosition;
         internal DateTime LatestTimeStamp;
-
-        public DateTime LastActive { get; private set; }
 
         public FlightContext(FlightContextOptions options)
         {
@@ -57,11 +56,14 @@ namespace Skyhop.FlightAnalysis
         /// <summary>
         /// Initializes a new instance of the <see cref="FlightContext"/> class.
         /// </summary>
-        /// <param name="flightMetadata">When provided the flightMetadata parameter will set the flight information assuming previous 
+        /// <param name="flight">When provided the flightMetadata parameter will set the flight information assuming previous 
         /// processing has been done.</param>
-        public FlightContext(FlightMetadata flightMetadata, Action<FlightContextOptions> options)
+        public FlightContext(Flight flight, Action<FlightContextOptions> options)
         {
-            StateMachine = new StateMachine<State, Trigger>(State.None, FiringMode.Queued);
+            StateMachine = new StateMachine<State, Trigger>(
+                () => Flight.State,
+                state => Flight.State = state,
+                FiringMode.Queued);
 
             StateMachine.Configure(State.None)
                 .Permit(Trigger.Next, State.Initialization);
@@ -80,7 +82,13 @@ namespace Skyhop.FlightAnalysis
                 .OnEntry(this.Departing)
                 .PermitReentry(Trigger.Next)
                 .Permit(Trigger.LaunchCompleted, State.Airborne)
-                .Permit(Trigger.Landing, State.Arriving);
+                .Permit(Trigger.Landing, State.Arriving)
+                .Permit(Trigger.TrackAerotow, State.TrackAerotow);
+
+            StateMachine.Configure(State.TrackAerotow)
+                .OnEntry(this.TrackAerotow)
+                .PermitReentry(Trigger.Next)
+                .Permit(Trigger.LaunchCompleted, State.Airborne);
 
             StateMachine.Configure(State.Airborne)
                 .OnEntry(this.Airborne)
@@ -95,10 +103,8 @@ namespace Skyhop.FlightAnalysis
 
             options?.Invoke(Options);
 
-            Options.AircraftId = flightMetadata.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
-            Flight = flightMetadata.Flight;
-
-            LastActive = DateTime.UtcNow;
+            Options.AircraftId = flight.Aircraft;   // This line prevents the factory from crashing when the attach method is used.
+            Flight = flight;
         }
 
         /// <summary>
@@ -106,14 +112,14 @@ namespace Skyhop.FlightAnalysis
         /// </summary>
         /// <param name="aircraftId">Optional string used to identify this context.</param>
         public FlightContext(string aircraftId, Action<FlightContextOptions> options = default) : this(
-            new FlightMetadata
+            new Flight
             {
                 Aircraft = aircraftId
             },
             options)
         { }
 
-        public FlightContext(FlightMetadata flightMetadata) : this(flightMetadata, default) { }
+        public FlightContext(Flight flight) : this(flight, default) { }
 
         /// <summary>
         /// Queue a positionupdate for this specific context to process.
@@ -136,7 +142,7 @@ namespace Skyhop.FlightAnalysis
 
             StateMachine.Fire(Trigger.Next);
 
-            if (Flight.StartTime == null &&
+            if (Flight.DepartureTime == null &&
                 CurrentPosition?.Speed == 0)
             {
                 // We generally do not need to analyse ground based movements, hence discard this point.
@@ -144,8 +150,6 @@ namespace Skyhop.FlightAnalysis
             }
 
             Flight.PositionUpdates.Add(positionUpdate);
-
-            LastActive = DateTime.UtcNow;
 
             return true;
         }
@@ -163,24 +167,62 @@ namespace Skyhop.FlightAnalysis
             {
                 Process(update);
             }
-
-            LastActive = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// This method casually removes some position updates.
-        /// </summary>
-        internal void CleanupDataPoints()
+        public PositionUpdate GetPositionAt(DateTime timestamp)
         {
-            if (Options.MinifyMemoryPressure && Flight.PositionUpdates.Count > Options.MinimumRequiredPositionUpdateCount)
-                Flight.PositionUpdates.RemoveRange(0, Flight.PositionUpdates.Count - Options.MinimumRequiredPositionUpdateCount);
+            if (Flight.PositionUpdates.Count < 2) return null;
+
+            var first = Flight.PositionUpdates[0].TimeStamp;
+            var last = Flight.PositionUpdates[Flight.PositionUpdates.Count - 1].TimeStamp;
+
+            PositionUpdate p1 = null;
+            PositionUpdate p2 = null;
+
+            if (timestamp <= first)
+            {
+                p1 = Flight.PositionUpdates[0];
+                p2 = Flight.PositionUpdates[1];
+            } else if (timestamp >= last)
+            {
+                p1 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 2];
+                p2 = Flight.PositionUpdates[Flight.PositionUpdates.Count - 1];
+            } else
+            {
+                var index = Flight.PositionUpdates.FindIndex(q => q.TimeStamp >= timestamp);
+                p1 = Flight.PositionUpdates[index - 1];
+                p2 = Flight.PositionUpdates[index];
+            }
+
+            if (p1.TimeStamp.Equals(timestamp)) return p1;
+            else if (p2.TimeStamp.Equals(timestamp)) return p2;
+
+            var dX = p2.Location.X - p1.Location.X;
+            var dY = p2.Location.Y - p1.Location.Y;
+            var dT = (p2.TimeStamp - p1.TimeStamp).Ticks;
+            var dA = p2.Altitude - p1.Altitude;
+            var dS = p2.Speed - p1.Speed;
+
+            if (dT == 0) return null;
+
+            double factor = (timestamp.Ticks - p1.TimeStamp.Ticks) / (double)dT;
+
+            return new PositionUpdate(
+                Options.AircraftId,
+                new DateTime((long)(p1.TimeStamp.Ticks + dT * factor)),
+                p1.Location.Y + factor * dY,
+                p1.Location.X + factor * dX,
+                p1.Altitude + dA * factor,
+                p1.Speed + dS * factor,
+                double.NaN);
         }
 
-#warning REMOVE BEFORE PUBLISH
+#if DEBUG
         public string ToDotGraph()
         {
             return UmlDotGraph.Format(StateMachine.GetInfo());
         }
+#endif
 
         /*
          * By wrapping the event invocation in try catch blocks we can prevent that the context abruptly ends because

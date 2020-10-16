@@ -5,7 +5,7 @@ namespace PersistentFlightContext
 {
     public class Database : DbContext
     {
-        public DbSet<FlightMetadata> Flights { get; set; }
+        public DbSet<Flight> Flights { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
