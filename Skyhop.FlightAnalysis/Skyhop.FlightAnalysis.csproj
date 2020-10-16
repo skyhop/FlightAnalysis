@@ -9,7 +9,7 @@
     <PackageReleaseNotes>Version 3.0.0 introduces breaking changes, as it is a rewrite of the previous version. Though the principles stayed the same, there are some subtle differences in the way this library is used, and the results it returns.</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
-    <Title>Boerman.FlightAnalysis</Title>
+    <Title>Skyhop.FlightAnalysis</Title>
     <Description>This library extracts flight metadata from the position reports of an aircraft such as the times and locations for departures and arrivals.</Description>
     <PackageId>Skyhop.FlightAnalysis</PackageId>
     <PackageProjectUrl>https://skyhop.org</PackageProjectUrl>
