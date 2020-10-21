@@ -145,6 +145,30 @@ namespace Skyhop.FlightAnalysis.Internal
             return position;
         }
 
+        /// <summary>
+        /// More info on http://www.movable-type.co.uk/scripts/latlong.html
+        /// </summary>
+        /// <param name="point">Starting point</param>
+        /// <param name="heading">Heading in degrees</param>
+        /// <param name="distance">Distance in kilometers</param>
+        /// <returns></returns>
+        internal static Point HaversineExtrapolation(this Point point, double bearing, double distance)
+        {
+            // The earth's radius in km
+            const int R = 6371;
+
+            var φ1 = point.Y;   // φ is the latitude
+            var λ1 = point.X;   // λ is the longitude
+
+            var φ2 = Math.Asin(Math.Sin(φ1) * Math.Cos(distance / R) +
+                      Math.Cos(φ1) * Math.Sin(distance / R) * Math.Cos(bearing));
+
+            var λ2 = λ1 + Math.Atan2(Math.Sin(bearing) * Math.Sin(distance / R) * Math.Cos(φ1),
+                                       Math.Cos(distance / R) - Math.Sin(φ1) * Math.Sin(φ2));
+
+            return new Point(λ2, φ2);
+        }
+
         internal enum AircraftRelation
         {
             None,
