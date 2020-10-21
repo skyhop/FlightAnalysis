@@ -60,6 +60,7 @@ namespace Skyhop.FlightAnalysis
                 else if (start != null)
                 {
                     context.Flight.DepartureTime = start.TimeStamp;
+                    context.Flight.DepartureLocation = context.CurrentPosition.Location;
 
                     // Remove points not related to this flight
                     context.Flight.PositionUpdates

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
 using System.Linq;
 using System.Reactive.Linq;
@@ -36,6 +37,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 countdownEvent.Signal();
 
                 Assert.AreEqual(636272591685778931, ((FlightContext)sender).Flight.DepartureTime?.Ticks);
+                Assert.AreEqual(new Point(4.35683333333333, 51.4516666666667, 30), ((FlightContext)sender).Flight.DepartureLocation);
             };
 
             fc.OnLaunchCompleted += (sender, args) =>
@@ -53,6 +55,7 @@ namespace Skyhop.FlightAnalysis.Tests
 
                 Assert.AreEqual(636272628474023926, ((FlightContext)sender).Flight.ArrivalTime?.Ticks);
                 Assert.AreEqual(250, ((FlightContext)sender).Flight.ArrivalHeading);
+                Assert.AreEqual(new Point(4.35583333333333, 51.451, 39), ((FlightContext)sender).Flight.ArrivalLocation);
             };
 
             // These events should NOT be fired
