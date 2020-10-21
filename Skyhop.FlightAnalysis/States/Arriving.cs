@@ -45,7 +45,6 @@ namespace Skyhop.FlightAnalysis
 
             if (!arrival.Any()) return;
 
-
             if (context.CurrentPosition.Speed == 0)
             {
                 /*
@@ -88,6 +87,7 @@ namespace Skyhop.FlightAnalysis
                 // Take the average climbrate over the last few points
 
                 var climbrates = new List<double>();
+                var speeds = new List<double>();
 
                 for (var i = context.Flight.PositionUpdates.Count - 1; i > Math.Max(context.Flight.PositionUpdates.Count - 15, 0); i--)
                 {
@@ -97,6 +97,7 @@ namespace Skyhop.FlightAnalysis
                     var deltaAltitude = p1.Altitude - p2.Altitude;
                     var deltaTime = p1.TimeStamp - p2.TimeStamp;
 
+                    speeds.Add(p1.Speed);
                     climbrates.Add(deltaAltitude / deltaTime.TotalSeconds);
                 }
 
@@ -105,6 +106,7 @@ namespace Skyhop.FlightAnalysis
                     context.Flight.ArrivalTime = null;
                     context.Flight.ArrivalInfoFound = null;
                     context.Flight.ArrivalHeading = 0;
+                    context.Flight.ArrivalLocation = null;
                     return;
                 }
 
@@ -117,12 +119,17 @@ namespace Skyhop.FlightAnalysis
                     context.Flight.ArrivalTime = null;
                     context.Flight.ArrivalInfoFound = null;
                     context.Flight.ArrivalHeading = 0;
+                    context.Flight.ArrivalLocation = null;
                     return;
                 }
-
+                var averageHeading = arrival.Average(q => q.Heading);
                 context.Flight.ArrivalTime = context.CurrentPosition.TimeStamp.AddSeconds(ETUA);
                 context.Flight.ArrivalInfoFound = false;
-                context.Flight.ArrivalHeading = Convert.ToInt16(arrival.Average(q => q.Heading));
+                context.Flight.ArrivalHeading = Convert.ToInt16(averageHeading);
+                context.Flight.ArrivalLocation = context.CurrentPosition.Location.HaversineExtrapolation(
+                    averageHeading,
+                    speeds.Average() * 0.514444444 * ETUA);  // Knots to m/s times the estimated time until arrival
+                    
             }
         }
     }

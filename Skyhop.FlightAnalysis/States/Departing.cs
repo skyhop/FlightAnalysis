@@ -29,7 +29,6 @@ namespace Skyhop.FlightAnalysis
                 if (departure.Count > 4)
                 {
                     context.Flight.DepartureHeading = Convert.ToInt16(departure.Average(q => q.Heading));
-                    context.Flight.DepartureLocation = departure.First().Location;
 
                     if (context.Flight.DepartureHeading == 0) context.Flight.DepartureHeading = 360;
 

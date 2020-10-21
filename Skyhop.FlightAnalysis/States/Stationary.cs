@@ -48,6 +48,7 @@ namespace Skyhop.FlightAnalysis
                 {
                     // ToDo: Try to estimate the departure time
                     context.Flight.DepartureTime = context.CurrentPosition.TimeStamp;
+                    context.Flight.DepartureLocation = context.CurrentPosition.Location;
 
                     context.Flight.PositionUpdates
                         .Where(q => q.TimeStamp < context.Flight.DepartureTime.Value)
@@ -59,6 +60,7 @@ namespace Skyhop.FlightAnalysis
                 else if (start != null)
                 {
                     context.Flight.DepartureTime = start.TimeStamp;
+                    context.Flight.DepartureLocation = context.CurrentPosition.Location;
 
                     // Remove points not related to this flight
                     context.Flight.PositionUpdates
