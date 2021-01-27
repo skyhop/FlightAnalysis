@@ -48,11 +48,6 @@ namespace Skyhop.FlightAnalysis
         internal PositionUpdate CurrentPosition;
         internal DateTime LatestTimeStamp;
 
-        public FlightContext(FlightContextOptions options)
-        {
-            Options = options;
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="FlightContext"/> class.
         /// </summary>
