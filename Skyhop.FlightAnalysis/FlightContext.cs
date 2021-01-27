@@ -1,4 +1,5 @@
-﻿using Skyhop.FlightAnalysis.Models;
+﻿using Skyhop.FlightAnalysis.Internal;
+using Skyhop.FlightAnalysis.Models;
 using Stateless;
 using Stateless.Graph;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using UnitsNet;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -131,6 +133,15 @@ namespace Skyhop.FlightAnalysis
                 if (positionUpdate.Speed > 0 &&
                     CurrentPosition.Longitude == positionUpdate.Longitude
                     && CurrentPosition.Latitude == positionUpdate.Latitude) return false;
+
+                // Check whether the speed is alright
+                if (!double.IsFinite(positionUpdate.Speed))
+                {
+                    // Calcualte the distance
+                    var distance = CurrentPosition.Location.DistanceTo(positionUpdate.Location);
+                    var deltaTime = (positionUpdate.TimeStamp - CurrentPosition.TimeStamp).TotalSeconds;
+                    positionUpdate.Speed = Speed.FromMetersPerSecond(distance / deltaTime).Knots;
+                }
             }
 
             CurrentPosition = positionUpdate;
