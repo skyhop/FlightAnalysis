@@ -1,10 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
+using Skyhop.Igc;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
-using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace Skyhop.FlightAnalysis.Tests
 {
@@ -397,6 +398,39 @@ namespace Skyhop.FlightAnalysis.Tests
 
             Assert.AreEqual(4, pass);
             Assert.AreEqual(8, callbacks);
+        }
+
+        [TestMethod]
+        public void CanProcessIgcFile()
+        {
+            var fileContents = Common.ReadFile("20-09-19 17_31 PH-975.igc");
+
+            var igcFile = Parser.Parse(fileContents);
+
+            var context = new FlightContext(igcFile.Registration);
+
+            var positionUpdates = igcFile.Fixes.Select(q =>
+                new PositionUpdate(
+                    igcFile.Registration,
+                    q.Timestamp,
+                    q.Latitude,
+                    q.Longitude,
+                    q.PressureAltitude ?? q.GpsAltitude ?? double.NaN,
+                    double.NaN,
+                    double.NaN
+                )
+            ).ToList();
+
+            Flight flight = null;
+
+            context.OnLanding += (e, s) =>
+            {
+                flight = s.Flight;
+            };
+
+            context.Process(positionUpdates);
+
+            Assert.IsTrue(flight != null);
         }
     }
 }

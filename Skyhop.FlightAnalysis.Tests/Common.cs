@@ -11,6 +11,13 @@ namespace Skyhop.FlightAnalysis.Tests
 {
     internal static class Common
     {
+        internal static string ReadFile(string filename)
+        {
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            return File.ReadAllText(Path.Combine(path, "Dependencies", filename));
+        }
+
         internal static IEnumerable<PositionUpdate> ReadFlightPoints(string filename, bool useSubset = false)
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
