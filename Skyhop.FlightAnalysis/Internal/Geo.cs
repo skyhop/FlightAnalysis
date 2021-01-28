@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
+using UnitsNet;
 
 namespace Skyhop.FlightAnalysis.Internal
 {
@@ -112,11 +113,9 @@ namespace Skyhop.FlightAnalysis.Internal
         internal static PositionUpdate NormalizeData(FlightContext context, PositionUpdate position)
         {
             if (position == null 
-                || context.Flight.PositionUpdates.Count < 2
                 || (!double.IsNaN(position.Heading) && !double.IsNaN(position.Speed))) return position;
 
-            var previousPosition =
-                context.Flight.PositionUpdates.LastOrDefault();
+            var previousPosition = context.CurrentPosition;
 
             if (previousPosition == null) return position;
 
@@ -131,11 +130,11 @@ namespace Skyhop.FlightAnalysis.Internal
                 // 2. Calculate the time difference (seconds)
                 // 3. Convert to knots (1.94384449 is a constant)
                 var distance = previousPosition.Location.DistanceTo(position.Location);
-                double timeDifference = (position.TimeStamp - previousPosition.TimeStamp).Milliseconds;
+                double timeDifference = (position.TimeStamp - previousPosition.TimeStamp).TotalSeconds;
 
-                if (timeDifference < 50) return null;
+                if (timeDifference < 0.050) return position;
 
-                if (distance != 0) speed = distance / (timeDifference / 1000) * 1.94384449;
+                if (distance != 0) speed = Speed.FromMetersPerSecond(distance / timeDifference).Knots;
                 else speed = 0;
             }
 

@@ -134,14 +134,7 @@ namespace Skyhop.FlightAnalysis
                     CurrentPosition.Longitude == positionUpdate.Longitude
                     && CurrentPosition.Latitude == positionUpdate.Latitude) return false;
 
-                // Check whether the speed is alright
-                if (!double.IsFinite(positionUpdate.Speed))
-                {
-                    // Calcualte the distance
-                    var distance = CurrentPosition.Location.DistanceTo(positionUpdate.Location);
-                    var deltaTime = (positionUpdate.TimeStamp - CurrentPosition.TimeStamp).TotalSeconds;
-                    positionUpdate.Speed = Speed.FromMetersPerSecond(distance / deltaTime).Knots;
-                }
+                positionUpdate = Geo.NormalizeData(this, positionUpdate);
             }
 
             CurrentPosition = positionUpdate;

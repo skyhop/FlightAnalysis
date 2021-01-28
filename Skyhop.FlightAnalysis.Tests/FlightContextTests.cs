@@ -423,14 +423,9 @@ namespace Skyhop.FlightAnalysis.Tests
 
             Flight flight = null;
 
-            context.OnLanding += (e, s) =>
-            {
-                flight = s.Flight;
-            };
-
             context.Process(positionUpdates);
 
-            Assert.IsTrue(flight != null);
+            Assert.IsTrue(context.Flight != null);
         }
     }
 }
