@@ -2,6 +2,7 @@
 using NetTopologySuite.Geometries;
 using Skyhop.FlightAnalysis.Models;
 using Skyhop.Igc;
+using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
@@ -421,11 +422,127 @@ namespace Skyhop.FlightAnalysis.Tests
                 )
             ).ToList();
 
+            context.Process(positionUpdates);
+
+            Assert.IsTrue(context.Flight != null);
+        }
+
+        [TestMethod]
+        public void TestIgcFile_20180427()
+        {
+            // This flight is a special case, as it's a paraglide flight.
+            // In order to be able to recognize this flight correctly, we'd need to allow a lower takeoff speed.
+            var fileContents = Common.ReadFile("20180427.igc");
+
+            var igcFile = Parser.Parse(fileContents);
+
+            var context = new FlightContext(igcFile.Registration);
+
+            var positionUpdates = igcFile.Fixes.Select(q =>
+                new PositionUpdate(
+                    igcFile.Registration,
+                    q.Timestamp,
+                    q.Latitude,
+                    q.Longitude,
+                    q.PressureAltitude ?? q.GpsAltitude ?? double.NaN,
+                    double.NaN,
+                    double.NaN
+                )
+            ).ToList();
+
             Flight flight = null;
 
             context.Process(positionUpdates);
 
-            Assert.IsTrue(context.Flight != null);
+            // ToDo: Add assertions
+        }
+
+        [TestMethod]
+        public void TestIgcFile_654G6NG1()
+        {
+            // This flight is a special case, as it's a paraglide flight.
+            // In order to be able to recognize this flight correctly, we'd need to allow a lower takeoff speed.
+            var fileContents = Common.ReadFile("654G6NG1.IGC");
+
+            var igcFile = Parser.Parse(fileContents);
+
+            var context = new FlightContext(igcFile.Registration);
+
+            var positionUpdates = igcFile.Fixes.Select(q =>
+                new PositionUpdate(
+                    igcFile.Registration,
+                    q.Timestamp,
+                    q.Latitude,
+                    q.Longitude,
+                    q.PressureAltitude ?? q.GpsAltitude ?? double.NaN,
+                    double.NaN,
+                    double.NaN
+                )
+            ).ToList();
+
+            Flight flight = null;
+
+            context.OnLanding += (s, e) =>
+            {
+                flight = e.Flight;
+            };
+
+            context.Process(positionUpdates);
+
+            Assert.IsTrue(flight.Aircraft == "D-KCSS");
+            Assert.IsTrue(flight.ArrivalHeading == 249);
+            Assert.IsTrue(flight.ArrivalInfoFound == true);
+            Assert.IsTrue(flight.ArrivalTime == DateTime.Parse("04/05/2016 20:59:58"));
+            Assert.IsTrue(flight.Completed == true);
+            Assert.IsTrue(flight.DepartureHeading == 13);
+            Assert.IsTrue(flight.DepartureTime == DateTime.Parse("04/05/2016 10:12:26"));
+            Assert.IsTrue(flight.LaunchFinished == DateTime.Parse("04/05/2016 10:18:18"));
+            Assert.IsTrue(flight.LaunchMethod == LaunchMethods.Winch); // Dubious choice, but okay
+            Assert.IsTrue(flight.PositionUpdates.Count == 9711);
+        }
+
+        [TestMethod]
+        public void TestIgcFile_20161108xcsaaa02()
+        {
+            // This flight is a special case, as it's a paraglide flight.
+            // In order to be able to recognize this flight correctly, we'd need to allow a lower takeoff speed.
+            var fileContents = Common.ReadFile("2016-11-08-xcs-aaa-02.igc");
+
+            var igcFile = Parser.Parse(fileContents);
+
+            var context = new FlightContext(igcFile.Registration);
+
+            var positionUpdates = igcFile.Fixes.Select(q =>
+                new PositionUpdate(
+                    igcFile.Registration,
+                    q.Timestamp,
+                    q.Latitude,
+                    q.Longitude,
+                    q.PressureAltitude ?? q.GpsAltitude ?? double.NaN,
+                    double.NaN,
+                    double.NaN
+                )
+            ).ToList();
+
+            Flight flight = null;
+
+            context.OnLanding += (s, e) =>
+            {
+                flight = e.Flight;
+            };
+
+            context.Process(positionUpdates);
+
+            Assert.IsTrue(flight.Aircraft == "D-KCSS");
+            Assert.IsTrue(flight.ArrivalHeading == 249);
+            Assert.IsTrue(flight.ArrivalInfoFound == true);
+            Assert.IsTrue(flight.ArrivalTime == DateTime.Parse("04/05/2016 20:59:58"));
+            Assert.IsTrue(flight.Completed == true);
+            Assert.IsTrue(flight.DepartureHeading == 13);
+            Assert.IsTrue(flight.DepartureTime == DateTime.Parse("04/05/2016 10:12:26"));
+            Assert.IsTrue(flight.LaunchFinished == DateTime.Parse("04/05/2016 10:18:18"));
+            Assert.IsTrue(flight.LaunchMethod == LaunchMethods.Winch); // Dubious choice, but okay
+            Assert.IsTrue(flight.PositionUpdates.Count == 9711);
         }
     }
 }
