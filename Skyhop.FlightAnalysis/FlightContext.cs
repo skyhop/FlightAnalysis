@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using UnitsNet;
 
 namespace Skyhop.FlightAnalysis
 {
@@ -158,14 +157,27 @@ namespace Skyhop.FlightAnalysis
         /// directly or continue in case it is still running.
         /// </summary>
         /// <param name="positionUpdates">The position updates to queue</param>
-        public void Process(IEnumerable<PositionUpdate> positionUpdates)
+        public IEnumerable<Flight> Process(IEnumerable<PositionUpdate> positionUpdates)
         {
+            var flights = new List<Flight>();
+
+            EventHandler<OnLandingEventArgs> handler = (s, e) =>
+            {
+                flights.Add(e.Flight);
+            };
+
+            OnLanding += handler;
+
             foreach (var update in positionUpdates
                 .OrderBy(q => q.TimeStamp)
                 .ToList())
             {
                 Process(update);
             }
+
+            OnLanding -= handler;
+
+            return flights;
         }
 
         public PositionUpdate GetPositionAt(DateTime timestamp)

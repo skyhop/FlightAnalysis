@@ -65,10 +65,9 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
             var points = Common.ReadFlightPoints("2017-04-08_D-1908.csv");
-            fc.Process(points);
+            var flights = fc.Process(points);
 
-            countdownEvent.Wait(1000);
-
+            Assert.AreEqual(flights.Count(), 1);
             Assert.IsTrue(countdownEvent.CurrentCount == 0);
         }
 
@@ -133,8 +132,9 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnRadarContact += (sender, e) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
-
+            var flights = fc.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv", true));
+            
+            Assert.AreEqual(1, flights.Count());
             Assert.AreEqual(3, callbacks);
         }
 
@@ -164,8 +164,9 @@ namespace Skyhop.FlightAnalysis.Tests
             fc.OnTakeoff += (sender, args) => Assert.Fail();
             fc.OnCompletedWithErrors += (sender, e) => Assert.Fail();
 
-            fc.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
+            var flights = fc.Process(Common.ReadFlightPoints("2017-04-08_D-1908.csv").Skip(500));
 
+            Assert.AreEqual(1, flights.Count());
             Assert.AreEqual(2, callbacks);
         }
 
@@ -212,7 +213,9 @@ namespace Skyhop.FlightAnalysis.Tests
                 Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
             };
 
-            fc.Process(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
+            var flights = fc.Process(Common.ReadFlightPoints("2017-04-21_PH-1387.csv"));
+
+            Assert.AreEqual(1, flights.Count());
         }
 
         [TestMethod]
@@ -278,8 +281,8 @@ namespace Skyhop.FlightAnalysis.Tests
                 pass++;
             };
 
-            fc.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
-
+            var flights = fc.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+            Assert.AreEqual(2, flights.Count());
         }
 
         [TestMethod]
@@ -328,8 +331,8 @@ namespace Skyhop.FlightAnalysis.Tests
                 pass++;
             };
 
-            fc.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
-
+            var flights = fc.Process(Common.ReadFlightPoints("2017-04-19_2017-04-21_PH-1387.csv"));
+            Assert.AreEqual(2, flights.Count());
         }
 
         [TestMethod]
@@ -395,8 +398,9 @@ namespace Skyhop.FlightAnalysis.Tests
                 callbacks++;
             };
 
-            fc.Process(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
+            var flights = fc.Process(Common.ReadFlightPoints("2017-04-25_PH-1384.csv"));
 
+            Assert.AreEqual(4, flights.Count());
             Assert.AreEqual(4, pass);
             Assert.AreEqual(8, callbacks);
         }
@@ -450,8 +454,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 )
             ).ToList();
 
-            Flight flight = null;
-
+            
             context.Process(positionUpdates);
 
             // ToDo: Add assertions
@@ -480,14 +483,9 @@ namespace Skyhop.FlightAnalysis.Tests
                 )
             ).ToList();
 
-            Flight flight = null;
-
-            context.OnLanding += (s, e) =>
-            {
-                flight = e.Flight;
-            };
-
-            context.Process(positionUpdates);
+            var flight = context
+                .Process(positionUpdates)
+                .SingleOrDefault();
 
             Assert.IsTrue(flight.Aircraft == "D-KCSS");
             Assert.IsTrue(flight.ArrivalHeading == 249);
@@ -522,14 +520,9 @@ namespace Skyhop.FlightAnalysis.Tests
                 )
             ).ToList();
 
-            Flight flight = null;
-
-            context.OnLanding += (s, e) =>
-            {
-                flight = e.Flight;
-            };
-
-            context.Process(positionUpdates);
+            var flight= context
+                .Process(positionUpdates)
+                .SingleOrDefault();
 
             Assert.IsTrue(flight.Aircraft == "DUO");
             Assert.IsTrue(flight.ArrivalHeading == 55);
