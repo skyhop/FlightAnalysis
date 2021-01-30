@@ -21,7 +21,8 @@ namespace Skyhop.FlightAnalysis
                     ?? 0;
             }
 
-            if (context.CurrentPosition.Altitude < (groundElevation + Constants.ArrivalHeight))
+            if (context.CurrentPosition.Altitude < (groundElevation + Constants.ArrivalHeight) 
+                || context.CurrentPosition.Speed == 0)
             {
                 context.StateMachine.Fire(FlightContext.Trigger.Landing);
             }

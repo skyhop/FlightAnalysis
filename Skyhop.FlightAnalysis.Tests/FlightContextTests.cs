@@ -317,12 +317,12 @@ namespace Skyhop.FlightAnalysis.Tests
                 if (pass == 0)
                 {
                     Assert.AreEqual(636282163561655897, ((FlightContext)sender).Flight.ArrivalTime?.Ticks);
-                    Assert.AreEqual(336, ((FlightContext)sender).Flight.ArrivalHeading);
+                    Assert.AreEqual(339, ((FlightContext)sender).Flight.ArrivalHeading);
                 }
                 if (pass == 1)
                 {
                     Assert.AreEqual(636283891197427348, ((FlightContext)sender).Flight.ArrivalTime?.Ticks);
-                    Assert.AreEqual(333, ((FlightContext)sender).Flight.ArrivalHeading);
+                    Assert.AreEqual(338, ((FlightContext)sender).Flight.ArrivalHeading);
                 }
 
                 pass++;
@@ -504,8 +504,6 @@ namespace Skyhop.FlightAnalysis.Tests
         [TestMethod]
         public void TestIgcFile_20161108xcsaaa02()
         {
-            // This flight is a special case, as it's a paraglide flight.
-            // In order to be able to recognize this flight correctly, we'd need to allow a lower takeoff speed.
             var fileContents = Common.ReadFile("2016-11-08-xcs-aaa-02.igc");
 
             var igcFile = Parser.Parse(fileContents);
@@ -533,16 +531,16 @@ namespace Skyhop.FlightAnalysis.Tests
 
             context.Process(positionUpdates);
 
-            Assert.IsTrue(flight.Aircraft == "D-KCSS");
-            Assert.IsTrue(flight.ArrivalHeading == 249);
+            Assert.IsTrue(flight.Aircraft == "DUO");
+            Assert.IsTrue(flight.ArrivalHeading == 55);
             Assert.IsTrue(flight.ArrivalInfoFound == true);
-            Assert.IsTrue(flight.ArrivalTime == DateTime.Parse("04/05/2016 20:59:58"));
+            Assert.IsTrue(flight.ArrivalTime == DateTime.Parse("09/11/2016 05:42:51"));
             Assert.IsTrue(flight.Completed == true);
-            Assert.IsTrue(flight.DepartureHeading == 13);
-            Assert.IsTrue(flight.DepartureTime == DateTime.Parse("04/05/2016 10:12:26"));
-            Assert.IsTrue(flight.LaunchFinished == DateTime.Parse("04/05/2016 10:18:18"));
-            Assert.IsTrue(flight.LaunchMethod == LaunchMethods.Winch); // Dubious choice, but okay
-            Assert.IsTrue(flight.PositionUpdates.Count == 9711);
+            Assert.IsTrue(flight.DepartureHeading == 17);
+            Assert.IsTrue(flight.DepartureTime == DateTime.Parse("08/11/2016 23:47:47"));
+            Assert.IsTrue(flight.LaunchFinished == DateTime.Parse("08/11/2016 23:52:37"));
+            Assert.IsTrue(flight.LaunchMethod == LaunchMethods.Self); // Dubious choice, but okay
+            Assert.IsTrue(flight.PositionUpdates.Count == 6695);
         }
     }
 }
