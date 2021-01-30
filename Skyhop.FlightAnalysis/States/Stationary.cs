@@ -1,4 +1,5 @@
 ﻿using Skyhop.FlightAnalysis.Internal;
+using System;
 using System.Linq;
 
 namespace Skyhop.FlightAnalysis
@@ -9,9 +10,16 @@ namespace Skyhop.FlightAnalysis
         {
             if (context.CurrentPosition == null) return;
 
-            if (context.CurrentPosition.Speed > 30)
+            if (context.CurrentPosition.Speed > 20 && context.Flight.PositionUpdates.Delta(q => q.Altitude).Any(q => Math.Abs(q) > 6))
             {
-                double groundElevation = 0;
+                // Walk back to when the speed was 0
+                var start = context.Flight.PositionUpdates
+                    .Where(q => (q.Speed == 0 || double.IsNaN(q.Speed))
+                        && (context.CurrentPosition.TimeStamp - q.TimeStamp).TotalSeconds < 60)
+                    .OrderByDescending(q => q.TimeStamp)
+                    .FirstOrDefault();
+
+                double groundElevation = start?.Altitude ?? 0;
                 if (context.Options.NearbyRunwayAccessor != null)
                 {
                     groundElevation = context.Options.NearbyRunwayAccessor(
@@ -24,13 +32,6 @@ namespace Skyhop.FlightAnalysis
                         .Average(q => q.Z)
                         ?? 0;
                 }
-
-                // Walk back to when the speed was 0
-                var start = context.Flight.PositionUpdates
-                    .Where(q => (q.Speed == 0 || double.IsNaN(q.Speed)) 
-                        && (context.CurrentPosition.TimeStamp - q.TimeStamp).TotalSeconds < 30)
-                    .OrderByDescending(q => q.TimeStamp)
-                    .FirstOrDefault();
 
                 if (start == null && context.CurrentPosition.Altitude > (groundElevation + Constants.ArrivalHeight))
                 {
@@ -60,7 +61,7 @@ namespace Skyhop.FlightAnalysis
                 else if (start != null)
                 {
                     context.Flight.DepartureTime = start.TimeStamp;
-                    context.Flight.DepartureLocation = context.CurrentPosition.Location;
+                    context.Flight.DepartureLocation = start.Location;
 
                     // Remove points not related to this flight
                     context.Flight.PositionUpdates
