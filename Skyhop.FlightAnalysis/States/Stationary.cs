@@ -10,7 +10,10 @@ namespace Skyhop.FlightAnalysis
         {
             if (context.CurrentPosition == null) return;
 
-            if (context.CurrentPosition.Speed > 20 && context.Flight.PositionUpdates.Delta(q => q.Altitude).Any(q => Math.Abs(q) > 6))
+            if (context.CurrentPosition.Speed > 20 
+                && (!double.IsNaN(context.CurrentPosition.Altitude)
+                        ? context.Flight.PositionUpdates.Delta(q => q.Altitude).Any(q => Math.Abs(q) > 6)
+                        : true))
             {
                 // Walk back to when the speed was 0
                 var start = context.Flight.PositionUpdates
