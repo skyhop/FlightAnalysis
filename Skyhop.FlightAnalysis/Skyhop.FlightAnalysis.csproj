@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackOnBuild>true</PackOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars0.githubusercontent.com/u/51444212</PackageIconUrl>
     <Owners>Corstian Boerman</Owners>
@@ -15,7 +17,7 @@
     <PackageProjectUrl>https://skyhop.org</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Skyhop/FlightAnalysis</RepositoryUrl>
-    <Version>3.1.0-beta2</Version>
+    <Version>3.1.0-beta3</Version>
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
