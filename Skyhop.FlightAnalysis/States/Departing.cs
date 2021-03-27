@@ -78,6 +78,8 @@ namespace Skyhop.FlightAnalysis
                 var x = new DenseVector(context.Flight.PositionUpdates.Select(w => (w.TimeStamp - context.Flight.DepartureTime.Value).TotalSeconds).ToArray());
                 var y = new DenseVector(context.Flight.PositionUpdates.Select(w => w.Altitude).ToArray());
 
+                if (x.Count < 2 || y.Count < 2) return;
+
                 var interpolation = CubicSpline.InterpolateNatural(x, y);
 
                 var r = new List<double>();
