@@ -4,7 +4,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Authors>Corstian Boerman</Authors>
-    <PackageIconUrl>https://avatars0.githubusercontent.com/u/51444212</PackageIconUrl>
+    <PackageIcon>logo.png</PackageIcon>
     <Owners>Corstian Boerman</Owners>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
     <PackageTags>flight analysis arrival departure aircraft aviation icao iata</PackageTags>
@@ -46,6 +46,12 @@
 
   <ItemGroup>
     <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
