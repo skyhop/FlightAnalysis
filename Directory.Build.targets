@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!-- Settings that append the existing setting value -->
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);$(OS)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- For example; <PackageReference Update="AutoMapper" Version="10.1.1" /> -->
+  </ItemGroup>
+  
+</Project>
