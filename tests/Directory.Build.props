@@ -4,6 +4,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileDirectory)..\Directory.Build.props</MSBuildAllProjects>
     <SkyhopProjectCategory>tests</SkyhopProjectCategory>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -1,16 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <PackOnBuild>true</PackOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Authors>Corstian Boerman</Authors>
     <PackageIconUrl>https://avatars0.githubusercontent.com/u/51444212</PackageIconUrl>
     <Owners>Corstian Boerman</Owners>
-    <PackageReleaseNotes>Current version contains improvements by estimating the arrival location in case no exact arrival location is known.</PackageReleaseNotes>
     <Summary>Library to extract basic flight information from flight paths.</Summary>
-    <PackageTags>boerman library flight movements analysis automatic arrival departure light aircraft general aviation time location position icao iata</PackageTags>
+    <PackageTags>flight analysis arrival departure aircraft aviation icao iata</PackageTags>
     <Title>Skyhop.FlightAnalysis</Title>
     <Description>This library extracts flight metadata from the position reports of an aircraft such as the times and locations for departures and arrivals.</Description>
     <PackageId>Skyhop.FlightAnalysis</PackageId>
