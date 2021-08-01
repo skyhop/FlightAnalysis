@@ -17,7 +17,7 @@
     <Copyright>Corstian Boerman</Copyright>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
-    <PackageLicenseFile>../../LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
@@ -42,5 +42,12 @@
     <PackageReference Include="Stateless" Version="5.1.2" />
     <PackageReference Include="System.Reactive" Version="4.2.0" />
     <PackageReference Include="UnitsNet" Version="4.83.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>
