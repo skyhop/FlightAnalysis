@@ -12,11 +12,8 @@
     <Description>This library extracts flight metadata from the position reports of an aircraft such as the times and locations for departures and arrivals.</Description>
     <PackageId>Skyhop.FlightAnalysis</PackageId>
     <PackageProjectUrl>https://skyhop.org</PackageProjectUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/Skyhop/FlightAnalysis</RepositoryUrl>
     <Copyright>Corstian Boerman</Copyright>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
