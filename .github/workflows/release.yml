@@ -34,4 +34,4 @@ jobs:
       - name: Create the package
         run: dotnet pack --configuration Release -p:PackageVersion=${GITVERSION_NUGETVERSIONV2}
       - name: Publish the package to GPR
-        run: dotnet nuget push ./artifacts/pkg/Release/*.nupkg --api-key ${{secrets.NUGET_TOKEN}}
+        run: dotnet nuget push ./artifacts/pkg/Release/*.nupkg --api-key ${{secrets.NUGET_TOKEN}} --source "NuGet"
