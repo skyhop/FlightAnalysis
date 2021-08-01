@@ -426,7 +426,7 @@ namespace Skyhop.FlightAnalysis.Tests
                 )
             ).ToList();
 
-            context.Process(positionUpdates);
+            var processedFlights = context.Process(positionUpdates);
 
             Assert.IsTrue(context.Flight != null);
         }

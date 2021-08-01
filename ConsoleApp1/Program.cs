@@ -9,9 +9,9 @@ namespace ConsoleApp1
         {
             var flightContext = new FlightContext("");
 
-            Console.Write(flightContext.ToDotGraph());
+            //Console.Write(flightContext.ToDotGraph());
 
-            TextCopy.ClipboardService.SetText(flightContext.ToDotGraph());
+            //TextCopy.ClipboardService.SetText(flightContext.ToDotGraph());
 
             Console.ReadKey();
         }
