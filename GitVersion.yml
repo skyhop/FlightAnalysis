@@ -1,0 +1,70 @@
+mode: ContinuousDeployment
+branches:
+  master:
+    mode: ContinuousDelivery
+    tag: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    regex: ^main
+    tracks-release-branches: false
+    is-release-branch: false
+  release:
+    mode: ContinuousDeployment
+    tag: beta
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    regex: ^rc?[/-]
+    tracks-release-branches: false
+    is-release-branch: true
+    pre-release-weight: 1000
+  feature:
+    mode: ContinuousDelivery
+    tag: useBranchName
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    regex: ^f?[/-]
+    tracks-release-branches: false
+    is-release-branch: false
+  pull-request:
+    mode: ContinuousDelivery
+    tag: pr
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    tag-number-pattern: '[/-](?<number>\d+)[-/]'
+    track-merge-target: false
+    regex: ^(pull|pull\-requests|pr)[/-]
+    tracks-release-branches: false
+    is-release-branch: false
+  hotfix:
+    mode: ContinuousDelivery
+    tag: beta
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    regex: ^h?[/-]
+    tracks-release-branches: false
+    is-release-branch: false
+  support:
+    mode: ContinuousDelivery
+    tag: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    regex: ^s[/-]
+    tracks-release-branches: false
+    is-release-branch: false
+  develop:
+    mode: ContinuousDeployment
+    tag: unstable
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    regex: ^dev(elop)?(ment)?$
+    tracks-release-branches: true
+    is-release-branch: false
+ignore:
+  sha: []
+merge-message-formats: {}

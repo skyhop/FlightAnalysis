@@ -1,10 +1,8 @@
 name: .NET
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
+    branches: [ develop, rc/** ]
 
 jobs:
   build:
@@ -23,14 +21,3 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
-      
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.7
-      with:
-        versionSpec: '5.x'
-    - name: Build Versioning
-      uses: gittools/actions/gitversion/execute@v0.9.7
-    - name: Create the package
-      run: dotnet pack --configuration Release -p:PackageVersion=${GITVERSION_NUGETVERSIONV2} ./Skyhop.FlightAnalysis/Skyhop.FlightAnalysis.csproj
-    - name: Publish the package to NuGet
-      run: dotnet nuget push ./Skyhop.FlightAnalysis/bin/Release/*.nupkg --api-key ${{secrets.NUGET_TOKEN}}
