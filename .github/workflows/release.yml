@@ -2,7 +2,10 @@ name: Ship packages
 
 on:
   push:
-    branches: [ main, rc/** ]
+    branches: [ rc/** ]
+  release:
+    types: [ published ]
+  
 
 jobs:
   deploy:
