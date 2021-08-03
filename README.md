@@ -32,7 +32,7 @@ The `Skyhop.FlightAnalysis` library is available through NuGet and can be instal
 
 To install the library through the .NET CLI you can use the following command:
 
-    dotnet add package Skyhop.Networking
+    dotnet add package Skyhop.FlightAnalysis
 
 ### Building From Source
 
