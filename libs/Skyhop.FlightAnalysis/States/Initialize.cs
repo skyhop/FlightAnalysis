@@ -1,4 +1,4 @@
-﻿using Skyhop.FlightAnalysis.Models;
+using Skyhop.FlightAnalysis.Models;
 using System;
 
 namespace Skyhop.FlightAnalysis

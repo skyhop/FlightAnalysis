@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using static Skyhop.FlightAnalysis.FlightContext;
@@ -22,6 +22,12 @@ namespace Skyhop.FlightAnalysis.Models
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Aircraft { get; set; }
+
+        public string DeviceId { get; internal set; }
+
+        public AircraftType AircraftType { get; internal set; }
+
+        public AddressType AddressType { get; internal set; }
 
         public DateTime? DepartureTime { get; set; }
         public short DepartureHeading { get; set; }
