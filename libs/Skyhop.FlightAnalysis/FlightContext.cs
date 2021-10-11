@@ -127,6 +127,10 @@ namespace Skyhop.FlightAnalysis
         {
             if (positionUpdate == null) return false;
 
+            Flight.DeviceId = positionUpdate.DeviceId;
+            Flight.AddressType = positionUpdate.AddressType;
+            Flight.AircraftType = positionUpdate.AircraftType;
+
             if (CurrentPosition != null)
             {
                 if ((positionUpdate.TimeStamp - CurrentPosition.TimeStamp).TotalMilliseconds < 100) return false;
